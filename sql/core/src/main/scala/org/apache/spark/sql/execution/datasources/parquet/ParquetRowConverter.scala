@@ -126,7 +126,8 @@ private[parquet] class ParquetRowConverter(
     parquetType: GroupType,
     catalystType: StructType,
     convertTz: Option[TimeZone],
-    updater: ParentContainerUpdater)
+    updater: ParentContainerUpdater,
+    partitionInfo: Option[(StructType, InternalRow)])
   extends ParquetGroupConverter(updater) with Logging {
 
   assert(
@@ -171,7 +172,21 @@ private[parquet] class ParquetRowConverter(
     override def setFloat(value: Float): Unit = row.setFloat(ordinal, value)
   }
 
-  private val currentRow = new SpecificInternalRow(catalystType.map(_.dataType))
+  private val (currentRow, effectiveNumFields) = partitionInfo match {
+    case Some((partitionSchema, partitionValues)) =>
+      val pDataTypes = partitionSchema.fields.map(_.dataType)
+      val dataTypes = catalystType.map(_.dataType)
+      val baseOffset = catalystType.length
+      val row = new SpecificInternalRow(catalystType.map(_.dataType) ++ pDataTypes)
+      pDataTypes.zipWithIndex.foreach {
+        case (dt, i) =>
+          row(baseOffset + i) = partitionValues.get(i, dt)
+      }
+      (row, dataTypes.length)
+    case _ =>
+      val dataTypes = catalystType.map(_.dataType)
+      (new SpecificInternalRow(dataTypes), dataTypes.length)
+  }
 
   /**
    * The [[InternalRow]] converted from an entire Parquet record.
@@ -192,7 +207,7 @@ private[parquet] class ParquetRowConverter(
 
   override def end(): Unit = {
     var i = 0
-    while (i < fieldConverters.length) {
+    while (i < effectiveNumFields) {
       fieldConverters(i).updater.end()
       i += 1
     }
@@ -201,7 +216,7 @@ private[parquet] class ParquetRowConverter(
 
   override def start(): Unit = {
     var i = 0
-    while (i < currentRow.numFields) {
+    while (i < effectiveNumFields) {
       currentRow.setNullAt(i)
       i += 1
     }
@@ -321,7 +336,7 @@ private[parquet] class ParquetRowConverter(
         new ParquetRowConverter(
           schemaConverter, parquetType.asGroupType(), t, convertTz, new ParentContainerUpdater {
             override def set(value: Any): Unit = updater.set(value.asInstanceOf[InternalRow].copy())
-          })
+          }, None)
 
       case t =>
         throw new RuntimeException(

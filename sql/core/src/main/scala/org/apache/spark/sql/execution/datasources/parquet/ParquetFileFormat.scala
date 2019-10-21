@@ -328,8 +328,12 @@ class ParquetFileFormat
         iter.asInstanceOf[Iterator[InternalRow]]
       } else {
         logDebug(s"Falling back to parquet-mr")
+        val partitionInfo = if (partitionSchema.nonEmpty) {
+          Some((partitionSchema, file.partitionValues))
+        } else None
         // ParquetRecordReader returns InternalRow
-        val readSupport = new ParquetReadSupport(convertTz, enableVectorizedReader = false)
+        val readSupport =
+          new ParquetReadSupport(convertTz, enableVectorizedReader = false, partitionInfo)
         val reader = if (pushed.isDefined && enableRecordFilter) {
           val parquetFilter = FilterCompat.get(pushed.get, null)
           new ParquetRecordReader[InternalRow](readSupport, parquetFilter)
@@ -344,13 +348,7 @@ class ParquetFileFormat
         val fullSchema = requiredSchema.toAttributes ++ partitionSchema.toAttributes
         val unsafeProjection = GenerateUnsafeProjection.generate(fullSchema, fullSchema)
 
-        if (partitionSchema.length == 0) {
-          // There is no partition columns
-          iter.map(unsafeProjection)
-        } else {
-          val joinedRow = new JoinedRow()
-          iter.map(d => unsafeProjection(joinedRow(d, file.partitionValues)))
-        }
+        iter.map(unsafeProjection)
       }
     }
   }

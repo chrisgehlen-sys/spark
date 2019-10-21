@@ -95,7 +95,7 @@ case class ParquetPartitionReaderFactory(
       override def close(): Unit = reader.close()
     }
 
-    new PartitionReaderWithPartitionValues(fileReader, readDataSchema,
+    new ParquetPartitionReaderWithPartitionValues(fileReader, readDataSchema,
       partitionSchema, file.partitionValues)
   }
 
@@ -187,8 +187,14 @@ case class ParquetPartitionReaderFactory(
       convertTz: Option[TimeZone]): RecordReader[Void, InternalRow] = {
     logDebug(s"Falling back to parquet-mr")
     val taskContext = Option(TaskContext.get())
+
+    val partitionInfo = if (partitionSchema.nonEmpty) {
+      Some((partitionSchema, partitionValues))
+    } else None
+
     // ParquetRecordReader returns InternalRow
-    val readSupport = new ParquetReadSupport(convertTz, enableVectorizedReader = false)
+    val readSupport =
+      new ParquetReadSupport(convertTz, enableVectorizedReader = false, partitionInfo)
     val reader = if (pushed.isDefined && enableRecordFilter) {
       val parquetFilter = FilterCompat.get(pushed.get, null)
       new ParquetRecordReader[InternalRow](readSupport, parquetFilter)
@@ -224,3 +230,4 @@ case class ParquetPartitionReaderFactory(
     vectorizedReader
   }
 }
+

@@ -395,7 +395,7 @@ object DataSourceReadBenchmark extends SqlBasedBenchmark {
 
         benchmark.addCase("Both columns - Parquet MR") { _ =>
           withSQLConf(SQLConf.PARQUET_VECTORIZED_READER_ENABLED.key -> "false") {
-            spark.sql("select sum(p), sum(id) from parquetTable").collect
+            spark.sql("select sum(p), sum(id) from parquetTable").collect()
           }
         }
 
