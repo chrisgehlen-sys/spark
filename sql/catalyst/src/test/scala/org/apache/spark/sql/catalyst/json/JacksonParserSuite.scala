@@ -33,7 +33,7 @@ class JacksonParserSuite extends SparkFunSuite {
       val options = new JSONOptions(Map.empty[String, String], "GMT", "")
       val parser = new JacksonParser(schema, options, false, filters)
       val createParser = CreateJacksonParser.string _
-      val actual = parser.parse(input, createParser, UTF8String.fromString)
+      val actual = parser.parse(input, createParser, UTF8String.fromString).toSeq
       assert(actual === expected)
     }
 

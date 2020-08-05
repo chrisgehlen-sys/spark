@@ -203,7 +203,7 @@ object Metadata {
   private def hash(obj: Any): Int = {
     obj match {
       case map: Map[_, _] =>
-        map.mapValues(hash).##
+        map.mapValues(hash).toMap.##
       case arr: Array[_] =>
         // Seq.empty[T] has the same hashCode regardless of T.
         arr.toSeq.map(hash).##
