@@ -189,7 +189,7 @@ class LiteralExpressionSuite extends SparkFunSuite with ExpressionEvalHelper {
     checkArrayLiteral(Array(1.0, 4.0))
     checkArrayLiteral(Array(MICROS_PER_DAY, MICROS_PER_HOUR))
     val arr = collection.mutable.WrappedArray.make(Array(1.0, 4.0))
-    checkEvaluation(Literal(arr), toCatalyst(arr))
+    checkEvaluation(Literal(arr), toCatalyst(arr.toSeq))
   }
 
   test("seq") {
