@@ -292,7 +292,7 @@ object RowEncoder {
           MapObjects(deserializerFor(_), input, et),
           "array",
           ObjectType(classOf[Array[_]]), returnNullable = false)
-      if (util.Properties.versionNumberString.startsWith("2.12")) {
+      if (Utils.isScala212) {
         StaticInvoke(
           scala.collection.mutable.WrappedArray.getClass,
           ObjectType(classOf[Seq[_]]),
