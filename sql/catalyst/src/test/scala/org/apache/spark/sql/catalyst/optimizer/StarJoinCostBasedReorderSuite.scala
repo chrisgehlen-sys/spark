@@ -340,7 +340,7 @@ class StarJoinCostBasedReorderSuite extends PlanTest with StatsEstimationTestBas
           (nameToAttr("d3_c2") === nameToAttr("t1_c1")) &&
           (nameToAttr("t1_c2") === nameToAttr("t2_c2")))
 
-    val expected = if (util.Properties.versionString.startsWith("2.12")) {
+    val expected = if (util.Properties.versionNumberString.startsWith("2.12")) {
       f1.join(d3, Inner, Some(nameToAttr("f1_fk3") === nameToAttr("d3_pk")))
         .join(d1, Inner, Some(nameToAttr("f1_fk1") === nameToAttr("d1_pk")))
         .join(d2, Inner, Some(nameToAttr("f1_fk2") === nameToAttr("d2_pk")))
