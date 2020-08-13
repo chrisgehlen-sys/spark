@@ -291,12 +291,22 @@ object RowEncoder {
           MapObjects(deserializerFor(_), input, et),
           "array",
           ObjectType(classOf[Array[_]]), returnNullable = false)
-      StaticInvoke(
-        scala.collection.mutable.WrappedArray.getClass,
-        ObjectType(classOf[Seq[_]]),
-        "make",
-        arrayData :: Nil,
-        returnNullable = false)
+      if (util.Properties.versionString.startsWith("2.12")) {
+        StaticInvoke(
+          scala.collection.mutable.WrappedArray.getClass,
+          ObjectType(classOf[Seq[_]]),
+          "make",
+          arrayData :: Nil,
+          returnNullable = false)
+      } else {
+        // Use ArraySeq.unsafeWrapArray instead of WrappedArray.make in Scala 2.13
+        StaticInvoke(
+          scala.collection.immutable.ArraySeq.getClass,
+          ObjectType(classOf[Seq[_]]),
+          "unsafeWrapArray",
+          arrayData :: Nil,
+          returnNullable = false)
+      }
 
     case MapType(kt, vt, valueNullable) =>
       val keyArrayType = ArrayType(kt, false)
