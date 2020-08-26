@@ -25,7 +25,7 @@ import org.apache.spark.unsafe.types.{CalendarInterval, UTF8String}
 
 class GenericArrayData(val array: Array[Any]) extends ArrayData {
 
-  def this(seq: Seq[Any]) = this(seq.toArray)
+  def this(seq: scala.collection.Seq[Any]) = this(seq.toArray)
   def this(list: java.util.List[Any]) = this(list.asScala.toSeq)
 
   // TODO: This is boxing.  We should specialize.
@@ -38,7 +38,7 @@ class GenericArrayData(val array: Array[Any]) extends ArrayData {
   def this(primitiveArray: Array[Boolean]) = this(primitiveArray.toSeq)
 
   def this(seqOrArray: Any) = this(seqOrArray match {
-    case seq: Seq[Any] => seq.toArray
+    case seq: scala.collection.Seq[Any] => seq.toArray
     case array: Array[Any] => array  // array of objects, so no need to convert
     case array: Array[_] => array.toSeq.toArray[Any] // array of primitives, so box them
   })
