@@ -307,7 +307,7 @@ final class DataFrameWriter[T] private[sql](ds: Dataset[T]) {
       val sessionOptions = DataSourceV2Utils.extractSessionConfigs(
         provider, df.sparkSession.sessionState.conf)
       val options = sessionOptions.filterKeys(!extraOptions.contains(_)) ++ extraOptions.toMap
-      val dsOptions = new CaseInsensitiveStringMap(options.asJava)
+      val dsOptions = new CaseInsensitiveStringMap(options.toMap.asJava)
 
       def getTable: Table = {
         // For file source, it's expensive to infer schema/partition at each write. Here we pass
