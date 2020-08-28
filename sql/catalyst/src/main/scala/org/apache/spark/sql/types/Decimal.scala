@@ -480,7 +480,8 @@ final class Decimal extends Ordered[Decimal] with Serializable {
     } else {
       val thisDecimal = toBigDecimal
       val thatDecimal = that.toBigDecimal
-      val content = thisDecimal + thatDecimal
+      val content =
+        new BigDecimal(thisDecimal.bigDecimal add thatDecimal.bigDecimal, thisDecimal.mc)
       val ret = Decimal(content)
       ret
     }

@@ -268,9 +268,9 @@ class DataFrameSuite extends QueryTest
             val d4 = d3.select(expr(s"cast('$decStr' as decimal (38, 18)) as d")).agg(sum($"d"))
             assertDecimalSumOverflow(d4, ansiEnabled, expectedAnswer)
 
-//            val d5 = d3.select(expr(s"cast('$decStr' as decimal (38, 18)) as d"),
-//              lit(1).as("key")).groupBy("key").agg(sum($"d").alias("sumd")).select($"sumd")
-//            assertDecimalSumOverflow(d5, ansiEnabled, expectedAnswer)
+            val d5 = d3.select(expr(s"cast('$decStr' as decimal (38, 18)) as d"),
+              lit(1).as("key")).groupBy("key").agg(sum($"d").alias("sumd")).select($"sumd")
+            assertDecimalSumOverflow(d5, ansiEnabled, expectedAnswer)
 
             val nullsDf = spark.range(1, 4, 1).select(expr(s"cast(null as decimal(38,18)) as d"))
 
@@ -279,25 +279,25 @@ class DataFrameSuite extends QueryTest
             assertDecimalSumOverflow(
               nullsDf.union(largeDecimals).agg(sum($"d")), ansiEnabled, expectedAnswer)
 
-//            val df3 = Seq(
-//              (BigDecimal("10000000000000000000"), 1),
-//              (BigDecimal("50000000000000000000"), 1),
-//              (BigDecimal("10000000000000000000"), 2)).toDF("decNum", "intNum")
-//
-//            val df4 = Seq(
-//              (BigDecimal("10000000000000000000"), 1),
-//              (BigDecimal("10000000000000000000"), 1),
-//              (BigDecimal("10000000000000000000"), 2)).toDF("decNum", "intNum")
-//
-//            val df5 = Seq(
-//              (BigDecimal("10000000000000000000"), 1),
-//              (BigDecimal("10000000000000000000"), 1),
-//              (BigDecimal("20000000000000000000"), 2)).toDF("decNum", "intNum")
-//
-//            val df6 = df3.union(df4).union(df5)
-//            val df7 = df6.groupBy("intNum").agg(sum("decNum"), countDistinct("decNum")).
-//              filter("intNum == 1")
-//            assertDecimalSumOverflow(df7, ansiEnabled, Row(1, null, 2))
+            val df3 = Seq(
+              (BigDecimal("10000000000000000000"), 1),
+              (BigDecimal("50000000000000000000"), 1),
+              (BigDecimal("10000000000000000000"), 2)).toDF("decNum", "intNum")
+
+            val df4 = Seq(
+              (BigDecimal("10000000000000000000"), 1),
+              (BigDecimal("10000000000000000000"), 1),
+              (BigDecimal("10000000000000000000"), 2)).toDF("decNum", "intNum")
+
+            val df5 = Seq(
+              (BigDecimal("10000000000000000000"), 1),
+              (BigDecimal("10000000000000000000"), 1),
+              (BigDecimal("20000000000000000000"), 2)).toDF("decNum", "intNum")
+
+            val df6 = df3.union(df4).union(df5)
+            val df7 = df6.groupBy("intNum").agg(sum("decNum"), countDistinct("decNum")).
+              filter("intNum == 1")
+            assertDecimalSumOverflow(df7, ansiEnabled, Row(1, null, 2))
           }
         }
       }
