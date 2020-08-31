@@ -25,6 +25,8 @@ import org.apache.spark.unsafe.types.{CalendarInterval, UTF8String}
 
 class GenericArrayData(val array: Array[Any]) extends ArrayData {
 
+  // Specified this as`scala.collection.Seq` because seq can be `mutable.ArraySeq` in
+  // Scala 2.13
   def this(seq: scala.collection.Seq[Any]) = this(seq.toArray)
   def this(list: java.util.List[Any]) = this(list.asScala.toSeq)
 
@@ -38,6 +40,8 @@ class GenericArrayData(val array: Array[Any]) extends ArrayData {
   def this(primitiveArray: Array[Boolean]) = this(primitiveArray.toSeq)
 
   def this(seqOrArray: Any) = this(seqOrArray match {
+    // Specified this as`scala.collection.Seq` because seqOrArray can be `mutable.ArraySeq` in
+    // Scala 2.13
     case seq: scala.collection.Seq[Any] => seq.toArray
     case array: Array[Any] => array  // array of objects, so no need to convert
     case array: Array[_] => array.toSeq.toArray[Any] // array of primitives, so box them
