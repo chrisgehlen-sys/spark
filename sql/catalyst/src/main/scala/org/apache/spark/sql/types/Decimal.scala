@@ -491,7 +491,12 @@ final class Decimal extends Ordered[Decimal] with Serializable {
     if (decimalVal.eq(null) && that.decimalVal.eq(null) && scale == that.scale) {
       Decimal(longVal - that.longVal, Math.max(precision, that.precision), scale)
     } else {
-      Decimal(toBigDecimal - that.toBigDecimal)
+      val thisDecimal = toBigDecimal
+      val thatDecimal = that.toBigDecimal
+      val content =
+        new BigDecimal(thisDecimal.bigDecimal subtract thatDecimal.bigDecimal, thisDecimal.mc)
+      val ret = Decimal(content)
+      ret
     }
   }
 
