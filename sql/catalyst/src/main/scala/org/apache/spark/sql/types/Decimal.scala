@@ -478,12 +478,13 @@ final class Decimal extends Ordered[Decimal] with Serializable {
     if (decimalVal.eq(null) && that.decimalVal.eq(null) && scale == that.scale) {
       Decimal(longVal + that.longVal, Math.max(precision, that.precision), scale)
     } else {
-      val thisDecimal = toBigDecimal
-      val thatDecimal = that.toBigDecimal
-      val content =
-        new BigDecimal(thisDecimal.bigDecimal add thatDecimal.bigDecimal, thisDecimal.mc)
-      val ret = Decimal(content)
-      ret
+      //      val thisDecimal = toBigDecimal
+      //      val thatDecimal = that.toBigDecimal
+      //      val value = thisDecimal.bigDecimal.add(thatDecimal.bigDecimal)
+      // new BigDecimal(thisDecimal.bigDecimal add thatDecimal.bigDecimal, thisDecimal.mc)
+      //      val ret = Decimal(value)
+      //      ret
+      Decimal(toBigDecimal.bigDecimal.add(that.toBigDecimal.bigDecimal))
     }
   }
 
@@ -491,12 +492,13 @@ final class Decimal extends Ordered[Decimal] with Serializable {
     if (decimalVal.eq(null) && that.decimalVal.eq(null) && scale == that.scale) {
       Decimal(longVal - that.longVal, Math.max(precision, that.precision), scale)
     } else {
-      val thisDecimal = toBigDecimal
-      val thatDecimal = that.toBigDecimal
-      val content =
-        new BigDecimal(thisDecimal.bigDecimal subtract thatDecimal.bigDecimal, thisDecimal.mc)
-      val ret = Decimal(content)
-      ret
+      // val thisDecimal = toBigDecimal
+      // val thatDecimal = that.toBigDecimal
+      // val content = thisDecimal.bigDecimal.subtract(thatDecimal.bigDecimal)
+      // new BigDecimal(thisDecimal.bigDecimal subtract thatDecimal.bigDecimal, thisDecimal.mc)
+      // val ret = Decimal(thisDecimal.bigDecimal.subtract(thatDecimal.bigDecimal))
+      // ret
+      Decimal(toBigDecimal.bigDecimal.subtract(that.toBigDecimal.bigDecimal))
     }
   }
 
