@@ -147,30 +147,38 @@ object JoinReorderDP extends PredicateHelper with Logging {
       output: Seq[Attribute]): LogicalPlan = {
 
     val startTime = System.nanoTime()
+    val sortedItems = items
+      .sortBy(item => (item.stats.rowCount.get, item.stats.sizeInBytes))
+      .reverse
     // Level i maintains all found plans for i + 1 items.
     // Create the initial plans: each plan is a single item with zero cost.
-    val itemIndex = items.zipWithIndex
-    val foundPlans = mutable.Buffer[JoinPlanMap](itemIndex.map {
-      case (item, id) => Set(id) -> JoinPlan(Set(id), item, ExpressionSet(), Cost(0, 0))
-    }.toMap)
+    val itemIndex = sortedItems.zipWithIndex
+    val foundPlans = mutable.Buffer[JoinPlanMap]({
+      val idToJoinPlanSeq = itemIndex.map {
+        case (item, id) => Set(id) -> JoinPlan(Set(id), item, ExpressionSet(), Cost(0, 0))
+      }
+      val ret = new mutable.LinkedHashMap[Set[Int], JoinPlan]()
+      idToJoinPlanSeq.foreach(v => ret.put(v._1, v._2))
+      ret
+    })
 
     // Build filters from the join graph to be used by the search algorithm.
-    val filters = JoinReorderDPFilters.buildJoinGraphInfo(conf, items, conditions, itemIndex)
+    val filters = JoinReorderDPFilters.buildJoinGraphInfo(conf, sortedItems, conditions, itemIndex)
 
     // Build plans for next levels until the last level has only one plan. This plan contains
     // all items that can be joined, so there's no need to continue.
     val topOutputSet = AttributeSet(output)
-    while (foundPlans.size < items.length) {
+    while (foundPlans.size < sortedItems.length) {
       // Build plans for the next level.
       foundPlans += searchLevel(foundPlans.toSeq, conf, conditions, topOutputSet, filters)
     }
 
     val durationInMs = (System.nanoTime() - startTime) / (1000 * 1000)
     logDebug(s"Join reordering finished. Duration: $durationInMs ms, number of items: " +
-      s"${items.length}, number of plans in memo: ${foundPlans.map(_.size).sum}")
+      s"${sortedItems.length}, number of plans in memo: ${foundPlans.map(_.size).sum}")
 
     // The last level must have one and only one plan, because all items are joinable.
-    assert(foundPlans.size == items.length && foundPlans.last.size == 1)
+    assert(foundPlans.size == sortedItems.length && foundPlans.last.size == 1)
     foundPlans.last.head._2.plan match {
       case p @ Project(projectList, j: Join) if projectList != output =>
         assert(topOutputSet == p.outputSet)
@@ -198,7 +206,7 @@ object JoinReorderDP extends PredicateHelper with Logging {
       topOutput: AttributeSet,
       filters: Option[JoinGraphInfo]): JoinPlanMap = {
 
-    val nextLevel = mutable.Map.empty[Set[Int], JoinPlan]
+    val nextLevel = mutable.LinkedHashMap.empty[Set[Int], JoinPlan]
     var k = 0
     val lev = existingLevels.length - 1
     // Build plans for the next level from plans at level k (one side of the join) and level
@@ -231,7 +239,7 @@ object JoinReorderDP extends PredicateHelper with Logging {
       }
       k += 1
     }
-    nextLevel.toMap
+    nextLevel
   }
 
   /**
@@ -316,7 +324,7 @@ object JoinReorderDP extends PredicateHelper with Logging {
   }
 
   /** Map[set of item ids, join plan for these items] */
-  type JoinPlanMap = Map[Set[Int], JoinPlan]
+  type JoinPlanMap = mutable.Map[Set[Int], JoinPlan]
 
   /**
    * Partial join order in a specific level.
