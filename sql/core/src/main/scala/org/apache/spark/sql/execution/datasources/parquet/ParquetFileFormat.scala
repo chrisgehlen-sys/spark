@@ -269,7 +269,8 @@ class ParquetFileFormat
       val sharedConf = broadcastedHadoopConf.value.value
 
       lazy val footerFileMetaData =
-        ParquetFileReader.readFooter(sharedConf, filePath, SKIP_ROW_GROUPS).getFileMetaData
+        ParquetFooterReader.readFooter(sharedConf, filePath, SKIP_ROW_GROUPS).getFileMetaData
+
       // Try to push down filters when filter push-down is enabled.
       val pushed = if (enableParquetFilterPushDown) {
         val parquetSchema = footerFileMetaData.getSchema
@@ -291,7 +292,7 @@ class ParquetFileFormat
       // have different writers.
       // Define isCreatedByParquetMr as function to avoid unnecessary parquet footer reads.
       def isCreatedByParquetMr: Boolean =
-        footerFileMetaData.getCreatedBy().startsWith("parquet-mr")
+        footerFileMetaData.getCreatedBy.startsWith("parquet-mr")
 
       val convertTz =
         if (timestampConversion && !isCreatedByParquetMr) {
@@ -453,9 +454,8 @@ object ParquetFileFormat extends Logging {
         // Skips row group information since we only need the schema.
         // ParquetFileReader.readFooter throws RuntimeException, instead of IOException,
         // when it can't read the footer.
-        Some(new Footer(currentFile.getPath(),
-          ParquetFileReader.readFooter(
-            conf, currentFile, SKIP_ROW_GROUPS)))
+        val metadata = ParquetFooterReader.readFooter(conf, currentFile, SKIP_ROW_GROUPS)
+        Some(new Footer(currentFile.getPath, metadata))
       } catch { case e: RuntimeException =>
         if (ignoreCorruptFiles) {
           logWarning(s"Skipped the footer in the corrupted file: $currentFile", e)
