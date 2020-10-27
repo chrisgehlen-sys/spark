@@ -138,7 +138,7 @@ public abstract class SpecificParquetRecordReaderBase<T> extends RecordReader<Vo
         taskAttemptContext.getConfiguration(), toSetMultiMap(fileMetadata), fileSchema));
     this.requestedSchema = readContext.getRequestedSchema();
     String sparkRequestedSchemaString =
-            configuration.get(ParquetReadSupport$.MODULE$.SPARK_ROW_REQUESTED_SCHEMA());
+        configuration.get(ParquetReadSupport$.MODULE$.SPARK_ROW_REQUESTED_SCHEMA());
     this.sparkSchema = StructType$.MODULE$.fromString(sparkRequestedSchemaString);
     this.reader.setRequestedSchema(requestedSchema);
     // use the blocks from the reader in case some do not match filters and will not be read
