@@ -63,7 +63,7 @@ class ExternalShuffleService(sparkConf: SparkConf, securityManager: SecurityMana
 
   protected def findRegisteredExecutorsDBFile(dbName: String): File = {
     val localDirs = sparkConf.getOption("spark.local.dir").map(_.split(",")).getOrElse(Array())
-    if (localDirs.length >= 1) {
+    if (localDirs.nonEmpty) {
       new File(localDirs.find(new File(_, dbName).exists()).getOrElse(localDirs(0)), dbName)
     } else {
       logWarning(s"'spark.local.dir' should be set first when we use db in " +

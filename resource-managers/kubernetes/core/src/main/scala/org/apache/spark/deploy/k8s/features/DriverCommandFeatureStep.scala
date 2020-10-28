@@ -93,7 +93,7 @@ private[spark] class DriverCommandFeatureStep(conf: KubernetesDriverConf)
       resource
     }
     var proxyUserArgs = Seq[String]()
-    if (!conf.proxyUser.isEmpty) {
+    if (conf.proxyUser.isDefined) {
       proxyUserArgs = proxyUserArgs :+ "--proxy-user"
       proxyUserArgs = proxyUserArgs :+ conf.proxyUser.get
     }

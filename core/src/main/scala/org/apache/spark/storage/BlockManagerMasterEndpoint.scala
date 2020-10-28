@@ -337,7 +337,7 @@ class BlockManagerMasterEndpoint(
       // for unit testing), we send a message to a randomly chosen executor location to replicate
       // the given block. Note that we ignore other block types (such as broadcast/shuffle blocks
       // etc.) as replication doesn't make much sense in that context.
-      if (locations.size == 0) {
+      if (locations.isEmpty) {
         blockLocations.remove(blockId)
         logWarning(s"No more replicas available for $blockId !")
       } else if (proactivelyReplicate && (blockId.isRDD || blockId.isInstanceOf[TestBlockId])) {
@@ -598,7 +598,7 @@ class BlockManagerMasterEndpoint(
     }
 
     // Remove the block from master tracking if it has been removed on all endpoints.
-    if (locations.size == 0) {
+    if (locations.isEmpty) {
       blockLocations.remove(blockId)
     }
     true

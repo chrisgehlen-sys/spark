@@ -1036,7 +1036,7 @@ private[spark] class TaskSetManager(
     // No need to speculate if the task set is zombie or is from a barrier stage. If there is only
     // one task we don't speculate since we don't have metrics to decide whether it's taking too
     // long or not, unless a task duration threshold is explicitly provided.
-    if (isZombie || isBarrier || (numTasks == 1 && !speculationTaskDurationThresOpt.isDefined)) {
+    if (isZombie || isBarrier || (numTasks == 1 && speculationTaskDurationThresOpt.isEmpty)) {
       return false
     }
     var foundTasks = false
@@ -1108,18 +1108,18 @@ private[spark] class TaskSetManager(
   private def computeValidLocalityLevels(): Array[TaskLocality.TaskLocality] = {
     import TaskLocality.{PROCESS_LOCAL, NODE_LOCAL, NO_PREF, RACK_LOCAL, ANY}
     val levels = new ArrayBuffer[TaskLocality.TaskLocality]
-    if (!pendingTasks.forExecutor.isEmpty &&
+    if (pendingTasks.forExecutor.nonEmpty &&
         pendingTasks.forExecutor.keySet.exists(sched.isExecutorAlive(_))) {
       levels += PROCESS_LOCAL
     }
-    if (!pendingTasks.forHost.isEmpty &&
+    if (pendingTasks.forHost.nonEmpty &&
         pendingTasks.forHost.keySet.exists(sched.hasExecutorsAliveOnHost(_))) {
       levels += NODE_LOCAL
     }
-    if (!pendingTasks.noPrefs.isEmpty) {
+    if (pendingTasks.noPrefs.nonEmpty) {
       levels += NO_PREF
     }
-    if (!pendingTasks.forRack.isEmpty &&
+    if (pendingTasks.forRack.nonEmpty &&
         pendingTasks.forRack.keySet.exists(sched.hasHostAliveOnRack(_))) {
       levels += RACK_LOCAL
     }

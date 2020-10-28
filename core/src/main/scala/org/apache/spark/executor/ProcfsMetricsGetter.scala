@@ -109,10 +109,10 @@ private[spark] class ProcfsMetricsGetter(procfsDir: String = "/proc/") extends L
     ptree += pid
     val queue = mutable.Queue.empty[Int]
     queue += pid
-    while ( !queue.isEmpty ) {
+    while ( queue.nonEmpty ) {
       val p = queue.dequeue()
       val c = getChildPids(p)
-      if (!c.isEmpty) {
+      if (c.nonEmpty) {
         queue ++= c
         ptree ++= c.toSet
       }

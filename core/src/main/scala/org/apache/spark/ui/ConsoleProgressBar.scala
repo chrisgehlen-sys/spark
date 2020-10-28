@@ -63,7 +63,7 @@ private[spark] class ConsoleProgressBar(sc: SparkContext) extends Logging {
     }
     val stages = sc.statusStore.activeStages()
       .filter { s => now - s.submissionTime.get.getTime() > firstDelayMSec }
-    if (stages.length > 0) {
+    if (stages.nonEmpty) {
       show(now, stages.take(3))  // display at most 3 stages in same time
     }
   }

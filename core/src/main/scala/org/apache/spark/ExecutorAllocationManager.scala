@@ -423,7 +423,7 @@ private[spark] class ExecutorAllocationManager(
       updates: Map[Int, ExecutorAllocationManager.TargetNumUpdates],
       now: Long): Int = {
     // Only call cluster manager if target has changed.
-    if (updates.size > 0) {
+    if (updates.nonEmpty) {
       val requestAcknowledged = try {
         logDebug("requesting updates: " + updates)
         testing ||
@@ -696,7 +696,7 @@ private[spark] class ExecutorAllocationManager(
         var numTasksPending = 0
         val hostToLocalTaskCountPerStage = new mutable.HashMap[String, Int]()
         stageSubmitted.stageInfo.taskLocalityPreferences.foreach { locality =>
-          if (!locality.isEmpty) {
+          if (locality.nonEmpty) {
             numTasksPending += 1
             locality.foreach { location =>
               val count = hostToLocalTaskCountPerStage.getOrElse(location.host, 0) + 1

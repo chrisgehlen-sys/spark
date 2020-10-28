@@ -1285,7 +1285,7 @@ private[spark] abstract class SerDeBase {
     }
 
     private[python] def saveObjects(out: OutputStream, pickler: Pickler, objects: Any*) = {
-      if (objects.length == 0 || objects.length > 3) {
+      if (objects.isEmpty || objects.length > 3) {
         out.write(Opcodes.MARK)
       }
       objects.foreach(pickler.save)

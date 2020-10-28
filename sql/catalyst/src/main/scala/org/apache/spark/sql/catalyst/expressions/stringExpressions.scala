@@ -1927,7 +1927,7 @@ case class Ascii(child: Expression)
 
   protected override def nullSafeEval(string: Any): Any = {
     val bytes = string.asInstanceOf[UTF8String].getBytes
-    if (bytes.length > 0) {
+    if (bytes.nonEmpty) {
       bytes(0).asInstanceOf[Int]
     } else {
       0

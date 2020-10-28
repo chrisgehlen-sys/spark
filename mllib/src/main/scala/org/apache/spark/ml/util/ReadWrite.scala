@@ -516,7 +516,7 @@ private[ml] object DefaultParamsReader {
       var foundPairs = pairs.filter { case (pName, jsonValue) =>
         pName == paramName
       }
-      if (foundPairs.length == 0) {
+      if (foundPairs.isEmpty) {
         // Looking up for `defaultParams` then.
         pairs = getValueFromParams(defaultParams)
         foundPairs = pairs.filter { case (pName, jsonValue) =>
@@ -559,7 +559,7 @@ private[ml] object DefaultParamsReader {
       paramsToSet match {
         case JObject(pairs) =>
           pairs.foreach { case (paramName, jsonValue) =>
-            if (skipParams == None || !skipParams.get.contains(paramName)) {
+            if (skipParams.isEmpty || !skipParams.get.contains(paramName)) {
               val param = instance.getParam(paramName)
               val value = param.jsonDecode(compact(render(jsonValue)))
               if (isDefault) {

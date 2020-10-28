@@ -260,7 +260,7 @@ object PartitioningUtils {
         //    i.e. currentPath.getParent == null. For the example of "/table/a=1/",
         //    the top level dir is "/table".
         finished =
-          (maybeColumn.isEmpty && !columns.isEmpty) || currentPath.getParent == null
+          (maybeColumn.isEmpty && columns.nonEmpty) || currentPath.getParent == null
 
         if (!finished) {
           // For the above example, currentPath will be "/table/".

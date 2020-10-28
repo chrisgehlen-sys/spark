@@ -185,7 +185,7 @@ class UDFRegistration private[sql] (functionRegistry: FunctionRegistry) extends 
     val inputEncoders: Seq[Option[ExpressionEncoder[_]]] = Nil
     val udf = SparkUserDefinedFunction(func, dataType, inputEncoders, outputEncoder).withName(name)
     val finalUdf = if (nullable) udf else udf.asNonNullable()
-    def builder(e: Seq[Expression]) = if (e.length == 0) {
+    def builder(e: Seq[Expression]) = if (e.isEmpty) {
       finalUdf.createScalaUDF(e)
     } else {
       throw new AnalysisException("Invalid number of arguments for function " + name +
@@ -754,7 +754,7 @@ class UDFRegistration private[sql] (functionRegistry: FunctionRegistry) extends 
    */
   def register(name: String, f: UDF0[_], returnType: DataType): Unit = {
     val func = () => f.asInstanceOf[UDF0[Any]].call()
-    def builder(e: Seq[Expression]) = if (e.length == 0) {
+    def builder(e: Seq[Expression]) = if (e.isEmpty) {
       ScalaUDF(func, returnType, e, Nil, udfName = Some(name))
     } else {
       throw new AnalysisException("Invalid number of arguments for function " + name +

@@ -108,7 +108,7 @@ private[ui] class BatchPage(parent: StreamingTab) extends WebUIPage("batch") {
     }
     val lastFailureReason =
       sparkJob.stageIds.sorted(Ordering.Int.reverse).flatMap(getStageData).
-      dropWhile(_.failureReason == None).take(1). // get the first info that contains failure
+      dropWhile(_.failureReason.isEmpty).take(1). // get the first info that contains failure
       flatMap(info => info.failureReason).headOption.getOrElse("")
     val formattedDuration = duration.map(d => SparkUIUtils.formatDuration(d)).getOrElse("-")
     val detailUrl = s"${SparkUIUtils.prependBaseUri(

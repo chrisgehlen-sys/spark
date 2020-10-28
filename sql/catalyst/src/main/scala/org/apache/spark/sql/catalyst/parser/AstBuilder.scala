@@ -3527,7 +3527,7 @@ class AstBuilder(conf: SQLConf) extends SqlBaseBaseVisitor[AnyRef] with Logging 
 
     val properties = ctx.tablePropertyList.asScala.headOption.map(visitPropertyKeyValues)
       .getOrElse(Map.empty)
-    if (ctx.TEMPORARY != null && !properties.isEmpty) {
+    if (ctx.TEMPORARY != null && properties.nonEmpty) {
       operationNotAllowed("TBLPROPERTIES can't coexist with CREATE TEMPORARY VIEW", ctx)
     }
 

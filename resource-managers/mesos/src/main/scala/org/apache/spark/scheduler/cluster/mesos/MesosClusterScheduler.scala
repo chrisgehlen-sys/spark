@@ -345,7 +345,7 @@ private[spark] class MesosClusterScheduler(
       this.masterInfo = Some(masterInfo)
       this.schedulerDriver = driver
 
-      if (!pendingRecover.isEmpty) {
+      if (pendingRecover.nonEmpty) {
         // Start task reconciliation if we need to recover.
         val statuses = pendingRecover.collect {
           case (taskId, agentId) =>
@@ -475,7 +475,7 @@ private[spark] class MesosClusterScheduler(
         .map(path => Seq(path) ++ desc.command.libraryPathEntries)
         .getOrElse(desc.command.libraryPathEntries)
 
-      val prefixEnv = if (!entries.isEmpty) Utils.libraryPathEnvPrefix(entries) else ""
+      val prefixEnv = if (entries.nonEmpty) Utils.libraryPathEnvPrefix(entries) else ""
 
       val cmdExecutable = s"cd $folderBasename*; $prefixEnv bin/spark-submit"
       // Sandbox path points to the parent folder as we chdir into the folderBasename.

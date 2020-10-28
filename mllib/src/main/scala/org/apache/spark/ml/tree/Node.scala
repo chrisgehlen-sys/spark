@@ -300,7 +300,7 @@ private[tree] class LearningNode(
    */
   def toNode(prune: Boolean = true): Node = {
 
-    if (!leftChild.isEmpty || !rightChild.isEmpty) {
+    if (leftChild.nonEmpty || rightChild.nonEmpty) {
       assert(leftChild.nonEmpty && rightChild.nonEmpty && split.nonEmpty && stats != null,
         "Unknown error during Decision Tree learning.  Could not convert LearningNode to Node.")
       (leftChild.get.toNode(prune), rightChild.get.toNode(prune)) match {

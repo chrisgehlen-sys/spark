@@ -1661,7 +1661,7 @@ private[spark] class BlockManager(
       numPeersToReplicateTo)
 
     while(numFailures <= maxReplicationFailureCount &&
-      !peersForReplication.isEmpty &&
+      peersForReplication.nonEmpty &&
       peersReplicatedTo.size < numPeersToReplicateTo) {
       val peer = peersForReplication.head
       try {

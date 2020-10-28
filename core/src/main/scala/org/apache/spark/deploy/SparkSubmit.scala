@@ -505,7 +505,7 @@ private[spark] class SparkSubmit extends Logging {
       args.archives = mergeFileLists(args.archives, sparkRPackageURI + "#sparkr")
 
       // Distribute the R package archive containing all the built R packages.
-      if (!RUtils.rPackages.isEmpty) {
+      if (RUtils.rPackages.isDefined) {
         val rPackageFile =
           RPackageUtils.zipRLibraries(new File(RUtils.rPackages.get), R_PACKAGE_ARCHIVE)
         if (!rPackageFile.exists()) {
@@ -519,12 +519,12 @@ private[spark] class SparkSubmit extends Logging {
     }
 
     // TODO: Support distributing R packages with standalone cluster
-    if (args.isR && clusterManager == STANDALONE && !RUtils.rPackages.isEmpty) {
+    if (args.isR && clusterManager == STANDALONE && RUtils.rPackages.isDefined) {
       error("Distributing R packages with standalone cluster is not supported.")
     }
 
     // TODO: Support distributing R packages with mesos cluster
-    if (args.isR && clusterManager == MESOS && !RUtils.rPackages.isEmpty) {
+    if (args.isR && clusterManager == MESOS && RUtils.rPackages.isDefined) {
       error("Distributing R packages with mesos cluster is not supported.")
     }
 

@@ -33,7 +33,7 @@ private[spark] class ClientArguments(args: Array[String]) {
   private def parseArgs(inputArgs: List[String]): Unit = {
     var args = inputArgs
 
-    while (!args.isEmpty) {
+    while (args.nonEmpty) {
       args match {
         case ("--jar") :: value :: tail =>
           userJar = value

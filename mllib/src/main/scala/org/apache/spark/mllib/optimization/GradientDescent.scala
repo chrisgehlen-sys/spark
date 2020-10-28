@@ -270,7 +270,7 @@ object GradientDescent extends Logging {
 
           previousWeights = currentWeights
           currentWeights = Some(weights)
-          if (previousWeights != None && currentWeights != None) {
+          if (previousWeights.isDefined && currentWeights.isDefined) {
             converged = isConverged(previousWeights.get,
               currentWeights.get, convergenceTol)
           }
