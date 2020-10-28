@@ -119,7 +119,7 @@ class HiveSchemaInferenceSuite
       true)
 
     // Add partition records (if specified)
-    if (!partitionCols.isEmpty) {
+    if (partitionCols.nonEmpty) {
       spark.catalog.recoverPartitions(TEST_TABLE_NAME)
     }
 
@@ -160,7 +160,7 @@ class HiveSchemaInferenceSuite
   private val inferenceKey = SQLConf.HIVE_CASE_SENSITIVE_INFERENCE.key
 
   private def testFieldQuery(fields: Seq[String]): Unit = {
-    if (!fields.isEmpty) {
+    if (fields.nonEmpty) {
       val query = s"SELECT * FROM ${TEST_TABLE_NAME} WHERE ${Random.shuffle(fields).head} >= 0"
       assert(spark.sql(query).count == NUM_RECORDS)
     }

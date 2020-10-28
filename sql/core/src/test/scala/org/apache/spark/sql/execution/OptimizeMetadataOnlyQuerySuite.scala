@@ -54,7 +54,7 @@ class OptimizeMetadataOnlyQuerySuite extends QueryTest with SharedSparkSession {
     val localRelations = df.queryExecution.optimizedPlan.collect {
       case l @ LocalRelation(_, _, _) => l
     }
-    assert(localRelations.size == 0)
+    assert(localRelations.isEmpty)
   }
 
   private def testMetadataOnly(name: String, sqls: String*): Unit = {

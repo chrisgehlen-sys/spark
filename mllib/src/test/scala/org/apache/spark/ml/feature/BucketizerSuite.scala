@@ -461,7 +461,7 @@ private object BucketizerSuite extends SparkFunSuite {
     assert(resultColumns.length == expectedColumns.length,
       s"Given ${resultColumns.length} result columns doesn't match " +
         s"${expectedColumns.length} expected columns.")
-    assert(resultColumns.length > 0, "At least one result and expected columns are needed.")
+    assert(resultColumns.nonEmpty, "At least one result and expected columns are needed.")
 
     val allColumns = resultColumns ++ expectedColumns
     bucketResult.select(allColumns.head, allColumns.tail: _*).collect().foreach {

@@ -1944,7 +1944,7 @@ class TaskSetManagerSuite
     // if the time threshold has not been exceeded, no speculative run should be triggered
     clock.advance(1000*60*60)
     assert(!manager.checkSpeculatableTasks(0))
-    assert(sched.speculativeTasks.size == 0)
+    assert(sched.speculativeTasks.isEmpty)
 
     // Now the task should have been running for 60 minutes and 1 second
     clock.advance(1000)
@@ -1957,7 +1957,7 @@ class TaskSetManagerSuite
     } else {
       // If the feature flag is turned off, or the stage contains too many tasks
       assert(!manager.checkSpeculatableTasks(0))
-      assert(sched.speculativeTasks.size == 0)
+      assert(sched.speculativeTasks.isEmpty)
     }
   }
 
@@ -2132,7 +2132,7 @@ class TaskSetManagerSuite
     }
     clock.advance(1000*60*60)
     assert(!manager.checkSpeculatableTasks(0))
-    assert(sched.speculativeTasks.size == 0)
+    assert(sched.speculativeTasks.isEmpty)
     // Now the task should have been running for 60 minutes and 1 second
     clock.advance(1000)
     assert(manager.checkSpeculatableTasks(0))

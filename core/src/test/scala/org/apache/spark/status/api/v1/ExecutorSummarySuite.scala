@@ -45,7 +45,7 @@ class ExecutorSummarySuite extends SparkFunSuite {
     val json = mapper.writeValueAsString(executorSummary)
     assert(expectedJson.equals(json))
     val deserializeExecutorSummary = mapper.readValue(json, new TypeReference[ExecutorSummary] {})
-    assert(deserializeExecutorSummary.peakMemoryMetrics == None)
+    assert(deserializeExecutorSummary.peakMemoryMetrics.isEmpty)
   }
 
 }

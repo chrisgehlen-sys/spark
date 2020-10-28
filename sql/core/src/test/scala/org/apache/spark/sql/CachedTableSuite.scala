@@ -119,17 +119,17 @@ class CachedTableSuite extends QueryTest with SQLTestUtils
   }
 
   test("unpersist an uncached table will not raise exception") {
-    assert(None == spark.sharedState.cacheManager.lookupCachedData(testData))
+    assert(spark.sharedState.cacheManager.lookupCachedData(testData).isEmpty)
     testData.unpersist(blocking = true)
-    assert(None == spark.sharedState.cacheManager.lookupCachedData(testData))
+    assert(spark.sharedState.cacheManager.lookupCachedData(testData).isEmpty)
     testData.unpersist(blocking = false)
-    assert(None == spark.sharedState.cacheManager.lookupCachedData(testData))
+    assert(spark.sharedState.cacheManager.lookupCachedData(testData).isEmpty)
     testData.persist()
-    assert(None != spark.sharedState.cacheManager.lookupCachedData(testData))
+    assert(spark.sharedState.cacheManager.lookupCachedData(testData).isDefined)
     testData.unpersist(blocking = true)
-    assert(None == spark.sharedState.cacheManager.lookupCachedData(testData))
+    assert(spark.sharedState.cacheManager.lookupCachedData(testData).isEmpty)
     testData.unpersist(blocking = false)
-    assert(None == spark.sharedState.cacheManager.lookupCachedData(testData))
+    assert(spark.sharedState.cacheManager.lookupCachedData(testData).isEmpty)
   }
 
   test("cache table as select") {

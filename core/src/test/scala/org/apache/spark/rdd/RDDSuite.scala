@@ -446,13 +446,13 @@ class RDDSuite extends SparkFunSuite with SharedSparkContext with Eventually {
     val splits = coalesced1.glom().collect().map(_.toList).toList
     assert(splits.length === 3, "Supposed to coalesce to 3 but got " + splits.length)
 
-    assert(splits.forall(_.length >= 1), "Some partitions were empty")
+    assert(splits.forall(_.nonEmpty), "Some partitions were empty")
 
     // If we try to coalesce into more partitions than the original RDD, it should just
     // keep the original number of partitions.
     val coalesced4 = data.coalesce(20)
     val listOfLists = coalesced4.glom().collect().map(_.toList).toList
-    val sortedList = listOfLists.sortWith{ (x, y) => !x.isEmpty && (y.isEmpty || (x(0) < y(0))) }
+    val sortedList = listOfLists.sortWith{ (x, y) => x.nonEmpty && (y.isEmpty || (x(0) < y(0))) }
     assert(sortedList === (1 to 9).
       map{x => List(x)}.toList, "Tried coalescing 9 partitions to 20 but didn't get 9 back")
   }
@@ -473,13 +473,13 @@ class RDDSuite extends SparkFunSuite with SharedSparkContext with Eventually {
     val splits = coalesced1.glom().collect().map(_.toList).toList
     assert(splits.length === 3, "Supposed to coalesce to 3 but got " + splits.length)
 
-    assert(splits.forall(_.length >= 1), "Some partitions were empty")
+    assert(splits.forall(_.nonEmpty), "Some partitions were empty")
 
     // If we try to coalesce into more partitions than the original RDD, it should just
     // keep the original number of partitions.
     val coalesced4 = data.coalesce(20)
     val listOfLists = coalesced4.glom().collect().map(_.toList).toList
-    val sortedList = listOfLists.sortWith{ (x, y) => !x.isEmpty && (y.isEmpty || (x(0) < y(0))) }
+    val sortedList = listOfLists.sortWith{ (x, y) => x.nonEmpty && (y.isEmpty || (x(0) < y(0))) }
     assert(sortedList === (1 to 9).
       map{x => List(x)}.toList, "Tried coalescing 9 partitions to 20 but didn't get 9 back")
   }

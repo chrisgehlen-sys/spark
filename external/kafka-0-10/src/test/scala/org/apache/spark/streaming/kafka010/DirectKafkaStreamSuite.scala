@@ -382,7 +382,7 @@ class DirectKafkaStreamSuite
 
     // Verify that offset ranges were generated
     val offsetRangesBeforeStop = getOffsetRanges(kafkaStream)
-    assert(offsetRangesBeforeStop.size >= 1, "No offset ranges generated")
+    assert(offsetRangesBeforeStop.nonEmpty, "No offset ranges generated")
     assert(
       offsetRangesBeforeStop.head._2.forall { _.fromOffset === 0 },
       "starting offset not zero"
@@ -397,7 +397,7 @@ class DirectKafkaStreamSuite
 
     // Verify offset ranges have been recovered
     val recoveredOffsetRanges = getOffsetRanges(recoveredStream).map { x => (x._1, x._2.toSet) }
-    assert(recoveredOffsetRanges.size > 0, "No offset ranges recovered")
+    assert(recoveredOffsetRanges.nonEmpty, "No offset ranges recovered")
     val earlierOffsetRanges = offsetRangesBeforeStop.map { x => (x._1, x._2.toSet) }
     assert(
       recoveredOffsetRanges.forall { or =>

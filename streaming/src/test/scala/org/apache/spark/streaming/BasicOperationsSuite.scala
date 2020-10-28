@@ -760,8 +760,8 @@ class BasicOperationsSuite extends TestSuiteBase {
 
         // verify data has been received
         assert(!outputQueue.isEmpty)
-        assert(blockRdds.size > 0)
-        assert(persistentRddIds.size > 0)
+        assert(blockRdds.nonEmpty)
+        assert(persistentRddIds.nonEmpty)
 
         import Time._
 

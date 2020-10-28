@@ -309,11 +309,11 @@ class CheckpointSuite extends SparkFunSuite with RDDCheckpointTester with LocalS
       assert(newRDD.collect().toSet === rddWithPartitioner.collect().toSet, "RDD not recovered")
 
       if (!corruptPartitionerFile) {
-        assert(newRDD.partitioner != None, "partitioner not recovered")
+        assert(newRDD.partitioner.isDefined, "partitioner not recovered")
         assert(newRDD.partitioner === rddWithPartitioner.partitioner,
           "recovered partitioner does not match")
       } else {
-        assert(newRDD.partitioner == None, "partitioner unexpectedly recovered")
+        assert(newRDD.partitioner.isEmpty, "partitioner unexpectedly recovered")
       }
     }
 

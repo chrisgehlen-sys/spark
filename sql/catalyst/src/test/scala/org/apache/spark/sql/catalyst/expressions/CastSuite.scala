@@ -683,7 +683,7 @@ abstract class CastSuiteBase extends SparkFunSuite with ExpressionEvalHelper {
     val ctx = new CodegenContext
     cast("1", IntegerType).genCode(ctx)
     cast("2", LongType).genCode(ctx)
-    assert(ctx.inlinedMutableStates.length == 0)
+    assert(ctx.inlinedMutableStates.isEmpty)
   }
 
   test("SPARK-22825 Cast array to string") {

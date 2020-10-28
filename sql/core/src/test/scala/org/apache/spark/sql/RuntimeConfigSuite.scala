@@ -45,7 +45,7 @@ class RuntimeConfigSuite extends SparkFunSuite {
     val conf = newConf()
     conf.set("k1", "v1")
     assert(conf.getOption("k1") == Some("v1"))
-    assert(conf.getOption("notset") == None)
+    assert(conf.getOption("notset").isEmpty)
   }
 
   test("unset") {

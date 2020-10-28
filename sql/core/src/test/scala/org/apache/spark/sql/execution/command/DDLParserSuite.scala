@@ -482,12 +482,12 @@ class DDLParserSuite extends AnalysisTest with SharedSparkSession {
     val s3 = """CREATE TABLE page_view AS SELECT * FROM src"""
     val (desc, exists) = extractTableDesc(s3)
     assert(exists == false)
-    assert(desc.identifier.database == None)
+    assert(desc.identifier.database.isEmpty)
     assert(desc.identifier.table == "page_view")
     assert(desc.tableType == CatalogTableType.MANAGED)
-    assert(desc.storage.locationUri == None)
+    assert(desc.storage.locationUri.isEmpty)
     assert(desc.schema.isEmpty)
-    assert(desc.viewText == None) // TODO will be SQLText
+    assert(desc.viewText.isEmpty) // TODO will be SQLText
     assert(desc.viewQueryColumnNames.isEmpty)
     assert(desc.storage.properties == Map())
     assert(desc.storage.inputFormat == Some("org.apache.hadoop.mapred.TextInputFormat"))
@@ -518,12 +518,12 @@ class DDLParserSuite extends AnalysisTest with SharedSparkSession {
                |   ORDER BY key, value""".stripMargin
     val (desc, exists) = extractTableDesc(s5)
     assert(exists == false)
-    assert(desc.identifier.database == None)
+    assert(desc.identifier.database.isEmpty)
     assert(desc.identifier.table == "ctas2")
     assert(desc.tableType == CatalogTableType.MANAGED)
-    assert(desc.storage.locationUri == None)
+    assert(desc.storage.locationUri.isEmpty)
     assert(desc.schema.isEmpty)
-    assert(desc.viewText == None) // TODO will be SQLText
+    assert(desc.viewText.isEmpty) // TODO will be SQLText
     assert(desc.viewCatalogAndNamespace.isEmpty)
     assert(desc.viewQueryColumnNames.isEmpty)
     assert(desc.storage.properties == Map(("serde_p1" -> "p1"), ("serde_p2" -> "p2")))

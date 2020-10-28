@@ -515,7 +515,7 @@ class DateTimeUtilsSuite extends SparkFunSuite with Matchers with SQLHelper {
   test("trailing characters while converting string to timestamp") {
     val s = UTF8String.fromString("2019-10-31T10:59:23Z:::")
     val time = DateTimeUtils.stringToTimestamp(s, defaultZoneId)
-    assert(time == None)
+    assert(time.isEmpty)
   }
 
   test("truncTimestamp") {

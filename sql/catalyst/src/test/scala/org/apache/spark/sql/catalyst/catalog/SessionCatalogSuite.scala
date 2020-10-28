@@ -356,7 +356,7 @@ abstract class SessionCatalogSuite extends AnalysisTest with Eventually {
       assert(catalog.externalCatalog.listTables("db2").toSet == Set("tbl1", "tbl2"))
       // If database is not specified, temp table should be dropped first
       catalog.dropTable(TableIdentifier("tbl1"), ignoreIfNotExists = false, purge = false)
-      assert(catalog.getTempView("tbl1") == None)
+      assert(catalog.getTempView("tbl1").isEmpty)
       assert(catalog.externalCatalog.listTables("db2").toSet == Set("tbl1", "tbl2"))
       // If temp table does not exist, the table in the current database should be dropped
       catalog.dropTable(TableIdentifier("tbl1"), ignoreIfNotExists = false, purge = false)

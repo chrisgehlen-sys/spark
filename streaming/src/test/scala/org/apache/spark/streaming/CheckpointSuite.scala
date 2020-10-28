@@ -270,7 +270,7 @@ class CheckpointSuite extends TestSuiteBase with LocalStreamingContext with DStr
 
     logInfo("Checkpoint data of state stream = \n" + stateStream.checkpointData)
     var currCheckpointFiles = stateStream.checkpointData.currentCheckpointFiles
-    assert(!currCheckpointFiles.isEmpty,
+    assert(currCheckpointFiles.nonEmpty,
       "No checkpointed RDDs in state stream before first failure")
     currCheckpointFiles.foreach {
       case (time, file) =>
@@ -293,7 +293,7 @@ class CheckpointSuite extends TestSuiteBase with LocalStreamingContext with DStr
     ssc = new StreamingContext(checkpointDir)
     stateStream = ssc.graph.getOutputStreams().head.dependencies.head.dependencies.head
     logInfo("Restored data of state stream = \n[" + stateStream.generatedRDDs.mkString("\n") + "]")
-    assert(!stateStream.generatedRDDs.isEmpty,
+    assert(stateStream.generatedRDDs.nonEmpty,
       "No restored RDDs in state stream after recovery from first failure")
 
     // Run one batch to generate a new checkpoint file and check whether some RDD
@@ -302,7 +302,7 @@ class CheckpointSuite extends TestSuiteBase with LocalStreamingContext with DStr
     advanceTimeWithRealDelay(ssc, 1)
     waitForCompletionOfBatch(secondNumBatches + 1)
     currCheckpointFiles = stateStream.checkpointData.currentCheckpointFiles
-    assert(!currCheckpointFiles.isEmpty,
+    assert(currCheckpointFiles.nonEmpty,
       "No checkpointed RDDs in state stream before second failure")
     currCheckpointFiles.foreach {
       case (time, file) =>
@@ -316,7 +316,7 @@ class CheckpointSuite extends TestSuiteBase with LocalStreamingContext with DStr
     ssc = new StreamingContext(checkpointDir)
     stateStream = ssc.graph.getOutputStreams().head.dependencies.head.dependencies.head
     logInfo("Restored data of state stream = \n[" + stateStream.generatedRDDs.mkString("\n") + "]")
-    assert(!stateStream.generatedRDDs.isEmpty,
+    assert(stateStream.generatedRDDs.nonEmpty,
       "No restored RDDs in state stream after recovery from second failure")
 
     // Adjust manual clock time as if it is being restarted after a delay; this is a hack because

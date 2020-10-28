@@ -446,7 +446,7 @@ class FlatMapGroupsWithStateSuite extends StateStoreMetricsTest {
       }
 
       // Tests with ProcessingTimeTimeout
-      if (priorState == None) {
+      if (priorState.isEmpty) {
         testStateUpdateWithData(
           s"ProcessingTimeTimeout - $testName - timeout updated without initializing state",
           stateUpdates = state => { state.setTimeoutDuration(5000) },
@@ -478,7 +478,7 @@ class FlatMapGroupsWithStateSuite extends StateStoreMetricsTest {
 
       // Tests with EventTimeTimeout
 
-      if (priorState == None) {
+      if (priorState.isEmpty) {
         testStateUpdateWithData(
           s"EventTimeTimeout - $testName - setting timeout without init state not allowed",
           stateUpdates = state => {

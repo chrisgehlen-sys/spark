@@ -54,8 +54,8 @@ class SparkSessionBuilderSuite extends SparkFunSuite with BeforeAndAfterEach {
   }
 
   test("sets default and active session") {
-    assert(SparkSession.getDefaultSession == None)
-    assert(SparkSession.getActiveSession == None)
+    assert(SparkSession.getDefaultSession.isEmpty)
+    assert(SparkSession.getActiveSession.isEmpty)
     val session = SparkSession.builder().master("local").getOrCreate()
     assert(SparkSession.getDefaultSession == Some(session))
     assert(SparkSession.getActiveSession == Some(session))

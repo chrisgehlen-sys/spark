@@ -381,8 +381,8 @@ class BlockManagerSuite extends SparkFunSuite with Matchers with BeforeAndAfterE
     assert(store.getSingleAndReleaseLock("a3").isDefined, "a3 was not in store")
 
     // Checking whether master knows about the blocks or not
-    assert(master.getLocations("a1").size > 0, "master was not told about a1")
-    assert(master.getLocations("a2").size > 0, "master was not told about a2")
+    assert(master.getLocations("a1").nonEmpty, "master was not told about a1")
+    assert(master.getLocations("a2").nonEmpty, "master was not told about a2")
     assert(master.getLocations("a3").size === 0, "master was told about a3")
 
     // Drop a1 and a2 from memory; this should be reported back to the master
@@ -430,8 +430,8 @@ class BlockManagerSuite extends SparkFunSuite with Matchers with BeforeAndAfterE
     assert(store.getSingleAndReleaseLock("a3-to-remove").isDefined, "a3 was not in store")
 
     // Checking whether master knows about the blocks or not
-    assert(master.getLocations("a1-to-remove").size > 0, "master was not told about a1")
-    assert(master.getLocations("a2-to-remove").size > 0, "master was not told about a2")
+    assert(master.getLocations("a1-to-remove").nonEmpty, "master was not told about a1")
+    assert(master.getLocations("a2-to-remove").nonEmpty, "master was not told about a2")
     assert(master.getLocations("a3-to-remove").size === 0, "master was told about a3")
 
     // Remove a1 and a2 and a3. Should be no-op for a3.
@@ -616,10 +616,10 @@ class BlockManagerSuite extends SparkFunSuite with Matchers with BeforeAndAfterE
     store.putSingle("a1", a1, StorageLevel.MEMORY_ONLY)
 
     assert(store.getSingleAndReleaseLock("a1").isDefined, "a1 was not in store")
-    assert(master.getLocations("a1").size > 0, "master was not told about a1")
+    assert(master.getLocations("a1").nonEmpty, "master was not told about a1")
 
     master.removeExecutor(store.blockManagerId.executorId)
-    assert(master.getLocations("a1").size == 0, "a1 was not removed from master")
+    assert(master.getLocations("a1").isEmpty, "a1 was not removed from master")
 
     val reregister = !master.driverHeartbeatEndPoint.askSync[Boolean](
       BlockManagerHeartbeat(store.blockManagerId))
@@ -632,16 +632,16 @@ class BlockManagerSuite extends SparkFunSuite with Matchers with BeforeAndAfterE
     val a2 = new Array[Byte](400)
 
     store.putSingle("a1", a1, StorageLevel.MEMORY_ONLY)
-    assert(master.getLocations("a1").size > 0, "master was not told about a1")
+    assert(master.getLocations("a1").nonEmpty, "master was not told about a1")
 
     master.removeExecutor(store.blockManagerId.executorId)
-    assert(master.getLocations("a1").size == 0, "a1 was not removed from master")
+    assert(master.getLocations("a1").isEmpty, "a1 was not removed from master")
 
     store.putSingle("a2", a2, StorageLevel.MEMORY_ONLY)
     store.waitForAsyncReregister()
 
-    assert(master.getLocations("a1").size > 0, "a1 was not reregistered with master")
-    assert(master.getLocations("a2").size > 0, "master was not told about a2")
+    assert(master.getLocations("a1").nonEmpty, "a1 was not reregistered with master")
+    assert(master.getLocations("a2").nonEmpty, "master was not told about a2")
   }
 
   test("reregistration doesn't dead lock") {
@@ -1053,7 +1053,7 @@ class BlockManagerSuite extends SparkFunSuite with Matchers with BeforeAndAfterE
     assert(store.getSingleAndReleaseLock("a3").isDefined, "a3 was not in store")
     // Now let's add in a4, which uses both disk and memory; a1 should drop out
     store.putSingle("a4", a4, StorageLevel.MEMORY_AND_DISK_SER)
-    assert(store.getSingleAndReleaseLock("a1") == None, "a1 was in store")
+    assert(store.getSingleAndReleaseLock("a1").isEmpty, "a1 was in store")
     assert(store.getSingleAndReleaseLock("a2").isDefined, "a2 was not in store")
     assert(store.getSingleAndReleaseLock("a3").isDefined, "a3 was not in store")
     assert(store.getSingleAndReleaseLock("a4").isDefined, "a4 was not in store")
@@ -1240,7 +1240,7 @@ class BlockManagerSuite extends SparkFunSuite with Matchers with BeforeAndAfterE
     streamCallbackWithId.onData("0", ByteBuffer.wrap(ser))
     streamCallbackWithId.onComplete("0")
     val blockStatusOption = blockManager.getStatus(blockId)
-    assert(!blockStatusOption.isEmpty)
+    assert(blockStatusOption.isDefined)
     val blockStatus = blockStatusOption.get
     assert((blockStatus.diskSize > 0) === !storageLevel.useMemory)
     assert((blockStatus.memSize > 0) === storageLevel.useMemory)

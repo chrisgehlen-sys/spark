@@ -129,7 +129,7 @@ class KafkaDontFailOnDataLossSuite extends StreamTest with KafkaMissingOffsetsTe
       val result = spark.table(table).as[String].collect().toList
       assert(result.distinct.size === result.size, s"$result contains duplicated records")
       // Make sure Kafka did remove some records so that this test is valid.
-      assert(result.size > 0 && result.size < 50)
+      assert(result.nonEmpty && result.size < 50)
     }
   }
 

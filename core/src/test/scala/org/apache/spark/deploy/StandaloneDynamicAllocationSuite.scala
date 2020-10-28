@@ -493,7 +493,7 @@ class StandaloneDynamicAllocationSuite
 
     eventually(timeout(10.seconds), interval(100.millis)) {
       val afterList = getApplications().head.executors.keys.toSet
-      assert(beforeList.intersect(afterList).size == 0)
+      assert(beforeList.intersect(afterList).isEmpty)
     }
   }
 

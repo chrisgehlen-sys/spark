@@ -792,7 +792,7 @@ class SQLQuerySuite extends QueryTest with SharedSparkSession with AdaptiveSpark
       case smj: SortMergeJoinExec => smj
       case j: BroadcastHashJoinExec => j
     }
-    assert(smj.size > 0, "should use SortMergeJoin or BroadcastHashJoin")
+    assert(smj.nonEmpty, "should use SortMergeJoin or BroadcastHashJoin")
     checkAnswer(df, Row(100) :: Nil)
   }
 
@@ -3404,7 +3404,7 @@ class SQLQuerySuite extends QueryTest with SharedSparkSession with AdaptiveSpark
       }
       assert(projects.length == 1)
       val aliases = NestedColumnAliasingSuite.collectGeneratedAliases(projects(0))
-      assert(aliases.length == 0)
+      assert(aliases.isEmpty)
     }
   }
 

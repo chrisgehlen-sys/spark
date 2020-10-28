@@ -51,11 +51,11 @@ class ResourceProfileSuite extends SparkFunSuite {
       "Executor resources should have 1 core")
     assert(rprof.executorResources(ResourceProfile.MEMORY).amount === 1024,
       "Executor resources should have 1024 memory")
-    assert(rprof.executorResources.get(ResourceProfile.PYSPARK_MEM) == None,
+    assert(rprof.executorResources.get(ResourceProfile.PYSPARK_MEM).isEmpty,
       "pyspark memory empty if not specified")
-    assert(rprof.executorResources.get(ResourceProfile.OVERHEAD_MEM) == None,
+    assert(rprof.executorResources.get(ResourceProfile.OVERHEAD_MEM).isEmpty,
       "overhead memory empty if not specified")
-    assert(rprof.executorResources.get(ResourceProfile.OFFHEAP_MEM) == None,
+    assert(rprof.executorResources.get(ResourceProfile.OFFHEAP_MEM).isEmpty,
       "offHeap memory empty if not specified")
     assert(rprof.taskResources.size === 1,
       "Task resources should just contain cpus by default")

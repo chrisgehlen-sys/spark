@@ -167,7 +167,7 @@ class ComplexTypesSuite extends PlanTest with ExpressionEvalHelper {
   test("SPARK-22570: CreateArray should not create a lot of global variables") {
     val ctx = new CodegenContext
     CreateArray(Seq(Literal(1))).genCode(ctx)
-    assert(ctx.inlinedMutableStates.length == 0)
+    assert(ctx.inlinedMutableStates.isEmpty)
   }
 
   test("SPARK-23208: Test code splitting for create array related methods") {

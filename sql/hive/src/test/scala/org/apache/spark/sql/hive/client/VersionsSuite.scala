@@ -688,7 +688,7 @@ class VersionsSuite extends SparkFunSuite with Logging {
       } else {
         // No exception should be thrown
         client.dropFunction("default", "func2")
-        assert(client.listFunctions("default", "fun.*").size == 0)
+        assert(client.listFunctions("default", "fun.*").isEmpty)
       }
     }
 

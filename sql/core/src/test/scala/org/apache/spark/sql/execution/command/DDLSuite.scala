@@ -2267,7 +2267,7 @@ abstract class DDLSuite extends QueryTest with SQLTestUtils {
     import scala.collection.JavaConverters._
     val df = sql("show databases")
     val rows: Seq[Row] = df.toLocalIterator().asScala.toSeq
-    assert(rows.length > 0)
+    assert(rows.nonEmpty)
   }
 
   test("SET LOCATION for managed table") {

@@ -60,7 +60,7 @@ class RDDCleanerSuite extends SparkFunSuite with BeforeAndAfterEach {
         val shuffled = keyed.reduceByKey(_ + _)
         val keysOnly = shuffled.keys
         keysOnly.count()
-        assert(getAllFiles.size > 0)
+        assert(getAllFiles.nonEmpty)
         keysOnly.cleanShuffleDependencies(true)
         val resultingFiles = getAllFiles
         assert(resultingFiles === Set())

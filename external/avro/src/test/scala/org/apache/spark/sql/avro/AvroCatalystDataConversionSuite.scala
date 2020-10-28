@@ -288,7 +288,7 @@ class AvroCatalystDataConversionSuite extends SparkFunSuite
       filters)
     val deserialized = deserializer.deserialize(data)
     expected match {
-      case None => assert(deserialized == None)
+      case None => assert(deserialized.isEmpty)
       case Some(d) =>
         assert(checkResult(d, deserialized.get, dataType, exprNullable = false))
     }

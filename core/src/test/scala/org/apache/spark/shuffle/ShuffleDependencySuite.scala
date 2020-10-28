@@ -61,7 +61,7 @@ class ShuffleDependencySuite extends SparkFunSuite with LocalSparkContext {
     val dep = rdd.dependencies.head.asInstanceOf[ShuffleDependency[_, _, _]]
     assert(dep.keyClassName == classOf[KeyClass].getName)
     assert(dep.valueClassName == classOf[ValueClass].getName)
-    assert(dep.combinerClassName == None)
+    assert(dep.combinerClassName.isEmpty)
   }
 
 }
