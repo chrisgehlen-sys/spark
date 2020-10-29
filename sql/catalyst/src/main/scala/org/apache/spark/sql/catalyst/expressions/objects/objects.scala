@@ -123,7 +123,7 @@ trait InvokeLike extends Expression with NonSQLExpression {
       input: InternalRow,
       dataType: DataType): Any = {
     val args = arguments.map(e => e.eval(input).asInstanceOf[Object])
-    if (needNullCheck && args.exists(_ == null)) {
+    if (needNullCheck && args.contains(null)) {
       // return null if one of arguments is null
       null
     } else {

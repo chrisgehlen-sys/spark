@@ -97,7 +97,7 @@ class DataFrameWriterV2Suite extends QueryTest with SharedSparkSession with Befo
     assert(plan.isInstanceOf[DataSourceV2Relation])
     val v2 = plan.asInstanceOf[DataSourceV2Relation]
     assert(v2.identifier.exists(_.name() == identifier))
-    assert(v2.catalog.exists(_ == catalogPlugin))
+    assert(v2.catalog.contains(catalogPlugin))
   }
 
   case class FakeV2WriteCommand(table: NamedRelation, query: LogicalPlan) extends V2WriteCommand

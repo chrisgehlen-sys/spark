@@ -2036,7 +2036,7 @@ abstract class RDD[T: ClassTag](
     val deterministicLevelCandidates = dependencies.map {
       // The shuffle is not really happening, treat it like narrow dependency and assume the output
       // deterministic level of current RDD is same as parent.
-      case dep: ShuffleDependency[_, _, _] if dep.rdd.partitioner.exists(_ == dep.partitioner) =>
+      case dep: ShuffleDependency[_, _, _] if dep.rdd.partitioner.contains(dep.partitioner) =>
         dep.rdd.outputDeterministicLevel
 
       case dep: ShuffleDependency[_, _, _] =>

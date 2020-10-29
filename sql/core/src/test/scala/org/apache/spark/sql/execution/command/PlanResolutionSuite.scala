@@ -1166,13 +1166,13 @@ class PlanResolutionSuite extends AnalysisTest {
       val tableIdent = if (isSessionCatlog) "v2Table" else "tab"
       parsed match {
         case AlterTable(_, _, r: DataSourceV2Relation, _) =>
-          assert(r.catalog.exists(_ == catlogIdent))
+          assert(r.catalog.contains(catlogIdent))
           assert(r.identifier.exists(_.name() == tableIdent))
         case Project(_, AsDataSourceV2Relation(r)) =>
-          assert(r.catalog.exists(_ == catlogIdent))
+          assert(r.catalog.contains(catlogIdent))
           assert(r.identifier.exists(_.name() == tableIdent))
         case InsertIntoStatement(r: DataSourceV2Relation, _, _, _, _) =>
-          assert(r.catalog.exists(_ == catlogIdent))
+          assert(r.catalog.contains(catlogIdent))
           assert(r.identifier.exists(_.name() == tableIdent))
         case DescribeRelation(r: ResolvedTable, _, _) =>
           assert(r.catalog == catlogIdent)

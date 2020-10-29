@@ -196,6 +196,6 @@ class IncrementalExecution(
   def shouldRunAnotherBatch(newMetadata: OffsetSeqMetadata): Boolean = {
     executedPlan.collect {
       case p: StateStoreWriter => p.shouldRunAnotherBatch(newMetadata)
-    }.exists(_ == true)
+    }.contains(true)
   }
 }
