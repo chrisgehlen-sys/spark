@@ -21,8 +21,8 @@ import java.io.{DataInputStream, DataOutputStream}
 import java.nio.charset.StandardCharsets
 import java.sql.{Date, Time, Timestamp}
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable.WrappedArray
+import scala.jdk.CollectionConverters._
 
 /**
  * Utility functions to serialize, deserialize objects to / from R

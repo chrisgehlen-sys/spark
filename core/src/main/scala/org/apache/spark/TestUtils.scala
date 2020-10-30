@@ -31,9 +31,9 @@ import java.util.regex.Pattern
 import javax.net.ssl._
 import javax.tools.{JavaFileObject, SimpleJavaFileObject, ToolProvider}
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 import scala.sys.process.{Process, ProcessLogger}
 import scala.util.Try
 
