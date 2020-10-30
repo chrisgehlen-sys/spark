@@ -138,7 +138,7 @@ private[scheduler] class TaskSetBlacklist(
         // This executor has been pushed into the blacklist for this stage.  Let's check if it
         // pushes the whole node into the blacklist.
         val blacklistedExecutorsOnNode =
-          execsWithFailuresOnNode.filter(blacklistedExecs.contains(_))
+          execsWithFailuresOnNode.intersect(blacklistedExecs)
         val now = clock.getTimeMillis()
         listenerBus.post(
           SparkListenerExecutorBlacklistedForStage(now, exec, numFailures, stageId, stageAttemptId))
