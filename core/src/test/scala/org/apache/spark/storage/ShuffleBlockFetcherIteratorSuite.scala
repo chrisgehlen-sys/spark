@@ -90,7 +90,7 @@ class ShuffleBlockFetcherIteratorSuite extends SparkFunSuite with PrivateMethodT
       .thenAnswer { invocation =>
         val completableFuture = invocation.getArguments()(3)
           .asInstanceOf[CompletableFuture[java.util.Map[String, Array[String]]]]
-        import scala.collection.JavaConverters._
+        import scala.jdk.CollectionConverters._
         completableFuture.complete(hostLocalDirs.asJava)
       }
 

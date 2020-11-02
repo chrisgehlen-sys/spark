@@ -19,8 +19,8 @@ package org.apache.spark.util
 
 import java.util.Properties
 
-import scala.collection.JavaConverters._
 import scala.collection.Map
+import scala.jdk.CollectionConverters._
 
 import org.json4s.JsonAST.{JArray, JInt, JString, JValue}
 import org.json4s.JsonDSL._
@@ -472,7 +472,9 @@ class JsonProtocolSuite extends SparkFunSuite {
     assert(exceptionFailure.className === oldExceptionFailure.className)
     assert(exceptionFailure.description === oldExceptionFailure.description)
     assertSeqEquals[StackTraceElement](
-      exceptionFailure.stackTrace, oldExceptionFailure.stackTrace, assertStackTraceElementEquals)
+      exceptionFailure.stackTrace.toIndexedSeq,
+      oldExceptionFailure.stackTrace.toIndexedSeq,
+      assertStackTraceElementEquals)
     assert(exceptionFailure.fullStackTrace === oldExceptionFailure.fullStackTrace)
     assertSeqEquals[AccumulableInfo](
       exceptionFailure.accumUpdates, oldExceptionFailure.accumUpdates, (x, y) => x == y)
@@ -846,7 +848,9 @@ private[spark] object JsonProtocolSuite extends Assertions {
       case (r1: ExceptionFailure, r2: ExceptionFailure) =>
         assert(r1.className === r2.className)
         assert(r1.description === r2.description)
-        assertSeqEquals(r1.stackTrace, r2.stackTrace, assertStackTraceElementEquals)
+        assertSeqEquals(r1.stackTrace.toIndexedSeq,
+          r2.stackTrace.toIndexedSeq,
+          assertStackTraceElementEquals)
         assert(r1.fullStackTrace === r2.fullStackTrace)
         assertSeqEquals[AccumulableInfo](r1.accumUpdates, r2.accumUpdates, (a, b) => a.equals(b))
       case (TaskResultLost, TaskResultLost) =>
@@ -880,8 +884,8 @@ private[spark] object JsonProtocolSuite extends Assertions {
   private def assertEquals(exception1: Exception, exception2: Exception): Unit = {
     assert(exception1.getMessage === exception2.getMessage)
     assertSeqEquals(
-      exception1.getStackTrace,
-      exception2.getStackTrace,
+      exception1.getStackTrace.toIndexedSeq,
+      exception2.getStackTrace.toIndexedSeq,
       assertStackTraceElementEquals)
   }
 

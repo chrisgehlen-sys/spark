@@ -41,7 +41,7 @@ class PipedRDDSuite extends SparkFunSuite with SharedSparkContext with Eventuall
 
   test("basic pipe") {
     assume(TestUtils.testCommandAvailable("cat"))
-    val nums = sc.makeRDD(Array(1, 2, 3, 4), 2)
+    val nums = sc.makeRDD(Seq(1, 2, 3, 4), 2)
 
     val piped = nums.pipe(Seq("cat"))
 
@@ -55,7 +55,7 @@ class PipedRDDSuite extends SparkFunSuite with SharedSparkContext with Eventuall
 
   test("basic pipe with tokenization") {
     assume(TestUtils.testCommandAvailable("wc"))
-    val nums = sc.makeRDD(Array(1, 2, 3, 4), 2)
+    val nums = sc.makeRDD(Seq(1, 2, 3, 4), 2)
 
     // verify that both RDD.pipe(command: String) and RDD.pipe(command: String, env) work good
     for (piped <- Seq(nums.pipe("wc -l"), nums.pipe("wc -l", Map[String, String]()))) {
@@ -69,7 +69,7 @@ class PipedRDDSuite extends SparkFunSuite with SharedSparkContext with Eventuall
   test("failure in iterating over pipe input") {
     assume(TestUtils.testCommandAvailable("cat"))
     val nums =
-      sc.makeRDD(Array(1, 2, 3, 4), 2)
+      sc.makeRDD(Seq(1, 2, 3, 4), 2)
         .mapPartitionsWithIndex((index, iterator) => {
         new Iterator[Int] {
           def hasNext = true
@@ -88,7 +88,7 @@ class PipedRDDSuite extends SparkFunSuite with SharedSparkContext with Eventuall
 
   test("stdin writer thread should be exited when task is finished") {
     assume(TestUtils.testCommandAvailable("cat"))
-    val nums = sc.makeRDD(Array(1, 2, 3, 4), 1).map { x =>
+    val nums = sc.makeRDD(Seq(1, 2, 3, 4), 1).map { x =>
       val obj = new Object()
       obj.synchronized {
         obj.wait() // make the thread waits here.
@@ -116,7 +116,7 @@ class PipedRDDSuite extends SparkFunSuite with SharedSparkContext with Eventuall
 
   test("advanced pipe") {
     assume(TestUtils.testCommandAvailable("cat"))
-    val nums = sc.makeRDD(Array(1, 2, 3, 4), 2)
+    val nums = sc.makeRDD(Seq(1, 2, 3, 4), 2)
     val bl = sc.broadcast(List("0"))
 
     val piped = nums.pipe(Seq("cat"),
@@ -178,7 +178,7 @@ class PipedRDDSuite extends SparkFunSuite with SharedSparkContext with Eventuall
   test("pipe with env variable") {
     val executable = envCommand.split("\\s+", 2)(0)
     assume(TestUtils.testCommandAvailable(executable))
-    val nums = sc.makeRDD(Array(1, 2, 3, 4), 2)
+    val nums = sc.makeRDD(Seq(1, 2, 3, 4), 2)
     val piped = nums.pipe(s"$envCommand MY_TEST_ENV", Map("MY_TEST_ENV" -> "LALALA"))
     val c = piped.collect()
     assert(c.length === 2)
@@ -190,7 +190,7 @@ class PipedRDDSuite extends SparkFunSuite with SharedSparkContext with Eventuall
 
   test("pipe with process which cannot be launched due to bad command") {
     assume(!TestUtils.testCommandAvailable("some_nonexistent_command"))
-    val nums = sc.makeRDD(Array(1, 2, 3, 4), 2)
+    val nums = sc.makeRDD(Seq(1, 2, 3, 4), 2)
     val command = Seq("some_nonexistent_command")
     val piped = nums.pipe(command)
     val exception = intercept[SparkException] {
@@ -201,7 +201,7 @@ class PipedRDDSuite extends SparkFunSuite with SharedSparkContext with Eventuall
 
   test("pipe with process which is launched but fails with non-zero exit status") {
     assume(TestUtils.testCommandAvailable("cat"))
-    val nums = sc.makeRDD(Array(1, 2, 3, 4), 2)
+    val nums = sc.makeRDD(Seq(1, 2, 3, 4), 2)
     val command = Seq("cat", "nonexistent_file")
     val piped = nums.pipe(command)
     val exception = intercept[SparkException] {
@@ -212,7 +212,7 @@ class PipedRDDSuite extends SparkFunSuite with SharedSparkContext with Eventuall
 
   test("basic pipe with separate working directory") {
     assume(TestUtils.testCommandAvailable("cat"))
-    val nums = sc.makeRDD(Array(1, 2, 3, 4), 2)
+    val nums = sc.makeRDD(Seq(1, 2, 3, 4), 2)
     val piped = nums.pipe(Seq("cat"), separateWorkingDir = true)
     val c = piped.collect()
     assert(c.size === 4)

@@ -28,7 +28,7 @@ import org.apache.spark.SparkFunSuite
 
 class ParallelCollectionSplitSuite extends SparkFunSuite with Checkers {
   test("one element per slice") {
-    val data = Array(1, 2, 3)
+    val data = Seq(1, 2, 3)
     val slices = ParallelCollectionRDD.slice(data, 3)
     assert(slices.size === 3)
     assert(slices(0).mkString(",") === "1")
@@ -37,14 +37,14 @@ class ParallelCollectionSplitSuite extends SparkFunSuite with Checkers {
   }
 
   test("one slice") {
-    val data = Array(1, 2, 3)
+    val data = Seq(1, 2, 3)
     val slices = ParallelCollectionRDD.slice(data, 1)
     assert(slices.size === 1)
     assert(slices(0).mkString(",") === "1,2,3")
   }
 
   test("equal slices") {
-    val data = Array(1, 2, 3, 4, 5, 6, 7, 8, 9)
+    val data = Seq(1, 2, 3, 4, 5, 6, 7, 8, 9)
     val slices = ParallelCollectionRDD.slice(data, 3)
     assert(slices.size === 3)
     assert(slices(0).mkString(",") === "1,2,3")
@@ -53,7 +53,7 @@ class ParallelCollectionSplitSuite extends SparkFunSuite with Checkers {
   }
 
   test("non-equal slices") {
-    val data = Array(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    val data = Seq(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
     val slices = ParallelCollectionRDD.slice(data, 3)
     assert(slices.size === 3)
     assert(slices(0).mkString(",") === "1,2,3")
@@ -81,19 +81,19 @@ class ParallelCollectionSplitSuite extends SparkFunSuite with Checkers {
   }
 
   test("empty data") {
-    val data = new Array[Int](0)
+    val data = Seq[Int](0)
     val slices = ParallelCollectionRDD.slice(data, 5)
     assert(slices.size === 5)
     for (slice <- slices) assert(slice.size === 0)
   }
 
   test("zero slices") {
-    val data = Array(1, 2, 3)
+    val data = Seq(1, 2, 3)
     intercept[IllegalArgumentException] { ParallelCollectionRDD.slice(data, 0) }
   }
 
   test("negative number of slices") {
-    val data = Array(1, 2, 3)
+    val data = Seq(1, 2, 3)
     intercept[IllegalArgumentException] { ParallelCollectionRDD.slice(data, -5) }
   }
 

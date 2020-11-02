@@ -1033,7 +1033,7 @@ class UtilsSuite extends SparkFunSuite with ResetSystemProperties with Logging {
     sparkConf.set("spark.sensitive.property", "has_secret_in_value")
 
     // Redact sensitive information
-    val redactedConf = Utils.redact(sparkConf, sparkConf.getAll).toMap
+    val redactedConf = Utils.redact(sparkConf, sparkConf.getAll.toIndexedSeq).toMap
 
     // Assert that secret information got redacted while the regular property remained the same
     secretKeys.foreach { key => assert(redactedConf(key) === Utils.REDACTION_REPLACEMENT_TEXT) }

@@ -259,7 +259,7 @@ class TaskContextSuite extends SparkFunSuite with BeforeAndAfter with LocalSpark
   test("localProperties are propagated to executors correctly") {
     sc = new SparkContext("local", "test")
     sc.setLocalProperty("testPropKey", "testPropValue")
-    val res = sc.parallelize(Array(1), 1).map(i => i).map(i => {
+    val res = sc.parallelize(Seq(1), 1).map(i => i).map(i => {
       val inTask = TaskContext.get().getLocalProperty("testPropKey")
       val inDeser = Executor.taskDeserializationProps.get().getProperty("testPropKey")
       s"$inTask,$inDeser"

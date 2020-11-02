@@ -282,7 +282,7 @@ class DoubleRDDSuite extends SparkFunSuite with SharedSparkContext {
   }
 
   test("WorksWithHugeRange") {
-    val rdd = sc.parallelize(Array(0, 1.0e24, 1.0e30))
+    val rdd = sc.parallelize(Seq(0, 1.0e24, 1.0e30))
     val histogramResults = rdd.histogram(1000000)._2
     assert(histogramResults(0) === 1)
     assert(histogramResults(1) === 1)

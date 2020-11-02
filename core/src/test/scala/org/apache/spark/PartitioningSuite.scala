@@ -208,9 +208,9 @@ class PartitioningSuite extends SparkFunSuite with SharedSparkContext with Priva
   }
 
   test("partitioning Java arrays should fail") {
-    val arrs: RDD[Array[Int]] = sc.parallelize(Array(1, 2, 3, 4), 2).map(x => Array(x))
+    val arrs: RDD[Array[Int]] = sc.parallelize(Seq(1, 2, 3, 4), 2).map(x => Array(x))
     val arrPairs: RDD[(Array[Int], Int)] =
-      sc.parallelize(Array(1, 2, 3, 4), 2).map(x => (Array(x), x))
+      sc.parallelize(Seq(1, 2, 3, 4), 2).map(x => (Array(x), x))
 
     def verify(testFun: => Unit): Unit = {
       intercept[SparkException](testFun).getMessage.contains("array")
@@ -235,7 +235,7 @@ class PartitioningSuite extends SparkFunSuite with SharedSparkContext with Priva
   test("zero-length partitions should be correctly handled") {
     // Create RDD with some consecutive empty partitions (including the "first" one)
     val rdd: RDD[Double] = sc
-        .parallelize(Array(-1.0, -1.0, -1.0, -1.0, 2.0, 4.0, -1.0, -1.0), 8)
+        .parallelize(Seq(-1.0, -1.0, -1.0, -1.0, 2.0, 4.0, -1.0, -1.0), 8)
         .filter(_ >= 0.0)
 
     // Run the partitions, including the consecutive empty ones, through StatCounter

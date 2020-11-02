@@ -32,7 +32,7 @@ class SortingSuite extends SparkFunSuite with SharedSparkContext with Matchers w
 
   test("large array") {
     val rand = new scala.util.Random()
-    val pairArr = Array.fill(1000) { (rand.nextInt(), rand.nextInt()) }
+    val pairArr = Seq.fill(1000) { (rand.nextInt(), rand.nextInt()) }
     val pairs = sc.parallelize(pairArr, 2)
     val sorted = pairs.sortByKey()
     assert(sorted.partitions.size === 2)
@@ -41,7 +41,7 @@ class SortingSuite extends SparkFunSuite with SharedSparkContext with Matchers w
 
   test("large array with one split") {
     val rand = new scala.util.Random()
-    val pairArr = Array.fill(1000) { (rand.nextInt(), rand.nextInt()) }
+    val pairArr = Seq.fill(1000) { (rand.nextInt(), rand.nextInt()) }
     val pairs = sc.parallelize(pairArr, 2)
     val sorted = pairs.sortByKey(true, 1)
     assert(sorted.partitions.size === 1)
@@ -50,7 +50,7 @@ class SortingSuite extends SparkFunSuite with SharedSparkContext with Matchers w
 
   test("large array with many partitions") {
     val rand = new scala.util.Random()
-    val pairArr = Array.fill(1000) { (rand.nextInt(), rand.nextInt()) }
+    val pairArr = Seq.fill(1000) { (rand.nextInt(), rand.nextInt()) }
     val pairs = sc.parallelize(pairArr, 2)
     val sorted = pairs.sortByKey(true, 20)
     assert(sorted.partitions.size === 20)
@@ -59,40 +59,40 @@ class SortingSuite extends SparkFunSuite with SharedSparkContext with Matchers w
 
   test("sort descending") {
     val rand = new scala.util.Random()
-    val pairArr = Array.fill(1000) { (rand.nextInt(), rand.nextInt()) }
+    val pairArr = Seq.fill(1000) { (rand.nextInt(), rand.nextInt()) }
     val pairs = sc.parallelize(pairArr, 2)
     assert(pairs.sortByKey(false).collect() === pairArr.sortWith((x, y) => x._1 > y._1))
   }
 
   test("sort descending with one split") {
     val rand = new scala.util.Random()
-    val pairArr = Array.fill(1000) { (rand.nextInt(), rand.nextInt()) }
+    val pairArr = Seq.fill(1000) { (rand.nextInt(), rand.nextInt()) }
     val pairs = sc.parallelize(pairArr, 1)
     assert(pairs.sortByKey(false, 1).collect() === pairArr.sortWith((x, y) => x._1 > y._1))
   }
 
   test("sort descending with many partitions") {
     val rand = new scala.util.Random()
-    val pairArr = Array.fill(1000) { (rand.nextInt(), rand.nextInt()) }
+    val pairArr = Seq.fill(1000) { (rand.nextInt(), rand.nextInt()) }
     val pairs = sc.parallelize(pairArr, 2)
     assert(pairs.sortByKey(false, 20).collect() === pairArr.sortWith((x, y) => x._1 > y._1))
   }
 
   test("more partitions than elements") {
     val rand = new scala.util.Random()
-    val pairArr = Array.fill(10) { (rand.nextInt(), rand.nextInt()) }
+    val pairArr = Seq.fill(10) { (rand.nextInt(), rand.nextInt()) }
     val pairs = sc.parallelize(pairArr, 30)
     assert(pairs.sortByKey().collect() === pairArr.sortBy(_._1))
   }
 
   test("empty RDD") {
-    val pairArr = new Array[(Int, Int)](0)
+    val pairArr = new Array[(Int, Int)](0).toIndexedSeq
     val pairs = sc.parallelize(pairArr, 2)
     assert(pairs.sortByKey().collect() === pairArr.sortBy(_._1))
   }
 
   test("partition balancing") {
-    val pairArr = (1 to 1000).map(x => (x, x)).toArray
+    val pairArr = (1 to 1000).map(x => (x, x))
     val sorted = sc.parallelize(pairArr, 4).sortByKey()
     assert(sorted.collect() === pairArr.sortBy(_._1))
     val partitions = sorted.collectPartitions()
@@ -107,7 +107,7 @@ class SortingSuite extends SparkFunSuite with SharedSparkContext with Matchers w
   }
 
   test("partition balancing for descending sort") {
-    val pairArr = (1 to 1000).map(x => (x, x)).toArray
+    val pairArr = (1 to 1000).map(x => (x, x))
     val sorted = sc.parallelize(pairArr, 4).sortByKey(false)
     assert(sorted.collect() === pairArr.sortBy(_._1).reverse)
     val partitions = sorted.collectPartitions()
@@ -122,14 +122,14 @@ class SortingSuite extends SparkFunSuite with SharedSparkContext with Matchers w
   }
 
   test("get a range of elements in a sorted RDD that is on one partition") {
-    val pairArr = (1 to 1000).map(x => (x, x)).toArray
+    val pairArr = (1 to 1000).map(x => (x, x))
     val sorted = sc.parallelize(pairArr, 10).sortByKey()
     val range = sorted.filterByRange(20, 40).collect()
     assert((20 to 40).toArray === range.map(_._1))
   }
 
   test("get a range of elements over multiple partitions in a descendingly sorted RDD") {
-    val pairArr = (1000 to 1 by -1).map(x => (x, x)).toArray
+    val pairArr = (1000 to 1 by -1).map(x => (x, x))
     val sorted = sc.parallelize(pairArr, 10).sortByKey(false)
     val range = sorted.filterByRange(200, 800).collect()
     assert((800 to 200 by -1).toArray === range.map(_._1))
@@ -143,7 +143,7 @@ class SortingSuite extends SparkFunSuite with SharedSparkContext with Matchers w
   }
 
   test("get a range of elements over multiple partitions but not taking up full partitions") {
-    val pairArr = (1000 to 1 by -1).map(x => (x, x)).toArray
+    val pairArr = (1000 to 1 by -1).map(x => (x, x))
     val sorted = sc.parallelize(pairArr, 10).sortByKey(false)
     val range = sorted.filterByRange(250, 850).collect()
     assert((850 to 250 by -1).toArray === range.map(_._1))

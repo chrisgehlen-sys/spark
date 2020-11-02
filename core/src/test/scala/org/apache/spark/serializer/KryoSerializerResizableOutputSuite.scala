@@ -27,7 +27,7 @@ import org.apache.spark.internal.config.Kryo._
 class KryoSerializerResizableOutputSuite extends SparkFunSuite {
 
   // trial and error showed this will not serialize with 1mb buffer
-  val x = (1 to 400000).toArray
+  val x = 1 to 400000
 
   test("kryo without resizable output buffer should fail on large array") {
     val conf = new SparkConf(false)

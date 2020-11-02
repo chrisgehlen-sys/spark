@@ -136,7 +136,7 @@ object ListenerEventsTestHelper {
     val taskMetrics = TaskMetrics.empty
     taskMetrics.incDiskBytesSpilled(111)
     taskMetrics.incMemoryBytesSpilled(222)
-    val accum = Array((333L, 1, 1, taskMetrics.accumulators().map(AccumulatorSuite.makeInfo)))
+    val accum = Seq((333L, 1, 1, taskMetrics.accumulators().map(AccumulatorSuite.makeInfo)))
     val executorUpdates = Map((stageId, 0) -> new ExecutorMetrics(executorMetrics))
     SparkListenerExecutorMetricsUpdate(executorId.toString, accum, executorUpdates)
   }

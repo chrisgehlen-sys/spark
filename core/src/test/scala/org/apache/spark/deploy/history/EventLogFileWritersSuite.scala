@@ -373,6 +373,6 @@ class RollingEventLogFilesWriterSuite extends EventLogFileWritersSuite {
 
   private def listEventLogFiles(logDirPath: Path): Seq[FileStatus] = {
     fileSystem.listStatus(logDirPath).filter(isEventLogFile)
-      .sortBy { fs => getEventLogFileIndex(fs.getPath.getName) }
+      .sortBy { fs => getEventLogFileIndex(fs.getPath.getName) }.toIndexedSeq
   }
 }

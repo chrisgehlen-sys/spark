@@ -409,7 +409,7 @@ class DecommissionWorkerSuite
   }
 
   private def getApplications(): Seq[ApplicationInfo] = {
-    getMasterState.activeApps
+    getMasterState.activeApps.toIndexedSeq
   }
 
   def decommissionWorkerOnMaster(workerInfo: WorkerInfo, reason: String): Unit = {

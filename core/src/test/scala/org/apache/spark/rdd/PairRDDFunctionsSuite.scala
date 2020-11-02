@@ -486,7 +486,7 @@ class PairRDDFunctionsSuite extends SparkFunSuite with SharedSparkContext {
 
   test("default partitioner uses partition size") {
     // specify 2000 partitions
-    val a = sc.makeRDD(Array(1, 2, 3, 4), 2000)
+    val a = sc.makeRDD(Seq(1, 2, 3, 4), 2000)
     // do a map, which loses the partitioner
     val b = a.map(a => (a, (a * 2).toString))
     // then a group by, and see we didn't revert to 2 partitions
@@ -502,8 +502,8 @@ class PairRDDFunctionsSuite extends SparkFunSuite with SharedSparkContext {
   }
 
   test("subtract") {
-    val a = sc.parallelize(Array(1, 2, 3), 2)
-    val b = sc.parallelize(Array(2, 3, 4), 4)
+    val a = sc.parallelize(Seq(1, 2, 3), 2)
+    val b = sc.parallelize(Seq(2, 3, 4), 4)
     val c = a.subtract(b)
     assert(c.collect().toSet === Set(1))
     assert(c.partitions.size === a.partitions.size)

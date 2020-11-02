@@ -21,10 +21,10 @@ import java.io.{ByteArrayInputStream, ByteArrayOutputStream}
 import java.nio.ByteBuffer
 import java.util.concurrent.Executors
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 
 import com.esotericsoftware.kryo.{Kryo, KryoException}
@@ -279,7 +279,7 @@ class KryoSerializerSuite extends SparkFunSuite with SharedSparkContext {
   }
 
   test("kryo with parallelize for primitive arrays") {
-    assert(sc.parallelize(Array(1, 2, 3)).count() === 3)
+    assert(sc.parallelize(Seq(1, 2, 3)).count() === 3)
   }
 
   test("kryo with collect for specialized tuples") {
@@ -287,7 +287,7 @@ class KryoSerializerSuite extends SparkFunSuite with SharedSparkContext {
   }
 
   test("kryo with SerializableHyperLogLog") {
-    assert(sc.parallelize(Array(1, 2, 3, 2, 3, 3, 2, 3, 1)).countApproxDistinct(0.01) === 3)
+    assert(sc.parallelize(Seq(1, 2, 3, 2, 3, 3, 2, 3, 1)).countApproxDistinct(0.01) === 3)
   }
 
   test("kryo with reduce") {

@@ -20,8 +20,8 @@ package org.apache.spark.status
 import java.io.File
 import java.util.{Date, Properties}
 
-import scala.collection.JavaConverters._
 import scala.collection.immutable.Map
+import scala.jdk.CollectionConverters._
 import scala.reflect.{classTag, ClassTag}
 
 import org.scalatest.BeforeAndAfter

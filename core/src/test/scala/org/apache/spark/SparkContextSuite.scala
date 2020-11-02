@@ -124,7 +124,7 @@ class SparkContextSuite extends SparkFunSuite with LocalSparkContext with Eventu
         sc = new SparkContext(new SparkConf().setAppName("test").setMaster("local"))
         sc.addFile(file1.getAbsolutePath)
         sc.addFile(relativePath)
-        sc.parallelize(Array(1), 1).map(x => {
+        sc.parallelize(Seq(1), 1).map(x => {
           val gotten1 = new File(SparkFiles.get(file1.getName))
           val gotten2 = new File(SparkFiles.get(file2.getName))
           if (!gotten1.exists()) {
@@ -213,7 +213,7 @@ class SparkContextSuite extends SparkFunSuite with LocalSparkContext with Eventu
       try {
         sc = new SparkContext(new SparkConf().setAppName("test").setMaster("local"))
         sc.addFile(neptune.getAbsolutePath, true)
-        sc.parallelize(Array(1), 1).map(x => {
+        sc.parallelize(Seq(1), 1).map(x => {
           val sep = File.separator
           if (!new File(SparkFiles.get(neptune.getName + sep + alien1.getName)).exists()) {
             throw new SparkException("can't access file under root added directory")

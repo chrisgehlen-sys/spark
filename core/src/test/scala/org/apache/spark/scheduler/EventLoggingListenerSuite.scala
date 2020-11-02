@@ -518,7 +518,7 @@ class EventLoggingListenerSuite extends SparkFunSuite with LocalSparkContext wit
     val taskMetrics = TaskMetrics.empty
     taskMetrics.incDiskBytesSpilled(111)
     taskMetrics.incMemoryBytesSpilled(222)
-    val accum = Array((333L, 1, 1, taskMetrics.accumulators().map(AccumulatorSuite.makeInfo)))
+    val accum = Seq((333L, 1, 1, taskMetrics.accumulators().map(AccumulatorSuite.makeInfo)))
     val executorUpdates =
       if (executorId == "driver") {
         stageIds.map(id => (id, -1) -> executorMetrics).toMap

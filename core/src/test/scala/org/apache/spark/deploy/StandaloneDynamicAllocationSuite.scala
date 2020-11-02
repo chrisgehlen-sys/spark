@@ -572,7 +572,7 @@ class StandaloneDynamicAllocationSuite
 
   /** Get the applications that are active from Master */
   private def getApplications(): Seq[ApplicationInfo] = {
-    getMasterState.activeApps
+    getMasterState.activeApps.toIndexedSeq
   }
 
   /** Kill all executors belonging to this application. */

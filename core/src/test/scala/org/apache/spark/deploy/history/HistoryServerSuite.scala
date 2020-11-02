@@ -389,7 +389,7 @@ class HistoryServerSuite extends SparkFunSuite with BeforeAndAfter with Matchers
     def listDir(dir: Path): Seq[FileStatus] = {
       val statuses = fs.listStatus(dir)
       statuses.flatMap(
-        stat => if (stat.isDirectory) listDir(stat.getPath) else Seq(stat))
+        stat => if (stat.isDirectory) listDir(stat.getPath) else Seq(stat)).toIndexedSeq
     }
 
     def dumpLogDir(msg: String = ""): Unit = {

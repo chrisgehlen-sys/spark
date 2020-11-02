@@ -213,7 +213,7 @@ class AppClientSuite
 
   /** Get the applications that are active from Master */
   private def getApplications(): Seq[ApplicationInfo] = {
-    getMasterState.activeApps
+    getMasterState.activeApps.toIndexedSeq
   }
 
   /** Application Listener to collect events */

@@ -21,12 +21,12 @@ import java.io.File
 import java.nio.ByteBuffer
 import java.nio.file.Files
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.{Future, TimeoutException}
 import scala.concurrent.duration._
 import scala.language.implicitConversions
+import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 
 import org.apache.commons.lang3.RandomUtils
@@ -1839,7 +1839,7 @@ class BlockManagerSuite extends SparkFunSuite with Matchers with BeforeAndAfterE
     val mockBlockManagerMaster = mock(classOf[BlockManagerMaster])
     val blockLocations = Seq(BlockManagerId("1", "host1", 100), BlockManagerId("2", "host2", 200))
     when(mockBlockManagerMaster.getLocations(mc.any[Array[BlockId]]))
-      .thenReturn(Array(blockLocations))
+      .thenReturn(IndexedSeq(blockLocations))
     val env = mock(classOf[SparkEnv])
 
     val blockIds: Array[BlockId] = Array(StreamBlockId(1, 2))

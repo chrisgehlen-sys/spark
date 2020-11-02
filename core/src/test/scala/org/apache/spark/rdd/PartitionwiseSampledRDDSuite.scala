@@ -41,7 +41,7 @@ class MockSampler extends RandomSampler[Long, Long] {
 class PartitionwiseSampledRDDSuite extends SparkFunSuite with SharedSparkContext {
 
   test("seed distribution") {
-    val rdd = sc.makeRDD(Array(1L, 2L, 3L, 4L), 2)
+    val rdd = sc.makeRDD(Seq(1L, 2L, 3L, 4L), 2)
     val sampler = new MockSampler
     val sample = new PartitionwiseSampledRDD[Long, Long](rdd, sampler, false, 0L)
     assert(sample.distinct().count() == 2, "Seeds must be different.")

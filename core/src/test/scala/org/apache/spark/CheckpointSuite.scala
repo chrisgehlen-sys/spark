@@ -472,14 +472,14 @@ class CheckpointSuite extends SparkFunSuite with RDDCheckpointTester with LocalS
 
   runTest("PartitionerAwareUnionRDD") { reliableCheckpoint: Boolean =>
     testRDD(rdd => {
-      new PartitionerAwareUnionRDD[(Int, Int)](sc, Array(
+      new PartitionerAwareUnionRDD[(Int, Int)](sc, Seq(
         generateFatPairRDD(),
         rdd.map(x => (x % 2, 1)).reduceByKey(partitioner, _ + _)
       ))
     }, reliableCheckpoint)
 
     testRDDPartitions(rdd => {
-      new PartitionerAwareUnionRDD[(Int, Int)](sc, Array(
+      new PartitionerAwareUnionRDD[(Int, Int)](sc, Seq(
         generateFatPairRDD(),
         rdd.map(x => (x % 2, 1)).reduceByKey(partitioner, _ + _)
       ))
@@ -491,7 +491,7 @@ class CheckpointSuite extends SparkFunSuite with RDDCheckpointTester with LocalS
     // implementation of PartitionerAwareUnionRDD.
     val pairRDD = generateFatPairRDD()
     checkpoint(pairRDD, reliableCheckpoint)
-    val unionRDD = new PartitionerAwareUnionRDD(sc, Array(pairRDD))
+    val unionRDD = new PartitionerAwareUnionRDD(sc, Array(pairRDD).toIndexedSeq)
     val partitionBeforeCheckpoint = serializeDeserialize(
       unionRDD.partitions.head.asInstanceOf[PartitionerAwareUnionRDDPartition])
     pairRDD.count()

@@ -19,9 +19,9 @@ package org.apache.spark.storage
 
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentLinkedQueue, Semaphore, TimeUnit}
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
 import scala.concurrent.duration._
+import scala.jdk.CollectionConverters._
 
 import org.scalatest.concurrent.Eventually
 
@@ -64,7 +64,7 @@ class BlockManagerDecommissionIntegrationSuite extends SparkFunSuite with LocalS
       }
       sc.addSparkListener(decommissionListener)
 
-      val decommissionStatus: Seq[Boolean] = sc.parallelize(1 to 100, 2).mapPartitions { _ =>
+      val decommissionStatus: Array[Boolean] = sc.parallelize(1 to 100, 2).mapPartitions { _ =>
         val startTime = System.currentTimeMillis()
         while (SparkEnv.get.blockManager.decommissioner.isEmpty &&
           // wait at most 6 seconds for BlockManager to start to decommission (if enabled)
