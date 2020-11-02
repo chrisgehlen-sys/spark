@@ -248,7 +248,7 @@ private[sql] class JacksonGenerator(
    */
   def write(row: InternalRow): Unit = {
     writeObject(writeFields(
-      fieldWriters = rootFieldWriters,
+      fieldWriters = rootFieldWriters.toIndexedSeq,
       row = row,
       schema = dataType.asInstanceOf[StructType]))
   }

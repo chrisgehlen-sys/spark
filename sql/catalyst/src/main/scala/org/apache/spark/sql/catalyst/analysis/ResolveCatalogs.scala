@@ -64,7 +64,7 @@ class ResolveCatalogs(val catalogManager: CatalogManager)
               col.comment.orNull,
               col.position.orNull)
           }
-          deleteChanges ++ addChanges
+          deleteChanges.toSeq ++ addChanges
         case None => Seq()
       }
       createAlterTable(nameParts, catalog, tbl, changes)

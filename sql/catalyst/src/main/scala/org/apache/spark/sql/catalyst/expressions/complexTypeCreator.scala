@@ -639,7 +639,7 @@ case class UpdateFields(structExpr: Expression, fieldOps: Seq[StructFieldsOperat
 
   private lazy val newFieldExprs: Seq[(StructField, Expression)] = {
     val existingFieldExprs: Seq[(StructField, Expression)] =
-      structExpr.dataType.asInstanceOf[StructType].fields.zipWithIndex.map {
+      structExpr.dataType.asInstanceOf[StructType].fields.toIndexedSeq.zipWithIndex.map {
         case (field, i) => (field, GetStructField(structExpr, i))
       }
 

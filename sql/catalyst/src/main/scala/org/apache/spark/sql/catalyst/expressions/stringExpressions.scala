@@ -264,7 +264,7 @@ case class Elt(children: Seq[Expression]) extends Expression {
             s"${BinaryType.catalogString}, but it's " +
             inputTypes.map(_.catalogString).mkString("[", ", ", "]"))
       }
-      TypeUtils.checkForSameTypeInputExpr(inputTypes, s"function $prettyName")
+      TypeUtils.checkForSameTypeInputExpr(inputTypes.toIndexedSeq, s"function $prettyName")
     }
   }
 
@@ -302,7 +302,7 @@ case class Elt(children: Seq[Expression]) extends Expression {
     }
 
     val codes = ctx.splitExpressionsWithCurrentInputs(
-      expressions = assignInputValue,
+      expressions = assignInputValue.toIndexedSeq,
       funcName = "eltFunc",
       extraArguments = ("int", indexVal) :: Nil,
       returnType = CodeGenerator.JAVA_BOOLEAN,

@@ -836,9 +836,11 @@ class Analyzer(
     extends Rule[LogicalPlan] with LookupCatalog {
     def apply(plan: LogicalPlan): LogicalPlan = plan resolveOperators {
       case s @ ShowTables(UnresolvedNamespace(Seq()), _) =>
-        s.copy(namespace = ResolvedNamespace(currentCatalog, catalogManager.currentNamespace))
+        s.copy(namespace = ResolvedNamespace(currentCatalog,
+          catalogManager.currentNamespace.toIndexedSeq))
       case s @ ShowViews(UnresolvedNamespace(Seq()), _) =>
-        s.copy(namespace = ResolvedNamespace(currentCatalog, catalogManager.currentNamespace))
+        s.copy(namespace = ResolvedNamespace(currentCatalog,
+          catalogManager.currentNamespace.toIndexedSeq))
       case UnresolvedNamespace(Seq()) =>
         ResolvedNamespace(currentCatalog, Seq.empty[String])
       case UnresolvedNamespace(CatalogAndNamespace(catalog, ns)) =>
@@ -918,7 +920,7 @@ class Analyzer(
               case ds: DataSourceV2Relation => (ds.catalog, ds.identifier.get)
               case s: StreamingRelationV2 => (s.catalog, s.identifier.get)
             }
-            SubqueryAlias(catalog.get.name +: ident.namespace :+ ident.name, relation)
+            SubqueryAlias(catalog.get.name +: ident.namespace.toIndexedSeq :+ ident.name, relation)
           }.getOrElse(u)
 
       case u @ UnresolvedTable(NonSessionCatalogAndIdentifier(catalog, ident)) =>
@@ -1084,7 +1086,7 @@ class Analyzer(
                   DataSourceV2Relation.create(table, Some(catalog), Some(ident), options))
               }
           }
-          val key = catalog.name +: ident.namespace :+ ident.name
+          val key = catalog.name +: ident.namespace.toIndexedSeq :+ ident.name
           AnalysisContext.get.relationCache.get(key).map(_.transform {
             case multi: MultiInstanceRelation => multi.newInstance()
           }).orElse {
@@ -1125,7 +1127,7 @@ class Analyzer(
       // identity partition transform because the partition values and the column values are
       // identical. otherwise, partition values are produced by transforming one or more source
       // columns and cannot be set directly in a query's PARTITION clause.
-      table.partitioning.flatMap {
+      table.partitioning.toIndexedSeq.flatMap {
         case IdentityTransform(FieldReference(Seq(name))) => Some(name)
         case _ => None
       }
@@ -3336,7 +3338,9 @@ class Analyzer(
             val parent = add.fieldNames().init
             if (parent.nonEmpty) {
               // Adding a nested field, need to normalize the parent column and position
-              val target = schema.findNestedField(parent, includeCollections = true, conf.resolver)
+              val target =
+                schema.findNestedField(parent.toIndexedSeq, includeCollections = true,
+                  conf.resolver)
               if (target.isEmpty) {
                 // Leave unresolved. Throws error in CheckAnalysis
                 Some(add)
@@ -3357,7 +3361,7 @@ class Analyzer(
           case typeChange: UpdateColumnType =>
             // Hive style syntax provides the column type, even if it may not have changed
             val fieldOpt = schema.findNestedField(
-              typeChange.fieldNames(), includeCollections = true, conf.resolver)
+              typeChange.fieldNames().toIndexedSeq, includeCollections = true, conf.resolver)
 
             if (fieldOpt.isEmpty) {
               // We couldn't resolve the field. Leave it to CheckAnalysis
@@ -3384,7 +3388,7 @@ class Analyzer(
               case after: After =>
                 // Need to resolve column as well as position reference
                 val fieldOpt = schema.findNestedField(
-                  position.fieldNames(), includeCollections = true, conf.resolver)
+                  position.fieldNames().toIndexedSeq, includeCollections = true, conf.resolver)
 
                 if (fieldOpt.isEmpty) {
                   Some(position)
@@ -3444,7 +3448,7 @@ class Analyzer(
         fieldNames: Array[String],
         copy: Array[String] => TableChange): Option[TableChange] = {
       val fieldOpt = schema.findNestedField(
-        fieldNames, includeCollections = true, conf.resolver)
+        fieldNames.toIndexedSeq, includeCollections = true, conf.resolver)
       fieldOpt.map { case (path, field) => copy((path :+ field.name).toArray) }
     }
 

@@ -198,7 +198,7 @@ case class Percentile(
 
     percentages.map { percentile =>
       getPercentile(accumlatedCounts, maxPosition * percentile)
-    }
+    }.toIndexedSeq
   }
 
   private def generateOutput(results: Seq[Double]): Any = {

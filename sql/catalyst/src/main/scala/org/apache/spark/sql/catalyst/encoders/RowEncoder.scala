@@ -186,7 +186,7 @@ object RowEncoder {
           fieldValue
         }
         Literal(field.name) :: convertedField :: Nil
-      })
+      }.toIndexedSeq)
 
       if (inputObject.nullable) {
         expressionForNullableExpr(inputObject, nonNullOutput)
@@ -323,7 +323,7 @@ object RowEncoder {
       }
       If(IsNull(input),
         Literal.create(null, externalDataTypeFor(input.dataType)),
-        CreateExternalRow(convertedFields, schema))
+        CreateExternalRow(convertedFields.toIndexedSeq, schema))
   }
 
   private def expressionForNullableExpr(

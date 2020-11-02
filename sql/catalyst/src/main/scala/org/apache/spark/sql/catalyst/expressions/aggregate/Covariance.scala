@@ -48,7 +48,7 @@ abstract class Covariance(x: Expression, y: Expression, nullOnDivideByZero: Bool
 
   override val aggBufferAttributes: Seq[AttributeReference] = Seq(n, xAvg, yAvg, ck)
 
-  override val initialValues: Seq[Expression] = Array.fill(4)(Literal(0.0))
+  override val initialValues: Seq[Expression] = IndexedSeq.fill(4)(Literal(0.0))
 
   override lazy val updateExpressions: Seq[Expression] = updateExpressionsDef
 

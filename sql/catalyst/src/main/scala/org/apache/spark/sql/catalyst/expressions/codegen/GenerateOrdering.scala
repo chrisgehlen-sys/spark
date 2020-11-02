@@ -58,7 +58,7 @@ object GenerateOrdering extends CodeGenerator[Seq[SortOrder], BaseOrdering] with
     val ordering = schema.fields.map(_.dataType).zipWithIndex.map {
       case(dt, index) => SortOrder(BoundReference(index, dt, nullable = true), Ascending)
     }
-    genComparisons(ctx, ordering)
+    genComparisons(ctx, ordering.toIndexedSeq)
   }
 
   /**

@@ -80,7 +80,7 @@ class UnivocityGenerator(
       }
       i += 1
     }
-    values
+    values.toIndexedSeq
   }
 
   def writeHeaders(): Unit = {

@@ -173,7 +173,7 @@ class GenericRow(protected[sql] val values: Array[Any]) extends Row {
 
   override def get(i: Int): Any = values(i)
 
-  override def toSeq: Seq[Any] = values.clone()
+  override def toSeq: Seq[Any] = values.clone().toIndexedSeq
 
   override def copy(): GenericRow = this
 }
@@ -200,7 +200,7 @@ class GenericInternalRow(val values: Array[Any]) extends BaseGenericInternalRow 
 
   override protected def genericGet(ordinal: Int) = values(ordinal)
 
-  override def toSeq(fieldTypes: Seq[DataType]): Seq[Any] = values.clone()
+  override def toSeq(fieldTypes: Seq[DataType]): Seq[Any] = values.clone().toIndexedSeq
 
   override def numFields: Int = values.length
 

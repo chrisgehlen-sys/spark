@@ -74,7 +74,7 @@ abstract class CentralMomentAgg(child: Expression, nullOnDivideByZero: Boolean)
 
   override val aggBufferAttributes = trimHigherOrder(Seq(n, avg, m2, m3, m4))
 
-  override val initialValues: Seq[Expression] = Array.fill(momentOrder + 1)(Literal(0.0))
+  override val initialValues: Seq[Expression] = IndexedSeq.fill(momentOrder + 1)(Literal(0.0))
 
   override lazy val updateExpressions: Seq[Expression] = updateExpressionsDef
 

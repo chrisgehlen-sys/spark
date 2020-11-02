@@ -170,7 +170,8 @@ object UnresolvedAttribute {
   /**
    * Creates an [[UnresolvedAttribute]], parsing segments separated by dots ('.').
    */
-  def apply(name: String): UnresolvedAttribute = new UnresolvedAttribute(name.split("\\."))
+  def apply(name: String): UnresolvedAttribute =
+    new UnresolvedAttribute(name.split("\\.").toIndexedSeq)
 
   /**
    * Creates an [[UnresolvedAttribute]], from a single quoted string (for example using backticks in

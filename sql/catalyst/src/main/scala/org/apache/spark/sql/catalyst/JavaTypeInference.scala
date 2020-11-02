@@ -456,7 +456,7 @@ object JavaTypeInference {
               returnNullable = !hasNonNull)
             (fieldName, serializerFor(fieldValue, fieldType))
           }
-          createSerializerForObject(inputObject, fields)
+          createSerializerForObject(inputObject, fields.toIndexedSeq)
       }
     }
   }

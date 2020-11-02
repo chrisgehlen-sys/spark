@@ -184,13 +184,13 @@ object CatalystTypeConverters {
       if (catalystValue == null) {
         null
       } else if (isPrimitive(elementType)) {
-        catalystValue.toArray[Any](elementType)
+        catalystValue.toSeq[Any](elementType)
       } else {
         val result = new Array[Any](catalystValue.numElements())
         catalystValue.foreach(elementType, (i, e) => {
           result(i) = elementConverter.toScala(e)
         })
-        result
+        result.toIndexedSeq
       }
     }
 

@@ -180,7 +180,7 @@ case class CreateTableAsSelect(
     // the table schema is created from the query schema, so the only resolution needed is to check
     // that the columns referenced by the table's partitioning exist in the query schema
     val references = partitioning.flatMap(_.references).toSet
-    references.map(_.fieldNames).forall(query.schema.findNestedField(_).isDefined)
+    references.map(_.fieldNames.toIndexedSeq).forall(query.schema.findNestedField(_).isDefined)
   }
 
   override def withPartitioning(rewritten: Seq[Transform]): V2CreateTablePlan = {
@@ -230,7 +230,7 @@ case class ReplaceTableAsSelect(
     // the table schema is created from the query schema, so the only resolution needed is to check
     // that the columns referenced by the table's partitioning exist in the query schema
     val references = partitioning.flatMap(_.references).toSet
-    references.map(_.fieldNames).forall(query.schema.findNestedField(_).isDefined)
+    references.map(_.fieldNames.toIndexedSeq).forall(query.schema.findNestedField(_).isDefined)
   }
 
   override def withPartitioning(rewritten: Seq[Transform]): V2CreateTablePlan = {
@@ -417,12 +417,14 @@ case class AlterTable(
             true
           case _ =>
             // the parent field must exist
-            table.schema.findNestedField(add.fieldNames.init, includeCollections = true).isDefined
+            table.schema.findNestedField(add.fieldNames.init.toIndexedSeq,
+              includeCollections = true).isDefined
         }
 
       case colChange: ColumnChange =>
         // the column that will be changed must exist
-        table.schema.findNestedField(colChange.fieldNames, includeCollections = true).isDefined
+        table.schema.findNestedField(colChange.fieldNames.toIndexedSeq,
+          includeCollections = true).isDefined
 
       case _ =>
         // property changes require no resolution checks

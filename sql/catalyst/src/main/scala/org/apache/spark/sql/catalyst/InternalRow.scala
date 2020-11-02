@@ -91,7 +91,7 @@ abstract class InternalRow extends SpecializedGetters with Serializable {
       values(i) = get(i, fieldTypes(i))
       i += 1
     }
-    values
+    values.toIndexedSeq
   }
 
   def toSeq(schema: StructType): Seq[Any] = toSeq(schema.map(_.dataType))

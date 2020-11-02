@@ -19,8 +19,8 @@ package org.apache.spark.sql.catalyst.expressions.objects
 
 import java.lang.reflect.{Method, Modifier}
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable.{Builder, IndexedSeq, WrappedArray}
+import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import scala.util.{Properties, Try}
 
@@ -1267,7 +1267,7 @@ case class ExternalMapToCatalyst private(
     keyConverter.dataType, valueConverter.dataType, valueContainsNull = valueConverter.nullable)
 
   private lazy val mapCatalystConverter: Any => (Array[Any], Array[Any]) = {
-    val rowBuffer = InternalRow.fromSeq(Array[Any](1))
+    val rowBuffer = InternalRow.fromSeq(Seq[Any](1))
     def rowWrapper(data: Any): InternalRow = {
       rowBuffer.update(0, data)
       rowBuffer

@@ -99,7 +99,7 @@ class JsonFilters(pushedFilters: Seq[sources.Filter], schema: StructType)
       // Combine all filters from the same group by `And` because all filters should
       // return `true` to do not skip a row. The result is compiled to a predicate.
       .map { case (refSet, refsFilters) =>
-        (refSet, JsonPredicate(toPredicate(refsFilters), refSet.size))
+        (refSet, JsonPredicate(toPredicate(refsFilters.toIndexedSeq), refSet.size))
       }
     // Apply predicates w/o references like `AlwaysTrue` and `AlwaysFalse` to all fields.
     // We cannot set such predicates to a particular position because skipRow() can

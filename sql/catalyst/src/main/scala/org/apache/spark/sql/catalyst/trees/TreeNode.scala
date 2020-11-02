@@ -548,13 +548,13 @@ abstract class TreeNode[BaseType <: TreeNode[BaseType]] extends Product {
     case seq: Seq[_] => truncatedString(seq, "[", ", ", "]", maxFields) :: Nil
     case set: Set[_] => truncatedString(set.toSeq, "{", ", ", "}", maxFields) :: Nil
     case array: Array[_] if array.isEmpty => Nil
-    case array: Array[_] => truncatedString(array, "[", ", ", "]", maxFields) :: Nil
+    case array: Array[_] => truncatedString(array.toIndexedSeq, "[", ", ", "]", maxFields) :: Nil
     case null => Nil
     case None => Nil
     case Some(null) => Nil
     case Some(any) => any :: Nil
     case map: CaseInsensitiveStringMap => truncatedString(
-      map.asCaseSensitiveMap().entrySet().toArray(), "[", ", ", "]", maxFields) :: Nil
+      map.asCaseSensitiveMap().entrySet().toArray().toIndexedSeq, "[", ", ", "]", maxFields) :: Nil
     case table: CatalogTable =>
       table.storage.serde match {
         case Some(serde) => table.identifier :: serde :: Nil

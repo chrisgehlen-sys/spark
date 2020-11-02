@@ -374,7 +374,7 @@ trait CheckAnalysis extends PredicateHelper {
           case create: V2CreateTablePlan =>
             val references = create.partitioning.flatMap(_.references).toSet
             val badReferences = references.map(_.fieldNames).flatMap { column =>
-              create.tableSchema.findNestedField(column) match {
+              create.tableSchema.findNestedField(column.toSeq) match {
                 case Some(_) =>
                   None
                 case _ =>
@@ -435,7 +435,7 @@ trait CheckAnalysis extends PredicateHelper {
             val table = alter.table
             def findField(operation: String, fieldName: Array[String]): StructField = {
               // include collections because structs nested in maps and arrays may be altered
-              val field = table.schema.findNestedField(fieldName, includeCollections = true)
+              val field = table.schema.findNestedField(fieldName.toSeq, includeCollections = true)
               if (field.isEmpty) {
                 alter.failAnalysis(
                   s"Cannot $operation missing field ${fieldName.quoted} in ${table.name} schema: " +
@@ -474,7 +474,7 @@ trait CheckAnalysis extends PredicateHelper {
                 operation: String,
                 fieldNames: Array[String],
                 struct: StructType): Unit = {
-              if (struct.findNestedField(fieldNames, includeCollections = true).isDefined) {
+              if (struct.findNestedField(fieldNames.toSeq, includeCollections = true).isDefined) {
                 alter.failAnalysis(s"Cannot $operation column, because ${fieldNames.quoted} " +
                   s"already exists in ${struct.treeString}")
               }
@@ -491,15 +491,15 @@ trait CheckAnalysis extends PredicateHelper {
               case add: AddColumn =>
                 // If a column to add is a part of columns to delete, we don't need to check
                 // if column already exists - applies to REPLACE COLUMNS scenario.
-                if (!colsToDelete.contains(add.fieldNames())) {
+                if (!colsToDelete.contains(add.fieldNames().toSeq)) {
                   checkColumnNotExists("add", add.fieldNames(), table.schema)
                 }
                 val parent = findParentStruct("add", add.fieldNames())
                 val parentName = add.fieldNames().init
-                val fieldsAdded = colsToAdd.getOrElse(parentName, Nil)
+                val fieldsAdded = colsToAdd.getOrElse(parentName.toSeq, Nil)
                 positionArgumentExists(add.position(), parent, fieldsAdded)
                 TypeUtils.failWithIntervalType(add.dataType())
-                colsToAdd(parentName) = fieldsAdded :+ add.fieldNames().last
+                colsToAdd(parentName.toSeq) = fieldsAdded :+ add.fieldNames().last
               case update: UpdateColumnType =>
                 val field = findField("update", update.fieldNames)
                 val fieldName = update.fieldNames.quoted
@@ -542,7 +542,7 @@ trait CheckAnalysis extends PredicateHelper {
                 positionArgumentExists(
                   updatePos.position(),
                   parent,
-                  colsToAdd.getOrElse(parentName, Nil))
+                  colsToAdd.getOrElse(parentName.toSeq, Nil))
               case rename: RenameColumn =>
                 findField("rename", rename.fieldNames)
                 checkColumnNotExists(
@@ -554,7 +554,7 @@ trait CheckAnalysis extends PredicateHelper {
                 // REPLACE COLUMNS has deletes followed by adds. Remember the deleted columns
                 // so that add operations do not fail when the columns to add exist and they
                 // are to be deleted.
-                colsToDelete += delete.fieldNames
+                colsToDelete += delete.fieldNames.toSeq
               case _ =>
               // no validation needed for set and remove property
             }

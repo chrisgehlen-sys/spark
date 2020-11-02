@@ -47,7 +47,7 @@ object ResolveUnion extends Rule[LogicalPlan] {
         }
     }.sortBy(_._1).flatMap(pair => Seq(Literal(pair._1), pair._2))
 
-    val newExpr = CreateNamedStruct(existingExprs)
+    val newExpr = CreateNamedStruct(existingExprs.toIndexedSeq)
     if (expr.nullable) {
       If(IsNull(expr), Literal(null, newExpr.dataType), newExpr)
     } else {
@@ -110,7 +110,7 @@ object ResolveUnion extends Rule[LogicalPlan] {
       sortStructFields(col)
     } else {
       missingFieldsOpt.map { s =>
-        val struct = addFieldsInto(col, s.fields)
+        val struct = addFieldsInto(col, s.fields.toIndexedSeq)
         // Combines `WithFields`s to reduce expression tree.
         val reducedStruct = struct.transformUp(OptimizeUpdateFields.optimizeUpdateFields)
         val sorted = sortStructFieldsInWithFields(reducedStruct)
@@ -143,7 +143,7 @@ object ResolveUnion extends Rule[LogicalPlan] {
             UpdateFields(currCol, field.name, Literal(null, st))
           } else {
             UpdateFields(currCol, field.name,
-              addFieldsInto(ExtractValue(currCol, Literal(field.name), resolver), st.fields))
+              addFieldsInto(ExtractValue(currCol, Literal(field.name), resolver), st.fields.toSeq))
           }
         case dt =>
           UpdateFields(currCol, field.name, Literal(null, dt))

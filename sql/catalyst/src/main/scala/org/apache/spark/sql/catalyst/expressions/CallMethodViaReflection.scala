@@ -108,7 +108,8 @@ case class CallMethodViaReflection(children: Seq[Expression])
   /** The reflection method. */
   @transient lazy val method: Method = {
     val methodName = children(1).eval(null).asInstanceOf[UTF8String].toString
-    CallMethodViaReflection.findMethod(className, methodName, argExprs.map(_.dataType)).orNull
+    CallMethodViaReflection.findMethod(className, methodName,
+      argExprs.map(_.dataType).toIndexedSeq).orNull
   }
 
   /** A temporary buffer used to hold intermediate results returned by children. */

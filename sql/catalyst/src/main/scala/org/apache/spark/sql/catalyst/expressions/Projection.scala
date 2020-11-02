@@ -140,7 +140,7 @@ object UnsafeProjection
    * CAUTION: the returned projection object is *not* thread-safe.
    */
   def create(fields: Array[DataType]): UnsafeProjection = {
-    create(fields.zipWithIndex.map(x => BoundReference(x._2, x._1, true)))
+    create(fields.toIndexedSeq.zipWithIndex.map(x => BoundReference(x._2, x._1, true)))
   }
 
   /**
@@ -183,7 +183,7 @@ object SafeProjection extends CodeGeneratorWithInterpretedFallback[Seq[Expressio
    * Returns a SafeProjection for given Array of DataTypes.
    */
   def create(fields: Array[DataType]): Projection = {
-    createObject(fields.zipWithIndex.map(x => new BoundReference(x._2, x._1, true)))
+    createObject(fields.toIndexedSeq.zipWithIndex.map(x => BoundReference(x._2, x._1, true)))
   }
 
   /**
