@@ -483,7 +483,7 @@ class BlacklistTrackerSuite extends SparkFunSuite with BeforeAndAfterEach with M
       // To avoid a race between blacklisting and killing, it is important that the nodeBlacklist
       // is updated before we ask the executor allocation client to kill all the executors
       // on a particular host.
-      if (blacklist.nodeBlacklist.contains("hostA")) {
+      if (blacklist.nodeBlacklist().contains("hostA")) {
         true
       } else {
         throw new IllegalStateException("hostA should be on the blacklist")
@@ -554,7 +554,7 @@ class BlacklistTrackerSuite extends SparkFunSuite with BeforeAndAfterEach with M
       // To avoid a race between blacklisting and killing, it is important that the nodeBlacklist
       // is updated before we ask the executor allocation client to kill all the executors
       // on a particular host.
-      if (blacklist.nodeBlacklist.contains("hostA")) {
+      if (blacklist.nodeBlacklist().contains("hostA")) {
         true
       } else {
         throw new IllegalStateException("hostA should be on the blacklist")

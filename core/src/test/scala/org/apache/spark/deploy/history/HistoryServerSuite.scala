@@ -523,7 +523,7 @@ class HistoryServerSuite extends SparkFunSuite with BeforeAndAfter with Matchers
       assert(4 === getNumJobsRestful(), s"two jobs back-to-back not updated, server=$server\n")
     }
     val jobcount = getNumJobs("/jobs")
-    assert(!isApplicationCompleted(provider.getListing().next))
+    assert(!isApplicationCompleted(provider.getListing().next()))
 
     listApplications(false) should contain(appId)
 
@@ -531,7 +531,7 @@ class HistoryServerSuite extends SparkFunSuite with BeforeAndAfter with Matchers
     resetSparkContext()
     // check the app is now found as completed
     eventually(stdTimeout, stdInterval) {
-      assert(isApplicationCompleted(provider.getListing().next),
+      assert(isApplicationCompleted(provider.getListing().next()),
         s"application never completed, server=$server\n")
     }
 
