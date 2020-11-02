@@ -30,17 +30,17 @@ class InferFiltersFromGenerateSuite extends PlanTest {
     val batches = Batch("Infer Filters", Once, InferFiltersFromGenerate) :: Nil
   }
 
-  val testRelation = LocalRelation('a.array(StructType(Seq(
+  val testRelation = LocalRelation(Symbol("a").array(StructType(Seq(
     StructField("x", IntegerType),
     StructField("y", IntegerType)
   ))))
 
   Seq(Explode(_), PosExplode(_), Inline(_)).foreach { f =>
-    val generator = f('a)
+    val generator = f(Symbol("a"))
     test("Infer filters from " + generator) {
       val originalQuery = testRelation.generate(generator).analyze
       val correctAnswer = testRelation
-        .where(IsNotNull('a) && Size('a) > 0)
+        .where(IsNotNull(Symbol("a")) && Size(Symbol("a")) > 0)
         .generate(generator)
         .analyze
       val optimized = Optimize.execute(originalQuery)
@@ -49,7 +49,7 @@ class InferFiltersFromGenerateSuite extends PlanTest {
 
     test("Don't infer duplicate filters from " + generator) {
       val originalQuery = testRelation
-        .where(IsNotNull('a) && Size('a) > 0)
+        .where(IsNotNull(Symbol("a")) && Size(Symbol("a")) > 0)
         .generate(generator)
         .analyze
       val optimized = Optimize.execute(originalQuery)
