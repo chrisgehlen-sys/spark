@@ -26,8 +26,8 @@ import java.util.{ServiceLoader, UUID}
 import java.util.jar.JarInputStream
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 import scala.util.{Properties, Try}
 
 import org.apache.commons.io.FilenameUtils
