@@ -44,8 +44,8 @@ class BinaryComparisonSimplificationSuite extends PlanTest with PredicateHelper 
         PruneFilters) :: Nil
   }
 
-  val nullableRelation = LocalRelation('a.int.withNullability(true))
-  val nonNullableRelation = LocalRelation('a.int.withNullability(false))
+  val nullableRelation = LocalRelation(Symbol("a").int.withNullability(true))
+  val nonNullableRelation = LocalRelation(Symbol("a").int.withNullability(false))
 
   test("Preserve nullable exprs when constraintPropagation is false") {
     withSQLConf(SQLConf.CONSTRAINT_PROPAGATION_ENABLED.key -> "false") {
@@ -68,7 +68,7 @@ class BinaryComparisonSimplificationSuite extends PlanTest with PredicateHelper 
   }
 
   test("Nullable Simplification Primitive: <=>") {
-    val plan = nullableRelation.select('a <=> 'a).analyze
+    val plan = nullableRelation.select(Symbol("a") <=> Symbol("a")).analyze
     val actual = Optimize.execute(plan)
     val correctAnswer = nullableRelation.select(Alias(TrueLiteral, "(a <=> a)")()).analyze
     comparePlans(actual, correctAnswer)
@@ -76,7 +76,9 @@ class BinaryComparisonSimplificationSuite extends PlanTest with PredicateHelper 
 
   test("Non-Nullable Simplification Primitive") {
     val plan = nonNullableRelation
-      .select('a === 'a, 'a <=> 'a, 'a <= 'a, 'a >= 'a, 'a < 'a, 'a > 'a).analyze
+      .select(Symbol("a") === Symbol("a"),
+        Symbol("a") <=> Symbol("a"), Symbol("a") <= Symbol("a"),
+        Symbol("a") >= Symbol("a"), Symbol("a") < Symbol("a"), Symbol("a") > Symbol("a")).analyze
     val actual = Optimize.execute(plan)
     val correctAnswer = nonNullableRelation
       .select(
@@ -92,8 +94,9 @@ class BinaryComparisonSimplificationSuite extends PlanTest with PredicateHelper 
 
   test("Expression Normalization") {
     val plan = nonNullableRelation.where(
-      'a * Literal(100) + Pi() === Pi() + Literal(100) * 'a &&
-      DateAdd(CurrentDate(), 'a + Literal(2)) <= DateAdd(CurrentDate(), Literal(2) + 'a))
+      Symbol("a") * Literal(100) + Pi() === Pi() + Literal(100) * Symbol("a") &&
+      DateAdd(CurrentDate(), Symbol("a") + Literal(2)) <= DateAdd(CurrentDate(),
+        Literal(2) + Symbol("a")))
       .analyze
     val actual = Optimize.execute(plan)
     val correctAnswer = nonNullableRelation.analyze
@@ -140,7 +143,7 @@ class BinaryComparisonSimplificationSuite extends PlanTest with PredicateHelper 
     Seq(a === a, a <= a, a >= a).foreach { condition =>
       val plan = nullableRelation.where(condition).analyze
       val actual = Optimize.execute(plan)
-      val correctAnswer = nullableRelation.where('a.isNotNull).analyze
+      val correctAnswer = nullableRelation.where(Symbol("a").isNotNull).analyze
       comparePlans(actual, correctAnswer)
     }
 
@@ -160,7 +163,7 @@ class BinaryComparisonSimplificationSuite extends PlanTest with PredicateHelper 
         And(a >= a, a.isNotNull)).foreach { condition =>
         val plan = nullableRelation.where(condition).analyze
         val actual = Optimize.execute(plan)
-        val correctAnswer = nullableRelation.where('a.isNotNull).analyze
+        val correctAnswer = nullableRelation.where(Symbol("a").isNotNull).analyze
         comparePlans(actual, correctAnswer)
       }
 
