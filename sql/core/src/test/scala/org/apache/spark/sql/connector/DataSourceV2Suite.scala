@@ -21,7 +21,7 @@ import java.io.File
 import java.util
 import java.util.OptionalLong
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import test.org.apache.spark.sql.connector._
 

@@ -18,7 +18,7 @@ package org.apache.spark.sql.execution.datasources.v2.jdbc
 
 import java.sql.{Connection, SQLException}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import org.apache.spark.internal.Logging
 import org.apache.spark.sql.catalyst.analysis.{NoSuchNamespaceException, NoSuchTableException}

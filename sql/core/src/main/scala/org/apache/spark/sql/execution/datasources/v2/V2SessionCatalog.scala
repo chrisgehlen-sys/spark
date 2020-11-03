@@ -20,7 +20,7 @@ package org.apache.spark.sql.execution.datasources.v2
 import java.net.URI
 import java.util
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 import org.apache.spark.sql.catalyst.TableIdentifier

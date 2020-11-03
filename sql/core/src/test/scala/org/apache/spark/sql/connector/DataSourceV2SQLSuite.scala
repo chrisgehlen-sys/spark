@@ -20,7 +20,7 @@ package org.apache.spark.sql.connector
 import java.sql.Timestamp
 import java.time.LocalDate
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import org.apache.spark.SparkException
 import org.apache.spark.sql._

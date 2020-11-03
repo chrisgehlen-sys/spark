@@ -20,7 +20,7 @@ package org.apache.spark.sql.execution.datasources.parquet
 import java.time.ZoneId
 import java.util.{Locale, Map => JMap}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import org.apache.hadoop.conf.Configuration
 import org.apache.parquet.hadoop.api.{InitContext, ReadSupport}

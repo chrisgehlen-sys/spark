@@ -20,7 +20,7 @@ package org.apache.spark.sql.streaming.util
 import java.util
 import java.util.concurrent.CountDownLatch
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import org.apache.zookeeper.KeeperException.UnimplementedException
 

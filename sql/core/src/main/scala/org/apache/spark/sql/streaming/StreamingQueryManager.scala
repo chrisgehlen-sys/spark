@@ -21,7 +21,7 @@ import java.util.{ConcurrentModificationException, UUID}
 import java.util.concurrent.{TimeoutException, TimeUnit}
 import javax.annotation.concurrent.GuardedBy
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 import org.apache.hadoop.fs.Path

@@ -19,7 +19,7 @@ package org.apache.spark.sql.execution.streaming.sources
 
 import java.util.concurrent.TimeUnit
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.spark.sql.Row

@@ -21,7 +21,7 @@ import java.io.File
 import java.nio.file.Files
 import java.util.Locale
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.hadoop.fs.Path

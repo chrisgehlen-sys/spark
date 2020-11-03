@@ -24,7 +24,7 @@ import java.util.concurrent.{CountDownLatch, ExecutionException, TimeoutExceptio
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.locks.ReentrantLock
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.{Map => MutableMap}
 import scala.util.control.NonFatal
 

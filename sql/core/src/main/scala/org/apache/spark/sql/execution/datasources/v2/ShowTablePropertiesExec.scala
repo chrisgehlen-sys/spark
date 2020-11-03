@@ -33,7 +33,7 @@ case class ShowTablePropertiesExec(
   override def producedAttributes: AttributeSet = AttributeSet(output)
 
   override protected def run(): Seq[InternalRow] = {
-    import scala.collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
     val toRow = RowEncoder(schema).resolveAndBind().createSerializer()
 
     // The reserved properties are accessible through DESCRIBE

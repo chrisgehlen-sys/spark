@@ -20,7 +20,7 @@ package org.apache.spark.sql.streaming.test
 import java.io.File
 import java.util
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import org.scalatest.BeforeAndAfter
 

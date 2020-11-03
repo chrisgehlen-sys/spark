@@ -16,7 +16,7 @@
  */
 package org.apache.spark.sql.connector
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.spark.SparkConf

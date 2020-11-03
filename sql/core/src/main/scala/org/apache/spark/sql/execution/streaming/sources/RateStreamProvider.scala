@@ -19,7 +19,7 @@ package org.apache.spark.sql.execution.streaming.sources
 
 import java.util
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import org.apache.spark.network.util.JavaUtils
 import org.apache.spark.sql.SparkSession

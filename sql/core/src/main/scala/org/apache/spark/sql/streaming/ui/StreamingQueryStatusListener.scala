@@ -20,7 +20,7 @@ package org.apache.spark.sql.streaming.ui
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
 import org.apache.spark.SparkConf

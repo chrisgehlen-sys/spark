@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.zip.GZIPOutputStream
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.Properties
 
 import com.univocity.parsers.common.TextParsingException
