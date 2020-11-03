@@ -19,10 +19,10 @@ package org.apache.spark.streaming
 
 import java.util.concurrent.ConcurrentLinkedQueue
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable.HashMap
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
 
 import org.mockito.Mockito.{mock, reset, verifyNoMoreInteractions}
 import org.scalatest.concurrent.Eventually._
