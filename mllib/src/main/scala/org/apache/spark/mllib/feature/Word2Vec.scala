@@ -19,8 +19,8 @@ package org.apache.spark.mllib.feature
 
 import java.lang.{Iterable => JavaIterable}
 
-import scala.collection.JavaConverters._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 import com.github.fommil.netlib.BLAS.{getInstance => blas}
 import org.json4s.DefaultFormats
