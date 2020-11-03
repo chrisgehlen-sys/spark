@@ -64,24 +64,24 @@ class RewriteDistinctAggregatesSuite extends PlanTest {
 
   test("multiple distinct groups") {
     val input = testRelation
-      .groupBy(Symbol("a"))(countDistinct('b, 'c), countDistinct('d))
+      .groupBy(Symbol("a"))(countDistinct(Symbol("b"), Symbol("c")), countDistinct(Symbol("d")))
       .analyze
     checkRewrite(RewriteDistinctAggregates(input))
   }
 
   test("multiple distinct groups with partial aggregates") {
     val input = testRelation
-      .groupBy('a)(countDistinct('b, 'c), countDistinct('d), sum('e))
-      .analyze
+      .groupBy(Symbol("a"))(countDistinct(Symbol("b"), Symbol("c")), countDistinct(Symbol("d")),
+        sum(Symbol("e"))).analyze
     checkRewrite(RewriteDistinctAggregates(input))
   }
 
   test("multiple distinct groups with non-partial aggregates") {
     val input = testRelation
-      .groupBy('a)(
-        countDistinct('b, 'c),
-        countDistinct('d),
-        CollectSet('b).toAggregateExpression())
+      .groupBy(Symbol("a"))(
+        countDistinct(Symbol("b"), Symbol("c")),
+        countDistinct(Symbol("d")),
+        CollectSet(Symbol("b")).toAggregateExpression())
       .analyze
     checkRewrite(RewriteDistinctAggregates(input))
   }
