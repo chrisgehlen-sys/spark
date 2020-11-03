@@ -183,7 +183,7 @@ class JoinSuite extends QueryTest with SharedSparkSession with AdaptiveSparkPlan
   test("inner join where, one match per row") {
     withSQLConf(SQLConf.CASE_SENSITIVE.key -> "true") {
       checkAnswer(
-        upperCaseData.join(lowerCaseData).where('n === 'N),
+        upperCaseData.join(lowerCaseData).where(Symbol("n") === Symbol("N")),
         Seq(
           Row(1, "A", 1, "a"),
           Row(2, "B", 2, "b"),
