@@ -137,7 +137,7 @@ class RegexpExpressionsSuite extends SparkFunSuite with ExpressionEvalHelper {
         NonFoldableLiteral.create(null, StringType), escapeChar), null)
 
       // simple patterns
-      checkLiteralRow("abdef" like(_, escapeChar), "abdef", true)
+      checkLiteralRow(s"abdef" like(_, escapeChar), "abdef", true)
       checkLiteralRow("a_%b" like(_, escapeChar), s"a${escapeChar}__b", true)
       checkLiteralRow("addb" like(_, escapeChar), "a_%b", true)
       checkLiteralRow("addb" like(_, escapeChar), s"a${escapeChar}__b", false)
