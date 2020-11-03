@@ -17,8 +17,8 @@
 
 package org.apache.spark.sql.execution.python
 
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 
 import org.apache.spark.TaskContext
 import org.apache.spark.api.python.BasePythonRunner

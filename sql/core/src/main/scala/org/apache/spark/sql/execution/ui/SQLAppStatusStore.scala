@@ -20,8 +20,8 @@ package org.apache.spark.sql.execution.ui
 import java.lang.{Long => JLong}
 import java.util.Date
 
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize

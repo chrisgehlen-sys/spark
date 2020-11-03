@@ -20,9 +20,9 @@ package org.apache.spark.sql.execution.streaming.sources
 import java.util
 import javax.annotation.concurrent.GuardedBy
 
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 import org.apache.spark.internal.Logging

@@ -20,8 +20,8 @@ package org.apache.spark.sql.execution.datasources.parquet
 import java.io.IOException
 import java.net.URI
 
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Try}
 
 import org.apache.hadoop.conf.Configuration
