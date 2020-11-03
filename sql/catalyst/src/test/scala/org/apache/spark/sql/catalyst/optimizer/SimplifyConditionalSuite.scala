@@ -35,7 +35,7 @@ class SimplifyConditionalSuite extends PlanTest with ExpressionEvalHelper with P
       BooleanSimplification, ConstantFolding, SimplifyConditionals) :: Nil
   }
 
-  private val relation = LocalRelation('a.int, 'b.int, 'c.boolean)
+  private val relation = LocalRelation(Symbol("a").int, Symbol("b").int, Symbol("c").boolean)
 
   protected def assertEquivalent(e1: Expression, e2: Expression): Unit = {
     val correctAnswer = Project(Alias(e2, "out")() :: Nil, relation).analyze
@@ -126,9 +126,9 @@ class SimplifyConditionalSuite extends PlanTest with ExpressionEvalHelper with P
   test("simplify CaseWhen if all the outputs are semantic equivalence") {
     // When the conditions in `CaseWhen` are all deterministic, `CaseWhen` can be removed.
     assertEquivalent(
-      CaseWhen(('a.isNotNull, Subtract(Literal(3), Literal(2))) ::
-        ('b.isNull, Literal(1)) ::
-        (!'c, Add(Literal(6), Literal(-5))) ::
+      CaseWhen((Symbol("a").isNotNull, Subtract(Literal(3), Literal(2))) ::
+        (Symbol("b").isNull, Literal(1)) ::
+        (!Symbol("c"), Add(Literal(6), Literal(-5))) ::
         Nil,
         Add(Literal(2), Literal(-1))),
       Literal(1)
@@ -167,19 +167,19 @@ class SimplifyConditionalSuite extends PlanTest with ExpressionEvalHelper with P
   }
 
   test("simplify if when one clause is null and another is boolean") {
-    val p = IsNull('a)
+    val p = IsNull(Symbol("a"))
     val nullLiteral = Literal(null, BooleanType)
     assertEquivalent(If(p, nullLiteral, FalseLiteral), And(p, nullLiteral))
-    assertEquivalent(If(p, nullLiteral, TrueLiteral), Or(IsNotNull('a), nullLiteral))
-    assertEquivalent(If(p, FalseLiteral, nullLiteral), And(IsNotNull('a), nullLiteral))
+    assertEquivalent(If(p, nullLiteral, TrueLiteral), Or(IsNotNull(Symbol("a")), nullLiteral))
+    assertEquivalent(If(p, FalseLiteral, nullLiteral), And(IsNotNull(Symbol("a")), nullLiteral))
     assertEquivalent(If(p, TrueLiteral, nullLiteral), Or(p, nullLiteral))
 
     // the rule should not apply to nullable predicate
     Seq(TrueLiteral, FalseLiteral).foreach { b =>
-      assertEquivalent(If(GreaterThan('a, 42), nullLiteral, b),
-        If(GreaterThan('a, 42), nullLiteral, b))
-      assertEquivalent(If(GreaterThan('a, 42), b, nullLiteral),
-        If(GreaterThan('a, 42), b, nullLiteral))
+      assertEquivalent(If(GreaterThan(Symbol("a"), 42), nullLiteral, b),
+        If(GreaterThan(Symbol("a"), 42), nullLiteral, b))
+      assertEquivalent(If(GreaterThan(Symbol("a"), 42), b, nullLiteral),
+        If(GreaterThan(Symbol("a"), 42), b, nullLiteral))
     }
 
     // check evaluation also

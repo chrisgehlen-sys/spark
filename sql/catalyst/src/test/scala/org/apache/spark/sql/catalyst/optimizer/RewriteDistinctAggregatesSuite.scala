@@ -35,7 +35,9 @@ class RewriteDistinctAggregatesSuite extends PlanTest {
 
   val nullInt = Literal(null, IntegerType)
   val nullString = Literal(null, StringType)
-  val testRelation = LocalRelation('a.string, 'b.string, 'c.string, 'd.string, 'e.int)
+  val testRelation =
+    LocalRelation(Symbol("a").string, Symbol("b").string, Symbol("c").string, Symbol("d").string,
+      Symbol("e").int)
 
   private def checkRewrite(rewrite: LogicalPlan): Unit = rewrite match {
     case Aggregate(_, _, Aggregate(_, _, _: Expand)) =>
@@ -44,7 +46,7 @@ class RewriteDistinctAggregatesSuite extends PlanTest {
 
   test("single distinct group") {
     val input = testRelation
-      .groupBy('a)(countDistinct('e))
+      .groupBy(Symbol("a"))(countDistinct(Symbol("e")))
       .analyze
     val rewrite = RewriteDistinctAggregates(input)
     comparePlans(input, rewrite)
@@ -52,9 +54,9 @@ class RewriteDistinctAggregatesSuite extends PlanTest {
 
   test("single distinct group with partial aggregates") {
     val input = testRelation
-      .groupBy('a, 'd)(
-        countDistinct('e, 'c).as('agg1),
-        max('b).as('agg2))
+      .groupBy(Symbol("a"), Symbol("d"))(
+        countDistinct(Symbol("e"), Symbol("c")).as(Symbol("agg1")),
+        max(Symbol("b")).as(Symbol("agg2")))
       .analyze
     val rewrite = RewriteDistinctAggregates(input)
     comparePlans(input, rewrite)
@@ -62,7 +64,7 @@ class RewriteDistinctAggregatesSuite extends PlanTest {
 
   test("multiple distinct groups") {
     val input = testRelation
-      .groupBy('a)(countDistinct('b, 'c), countDistinct('d))
+      .groupBy(Symbol("a"))(countDistinct('b, 'c), countDistinct('d))
       .analyze
     checkRewrite(RewriteDistinctAggregates(input))
   }
