@@ -208,9 +208,10 @@ class PlanParserSuite extends AnalysisTest {
 
   test("simple select query") {
     assertEqual("select 1", OneRowRelation().select(1))
-    assertEqual("select a, b", OneRowRelation().select('a, 'b))
-    assertEqual("select a, b from db.c", table("db", "c").select('a, 'b))
-    assertEqual("select a, b from db.c where x < 1", table("db", "c").where('x < 1).select('a, 'b))
+    assertEqual("select a, b", OneRowRelation().select(Symbol("a"), Symbol("b")))
+    assertEqual("select a, b from db.c", table("db", "c").select(Symbol("a"), Symbol("b")))
+    assertEqual("select a, b from db.c where x < 1", table("db", "c")
+      .where($"x" < 1).select(Symbol("a"), 'b))
     assertEqual(
       "select a, b from db.c having x < 1",
       table("db", "c").having()('a, 'b)('x < 1))
