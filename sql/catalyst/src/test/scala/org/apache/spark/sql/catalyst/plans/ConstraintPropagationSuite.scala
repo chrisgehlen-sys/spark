@@ -57,22 +57,23 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
   }
 
   test("propagating constraints in filters") {
-    val tr = LocalRelation('a.int, 'b.string, 'c.int)
+    val tr = LocalRelation(Symbol("a").int, Symbol("b").string, Symbol("c").int)
 
     assert(tr.analyze.constraints.isEmpty)
 
-    assert(tr.where('a.attr > 10).select('c.attr, 'b.attr).analyze.constraints.isEmpty)
+    assert(tr.where(Symbol("a").attr > 10).select(Symbol("c").attr, Symbol("b").attr)
+      .analyze.constraints.isEmpty)
 
     verifyConstraints(tr
-      .where('a.attr > 10)
+      .where(Symbol("a").attr > 10)
       .analyze.constraints,
       ExpressionSet(Seq(resolveColumn(tr, "a") > 10,
         IsNotNull(resolveColumn(tr, "a")))))
 
     verifyConstraints(tr
-      .where('a.attr > 10)
-      .select('c.attr, 'a.attr)
-      .where('c.attr =!= 100)
+      .where(Symbol("a").attr > 10)
+      .select(Symbol("c").attr, Symbol("a").attr)
+      .where(Symbol("c").attr =!= 100)
       .analyze.constraints,
       ExpressionSet(Seq(resolveColumn(tr, "a") > 10,
         resolveColumn(tr, "c") =!= 100,
@@ -81,12 +82,13 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
   }
 
   test("propagating constraints in aggregate") {
-    val tr = LocalRelation('a.int, 'b.string, 'c.int)
+    val tr = LocalRelation(Symbol("a").int, Symbol("b").string, Symbol("c").int)
 
     assert(tr.analyze.constraints.isEmpty)
 
-    val aliasedRelation = tr.where('c.attr > 10 && 'a.attr < 5)
-      .groupBy('a, 'c, 'b)('a, 'c.as("c1"), count('a).as("a3")).select('c1, 'a, 'a3).analyze
+    val aliasedRelation = tr.where(Symbol("c").attr > 10 && Symbol("a").attr < 5)
+      .groupBy(Symbol("a"), Symbol("c"), Symbol("b"))(Symbol("a"), Symbol("c").as("c1"),
+        count(Symbol("a")).as("a3")).select(Symbol("c1"), Symbol("a"), Symbol("a3")).analyze
 
     // SPARK-16644: aggregate expression count(a) should not appear in the constraints.
     verifyConstraints(aliasedRelation.analyze.constraints,
@@ -98,13 +100,13 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
   }
 
   test("propagating constraints in expand") {
-    val tr = LocalRelation('a.int, 'b.int, 'c.int)
+    val tr = LocalRelation(Symbol("a").int, Symbol("b").int, Symbol("c").int)
 
     assert(tr.analyze.constraints.isEmpty)
 
     // We add IsNotNull constraints for 'a, 'b and 'c into LocalRelation
     // by creating notNullRelation.
-    val notNullRelation = tr.where('c.attr > 10 && 'a.attr < 5 && 'b.attr > 2)
+    val notNullRelation = tr.where(Symbol("c").attr > 10 && Symbol("a").attr < 5 && Symbol("b").attr > 2)
     verifyConstraints(notNullRelation.analyze.constraints,
       ExpressionSet(Seq(resolveColumn(notNullRelation.analyze, "c") > 10,
         IsNotNull(resolveColumn(notNullRelation.analyze, "c")),
@@ -115,21 +117,23 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
 
     val expand = Expand(
           Seq(
-            Seq('c, Literal.create(null, StringType), 1),
-            Seq('c, 'a, 2)),
-          Seq('c, 'a, 'gid.int),
-          Project(Seq('a, 'c),
+            Seq(Symbol("c"), Literal.create(null, StringType), 1),
+            Seq(Symbol("c"), Symbol("a"), 2)),
+          Seq(Symbol("c"), Symbol("a"), Symbol("gid").int),
+          Project(Seq(Symbol("a"), Symbol("c")),
             notNullRelation))
     verifyConstraints(expand.analyze.constraints,
       ExpressionSet(Seq.empty[Expression]))
   }
 
   test("propagating constraints in aliases") {
-    val tr = LocalRelation('a.int, 'b.string, 'c.int)
+    val tr = LocalRelation(Symbol("a").int, Symbol("b").string, Symbol("c").int)
 
-    assert(tr.where('c.attr > 10).select('a.as('x), 'b.as('y)).analyze.constraints.isEmpty)
+    assert(tr.where(Symbol("c").attr > 10).select(Symbol("a").as(Symbol("x")), Symbol("b")
+      .as(Symbol("y"))).analyze.constraints.isEmpty)
 
-    val aliasedRelation = tr.where('a.attr > 10).select('a.as('x), 'b, 'b.as('y), 'a.as('z))
+    val aliasedRelation = tr.where(Symbol("a").attr > 10).select(Symbol("a")
+      .as(Symbol("x")), Symbol("b"), Symbol("b").as(Symbol("y")), Symbol("a").as(Symbol("z")))
 
     verifyConstraints(aliasedRelation.analyze.constraints,
       ExpressionSet(Seq(resolveColumn(aliasedRelation.analyze, "x") > 10,
@@ -139,7 +143,8 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
         resolveColumn(aliasedRelation.analyze, "z") > 10,
         IsNotNull(resolveColumn(aliasedRelation.analyze, "z")))))
 
-    val multiAlias = tr.where('a === 'c + 10).select('a.as('x), 'c.as('y))
+    val multiAlias = tr.where(Symbol("a") === Symbol("c") + 10)
+      .select(Symbol("a").as(Symbol("x")), Symbol("c").as(Symbol("y")))
     verifyConstraints(multiAlias.analyze.constraints,
       ExpressionSet(Seq(IsNotNull(resolveColumn(multiAlias.analyze, "x")),
         IsNotNull(resolveColumn(multiAlias.analyze, "y")),
@@ -148,46 +153,46 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
   }
 
   test("propagating constraints in union") {
-    val tr1 = LocalRelation('a.int, 'b.int, 'c.int)
-    val tr2 = LocalRelation('d.int, 'e.int, 'f.int)
-    val tr3 = LocalRelation('g.int, 'h.int, 'i.int)
+    val tr1 = LocalRelation(Symbol("a").int, Symbol("b").int, Symbol("c").int)
+    val tr2 = LocalRelation(Symbol("d").int, Symbol("e").int, Symbol("f").int)
+    val tr3 = LocalRelation(Symbol("g").int, Symbol("h").int, Symbol("i").int)
 
     assert(tr1
-      .where('a.attr > 10)
-      .union(tr2.where('e.attr > 10)
-      .union(tr3.where('i.attr > 10)))
+      .where(Symbol("a").attr > 10)
+      .union(tr2.where(Symbol("e").attr > 10)
+      .union(tr3.where(Symbol("i").attr > 10)))
       .analyze.constraints.isEmpty)
 
     verifyConstraints(tr1
-      .where('a.attr > 10)
-      .union(tr2.where('d.attr > 10)
-      .union(tr3.where('g.attr > 10)))
+      .where(Symbol("a").attr > 10)
+      .union(tr2.where(Symbol("d").attr > 10)
+      .union(tr3.where(Symbol("g").attr > 10)))
       .analyze.constraints,
       ExpressionSet(Seq(resolveColumn(tr1, "a") > 10,
         IsNotNull(resolveColumn(tr1, "a")))))
 
     val a = resolveColumn(tr1, "a")
     verifyConstraints(tr1
-      .where('a.attr > 10)
-      .union(tr2.where('d.attr > 11))
+      .where(Symbol("a").attr > 10)
+      .union(tr2.where(Symbol("d").attr > 11))
       .analyze.constraints,
       ExpressionSet(Seq(a > 10 || a > 11, IsNotNull(a))))
 
     val b = resolveColumn(tr1, "b")
     verifyConstraints(tr1
-      .where('a.attr > 10 && 'b.attr < 10)
-      .union(tr2.where('d.attr > 11 && 'e.attr < 11))
+      .where(Symbol("a").attr > 10 && Symbol("b").attr < 10)
+      .union(tr2.where(Symbol("d").attr > 11 && Symbol("e").attr < 11))
       .analyze.constraints,
       ExpressionSet(Seq(a > 10 || a > 11, b < 10 || b < 11, IsNotNull(a), IsNotNull(b))))
   }
 
   test("propagating constraints in intersect") {
-    val tr1 = LocalRelation('a.int, 'b.int, 'c.int)
-    val tr2 = LocalRelation('a.int, 'b.int, 'c.int)
+    val tr1 = LocalRelation(Symbol("a").int, Symbol("b").int, Symbol("c").int)
+    val tr2 = LocalRelation(Symbol("a").int, Symbol("b").int, Symbol("c").int)
 
     verifyConstraints(tr1
-      .where('a.attr > 10)
-      .intersect(tr2.where('b.attr < 100), isAll = false)
+      .where(Symbol("a").attr > 10)
+      .intersect(tr2.where(Symbol("b").attr < 100), isAll = false)
       .analyze.constraints,
       ExpressionSet(Seq(resolveColumn(tr1, "a") > 10,
         resolveColumn(tr1, "b") < 100,
@@ -196,22 +201,24 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
   }
 
   test("propagating constraints in except") {
-    val tr1 = LocalRelation('a.int, 'b.int, 'c.int)
-    val tr2 = LocalRelation('a.int, 'b.int, 'c.int)
+    val tr1 = LocalRelation(Symbol("a").int, Symbol("b").int, Symbol("c").int)
+    val tr2 = LocalRelation(Symbol("a").int, Symbol("b").int, Symbol("c").int)
     verifyConstraints(tr1
-      .where('a.attr > 10)
-      .except(tr2.where('b.attr < 100), isAll = false)
+      .where(Symbol("a").attr > 10)
+      .except(tr2.where(Symbol("b").attr < 100), isAll = false)
       .analyze.constraints,
       ExpressionSet(Seq(resolveColumn(tr1, "a") > 10,
         IsNotNull(resolveColumn(tr1, "a")))))
   }
 
   test("propagating constraints in inner join") {
-    val tr1 = LocalRelation('a.int, 'b.int, 'c.int).subquery('tr1)
-    val tr2 = LocalRelation('a.int, 'd.int, 'e.int).subquery('tr2)
+    val tr1 = LocalRelation(Symbol("a").int, Symbol("b").int, Symbol("c").int).subquery(Symbol
+    ("tr1"))
+    val tr2 = LocalRelation(Symbol("a").int, Symbol("d").int, Symbol("e").int)
+      .subquery(Symbol("tr2"))
     verifyConstraints(tr1
-      .where('a.attr > 10)
-      .join(tr2.where('d.attr < 100), Inner, Some("tr1.a".attr === "tr2.a".attr))
+      .where(Symbol("a").attr > 10)
+      .join(tr2.where(Symbol("d").attr < 100), Inner, Some("tr1.a".attr === "tr2.a".attr))
       .analyze.constraints,
       ExpressionSet(Seq(tr1.resolveQuoted("a", caseInsensitiveResolution).get > 10,
         tr2.resolveQuoted("d", caseInsensitiveResolution).get < 100,
@@ -224,51 +231,59 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
   }
 
   test("propagating constraints in left-semi join") {
-    val tr1 = LocalRelation('a.int, 'b.int, 'c.int).subquery('tr1)
-    val tr2 = LocalRelation('a.int, 'd.int, 'e.int).subquery('tr2)
+    val tr1 = LocalRelation(Symbol("a").int, Symbol("b").int, Symbol("c").int)
+      .subquery(Symbol("tr1"))
+    val tr2 = LocalRelation(Symbol("a").int, Symbol("d").int, Symbol("e").int).subquery(Symbol
+    ("tr2"))
     verifyConstraints(tr1
-      .where('a.attr > 10)
-      .join(tr2.where('d.attr < 100), LeftSemi, Some("tr1.a".attr === "tr2.a".attr))
+      .where(Symbol("a").attr > 10)
+      .join(tr2.where(Symbol("d").attr < 100), LeftSemi, Some("tr1.a".attr === "tr2.a".attr))
       .analyze.constraints,
       ExpressionSet(Seq(tr1.resolveQuoted("a", caseInsensitiveResolution).get > 10,
         IsNotNull(tr1.resolveQuoted("a", caseInsensitiveResolution).get))))
   }
 
   test("propagating constraints in left-outer join") {
-    val tr1 = LocalRelation('a.int, 'b.int, 'c.int).subquery('tr1)
-    val tr2 = LocalRelation('a.int, 'd.int, 'e.int).subquery('tr2)
+    val tr1 =
+      LocalRelation(Symbol("a").int, Symbol("b").int, Symbol("c").int).subquery(Symbol("tr1"))
+    val tr2 = LocalRelation(Symbol("a").int, Symbol("d").int, Symbol("e").int).subquery(Symbol
+    ("tr2"))
     verifyConstraints(tr1
-      .where('a.attr > 10)
-      .join(tr2.where('d.attr < 100), LeftOuter, Some("tr1.a".attr === "tr2.a".attr))
+      .where(Symbol("a").attr > 10)
+      .join(tr2.where(Symbol("d").attr < 100), LeftOuter, Some("tr1.a".attr === "tr2.a".attr))
       .analyze.constraints,
       ExpressionSet(Seq(tr1.resolveQuoted("a", caseInsensitiveResolution).get > 10,
         IsNotNull(tr1.resolveQuoted("a", caseInsensitiveResolution).get))))
   }
 
   test("propagating constraints in right-outer join") {
-    val tr1 = LocalRelation('a.int, 'b.int, 'c.int).subquery('tr1)
-    val tr2 = LocalRelation('a.int, 'd.int, 'e.int).subquery('tr2)
+    val tr1 =
+      LocalRelation(Symbol("a").int, Symbol("b").int, Symbol("c").int).subquery(Symbol("tr1"))
+    val tr2 =
+      LocalRelation(Symbol("a").int, Symbol("d").int, Symbol("e").int).subquery(Symbol("tr2"))
     verifyConstraints(tr1
-      .where('a.attr > 10)
-      .join(tr2.where('d.attr < 100), RightOuter, Some("tr1.a".attr === "tr2.a".attr))
+      .where(Symbol("a").attr > 10)
+      .join(tr2.where(Symbol("d").attr < 100), RightOuter, Some("tr1.a".attr === "tr2.a".attr))
       .analyze.constraints,
       ExpressionSet(Seq(tr2.resolveQuoted("d", caseInsensitiveResolution).get < 100,
         IsNotNull(tr2.resolveQuoted("d", caseInsensitiveResolution).get))))
   }
 
   test("propagating constraints in full-outer join") {
-    val tr1 = LocalRelation('a.int, 'b.int, 'c.int).subquery('tr1)
-    val tr2 = LocalRelation('a.int, 'd.int, 'e.int).subquery('tr2)
-    assert(tr1.where('a.attr > 10)
-      .join(tr2.where('d.attr < 100), FullOuter, Some("tr1.a".attr === "tr2.a".attr))
+    val tr1 = LocalRelation(Symbol("a").int, Symbol("b").int, Symbol("c").int).subquery(Symbol
+    ("tr1"))
+    val tr2 = LocalRelation(Symbol("a").int, Symbol("d").int, Symbol("e").int)
+      .subquery(Symbol("tr2"))
+    assert(tr1.where(Symbol("a").attr > 10)
+      .join(tr2.where(Symbol("d").attr < 100), FullOuter, Some("tr1.a".attr === "tr2.a".attr))
       .analyze.constraints.isEmpty)
   }
 
   test("infer additional constraints in filters") {
-    val tr = LocalRelation('a.int, 'b.int, 'c.int)
+    val tr = LocalRelation(Symbol("a").int, Symbol("b").int, Symbol("c").int)
 
     verifyConstraints(tr
-      .where('a.attr > 10 && 'a.attr === 'b.attr)
+      .where(Symbol("a").attr > 10 && Symbol("a").attr === Symbol("b").attr)
       .analyze.constraints,
       ExpressionSet(Seq(resolveColumn(tr, "a") > 10,
         resolveColumn(tr, "b") > 10,
@@ -278,10 +293,11 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
   }
 
   test("infer constraints on cast") {
-    val tr = LocalRelation('a.int, 'b.long, 'c.int, 'd.long, 'e.int)
+    val tr = LocalRelation(Symbol("a").int, Symbol("b").long, Symbol("c").int, Symbol("d").long,
+      Symbol("e").int)
     verifyConstraints(
-      tr.where('a.attr === 'b.attr &&
-        'c.attr + 100 > 'd.attr &&
+      tr.where(Symbol("a").attr === Symbol("b").attr &&
+        Symbol("c").attr + 100 > Symbol("d").attr &&
         IsNotNull(Cast(Cast(resolveColumn(tr, "e"), LongType), LongType))).analyze.constraints,
       ExpressionSet(Seq(
         castWithTimeZone(resolveColumn(tr, "a"), LongType) === resolveColumn(tr, "b"),
@@ -295,9 +311,10 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
   }
 
   test("infer isnotnull constraints from compound expressions") {
-    val tr = LocalRelation('a.int, 'b.long, 'c.int, 'd.long, 'e.int)
+    val tr = LocalRelation(Symbol("a").int, Symbol("b").long, Symbol("c").int, Symbol("d").long,
+      Symbol("e").int)
     verifyConstraints(
-      tr.where('a.attr + 'b.attr === 'c.attr &&
+      tr.where(Symbol("a").attr + Symbol("b").attr === Symbol("c").attr &&
         IsNotNull(
           Cast(
             Cast(Cast(resolveColumn(tr, "e"), LongType), LongType), LongType))).analyze.constraints,
@@ -313,7 +330,8 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
             resolveColumn(tr, "e"), LongType), LongType), LongType)))))
 
     verifyConstraints(
-      tr.where(('a.attr * 'b.attr + 100) === 'c.attr && 'd / 10 === 'e).analyze.constraints,
+      tr.where((Symbol("a").attr * Symbol("b").attr + 100) === Symbol("c").attr &&
+        Symbol("d") / 10 === Symbol("e")).analyze.constraints,
       ExpressionSet(Seq(
         castWithTimeZone(resolveColumn(tr, "a"), LongType) * resolveColumn(tr, "b") +
           castWithTimeZone(100, LongType) ===
@@ -328,7 +346,8 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
         IsNotNull(resolveColumn(tr, "e")))))
 
     verifyConstraints(
-      tr.where(('a.attr * 'b.attr - 10) >= 'c.attr && 'd / 10 < 'e).analyze.constraints,
+      tr.where((Symbol("a").attr * Symbol("b").attr - 10) >= Symbol("c").attr &&
+        Symbol("d") / 10 < Symbol("e")).analyze.constraints,
       ExpressionSet(Seq(
         castWithTimeZone(resolveColumn(tr, "a"), LongType) * resolveColumn(tr, "b") -
           castWithTimeZone(10, LongType) >=
@@ -343,7 +362,8 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
         IsNotNull(resolveColumn(tr, "e")))))
 
     verifyConstraints(
-      tr.where('a.attr + 'b.attr - 'c.attr * 'd.attr > 'e.attr * 1000).analyze.constraints,
+      tr.where(Symbol("a").attr + Symbol("b").attr - Symbol("c").attr *
+        Symbol("d").attr > Symbol("e").attr * 1000).analyze.constraints,
       ExpressionSet(Seq(
         (castWithTimeZone(resolveColumn(tr, "a"), LongType) + resolveColumn(tr, "b")) -
           (castWithTimeZone(resolveColumn(tr, "c"), LongType) * resolveColumn(tr, "d")) >
@@ -356,7 +376,7 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
 
     // The constraint IsNotNull(IsNotNull(expr)) doesn't guarantee expr is not null.
     verifyConstraints(
-      tr.where('a.attr === 'c.attr &&
+      tr.where(Symbol("a").attr === Symbol("c").attr &&
         IsNotNull(IsNotNull(resolveColumn(tr, "b")))).analyze.constraints,
       ExpressionSet(Seq(
         resolveColumn(tr, "a") === resolveColumn(tr, "c"),
@@ -365,7 +385,7 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
         IsNotNull(resolveColumn(tr, "c")))))
 
     verifyConstraints(
-      tr.where('a.attr === 1 && IsNotNull(resolveColumn(tr, "b")) &&
+      tr.where(Symbol("a").attr === 1 && IsNotNull(resolveColumn(tr, "b")) &&
         IsNotNull(resolveColumn(tr, "c"))).analyze.constraints,
       ExpressionSet(Seq(
         resolveColumn(tr, "a") === 1,
@@ -375,7 +395,8 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
   }
 
   test("infer IsNotNull constraints from non-nullable attributes") {
-    val tr = LocalRelation('a.int, AttributeReference("b", IntegerType, nullable = false)(),
+    val tr = LocalRelation(Symbol("a").int,
+      AttributeReference("b", IntegerType, nullable = false)(),
       AttributeReference("c", StringType, nullable = false)())
 
     verifyConstraints(tr.analyze.constraints,
@@ -383,16 +404,16 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
   }
 
   test("not infer non-deterministic constraints") {
-    val tr = LocalRelation('a.int, 'b.string, 'c.int)
+    val tr = LocalRelation(Symbol("a").int, Symbol("b").string, Symbol("c").int)
 
     verifyConstraints(tr
-      .where('a.attr === Rand(0))
+      .where(Symbol("a").attr === Rand(0))
       .analyze.constraints,
       ExpressionSet(Seq(IsNotNull(resolveColumn(tr, "a")))))
 
     verifyConstraints(tr
-      .where('a.attr === InputFileName())
-      .where('a.attr =!= 'c.attr)
+      .where(Symbol("a").attr === InputFileName())
+      .where(Symbol("a").attr =!= Symbol("c").attr)
       .analyze.constraints,
       ExpressionSet(Seq(resolveColumn(tr, "a") =!= resolveColumn(tr, "c"),
         IsNotNull(resolveColumn(tr, "a")),
@@ -400,8 +421,8 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
   }
 
   test("enable/disable constraint propagation") {
-    val tr = LocalRelation('a.int, 'b.string, 'c.int)
-    val filterRelation = tr.where('a.attr > 10)
+    val tr = LocalRelation(Symbol("a").int, Symbol("b").string, Symbol("c").int)
+    val filterRelation = tr.where(Symbol("a").attr > 10)
 
     withSQLConf(SQLConf.CONSTRAINT_PROPAGATION_ENABLED.key -> "true") {
       assert(filterRelation.analyze.constraints.nonEmpty)
@@ -411,8 +432,9 @@ class ConstraintPropagationSuite extends SparkFunSuite with PlanTest {
       assert(filterRelation.analyze.constraints.isEmpty)
     }
 
-    val aliasedRelation = tr.where('c.attr > 10 && 'a.attr < 5)
-      .groupBy('a, 'c, 'b)('a, 'c.as("c1"), count('a).as("a3")).select('c1, 'a, 'a3)
+    val aliasedRelation = tr.where(Symbol("c").attr > 10 && Symbol("a").attr < 5)
+      .groupBy(Symbol("a"), Symbol("c"), Symbol("b"))(Symbol("a"), Symbol("c").as("c1"),
+        count(Symbol("a")).as("a3")).select(Symbol("c1"), Symbol("a"), Symbol("a3"))
 
     withSQLConf(SQLConf.CONSTRAINT_PROPAGATION_ENABLED.key -> "true") {
       assert(aliasedRelation.analyze.constraints.nonEmpty)
