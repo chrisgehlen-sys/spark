@@ -17,7 +17,7 @@
 
 package org.apache.spark.sql.hive.execution
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.Random
 
 import test.org.apache.spark.sql.MyDoubleAvg

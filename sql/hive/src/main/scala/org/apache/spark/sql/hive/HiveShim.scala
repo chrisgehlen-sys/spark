@@ -19,7 +19,7 @@ package org.apache.spark.sql.hive
 
 import java.rmi.server.UID
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 
 import com.google.common.base.Objects

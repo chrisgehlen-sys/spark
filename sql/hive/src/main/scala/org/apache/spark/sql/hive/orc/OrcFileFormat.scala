@@ -21,7 +21,7 @@ import java.net.URI
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.Properties
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 import com.esotericsoftware.kryo.Kryo
