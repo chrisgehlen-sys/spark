@@ -19,8 +19,8 @@ package org.apache.spark.sql.connector
 
 import java.util
 
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 import org.scalatest.BeforeAndAfter
 
