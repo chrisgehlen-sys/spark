@@ -29,11 +29,11 @@ case class Duration (private val millis: Long) {
 
   def >= (that: Duration): Boolean = (this.millis >= that.millis)
 
-  def + (that: Duration): Duration = new Duration(millis + that.millis)
+  def + (that: Duration): Duration = Duration(millis + that.millis)
 
-  def - (that: Duration): Duration = new Duration(millis - that.millis)
+  def - (that: Duration): Duration = Duration(millis - that.millis)
 
-  def * (times: Int): Duration = new Duration(millis * times)
+  def * (times: Int): Duration = Duration(millis * times)
 
   def / (that: Duration): Double = millis.toDouble / that.millis.toDouble
 
@@ -79,7 +79,7 @@ case class Duration (private val millis: Long) {
  * a given number of milliseconds.
  */
 object Milliseconds {
-  def apply(milliseconds: Long): Duration = new Duration(milliseconds)
+  def apply(milliseconds: Long): Duration = Duration(milliseconds)
 }
 
 /**
@@ -87,7 +87,7 @@ object Milliseconds {
  * a given number of seconds.
  */
 object Seconds {
-  def apply(seconds: Long): Duration = new Duration(seconds * 1000)
+  def apply(seconds: Long): Duration = Duration(seconds * 1000)
 }
 
 /**
@@ -95,7 +95,7 @@ object Seconds {
  * a given number of minutes.
  */
 object Minutes {
-  def apply(minutes: Long): Duration = new Duration(minutes * 60000)
+  def apply(minutes: Long): Duration = Duration(minutes * 60000)
 }
 
 // Java-friendlier versions of the objects above.

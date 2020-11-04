@@ -40,7 +40,7 @@ private[streaming] class FileBasedWriteAheadLogWriter(path: String, hadoopConf: 
     assertOpen()
     data.rewind() // Rewind to ensure all data in the buffer is retrieved
     val lengthToWrite = data.remaining()
-    val segment = new FileBasedWriteAheadLogSegment(path, nextOffset, lengthToWrite)
+    val segment = FileBasedWriteAheadLogSegment(path, nextOffset, lengthToWrite)
     stream.writeInt(lengthToWrite)
     Utils.writeByteBuffer(data, stream: OutputStream)
     flush()

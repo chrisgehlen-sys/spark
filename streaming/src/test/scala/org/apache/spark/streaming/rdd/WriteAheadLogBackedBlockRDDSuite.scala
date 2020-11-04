@@ -257,6 +257,6 @@ class WriteAheadLogBackedBlockRDDSuite
   }
 
   private def generateFakeRecordHandles(count: Int): Seq[FileBasedWriteAheadLogSegment] = {
-    Array.fill(count)(new FileBasedWriteAheadLogSegment("random", 0L, 0))
+    Array.fill(count)(FileBasedWriteAheadLogSegment("random", 0L, 0))
   }
 }

@@ -37,7 +37,7 @@ case class Time(private val millis: Long) {
 
   def + (that: Duration): Time = new Time(millis + that.milliseconds)
 
-  def - (that: Time): Duration = new Duration(millis - that.millis)
+  def - (that: Time): Duration = Duration(millis - that.millis)
 
   def - (that: Duration): Time = new Time(millis - that.milliseconds)
 

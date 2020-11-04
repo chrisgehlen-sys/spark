@@ -34,7 +34,7 @@ private[streaming] class StreamingListenerBus(sparkListenerBus: LiveListenerBus)
    * dispatched to all StreamingListeners in the thread of the Spark listener bus.
    */
   def post(event: StreamingListenerEvent): Unit = {
-    sparkListenerBus.post(new WrappedStreamingListenerEvent(event))
+    sparkListenerBus.post(WrappedStreamingListenerEvent(event))
   }
 
   override def onOtherEvent(event: SparkListenerEvent): Unit = {

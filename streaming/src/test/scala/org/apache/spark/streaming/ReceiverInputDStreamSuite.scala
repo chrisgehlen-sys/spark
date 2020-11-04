@@ -138,16 +138,16 @@ class ReceiverInputDStreamSuite
   private def createBlockInfo(
       withWALInfo: Boolean,
       createBlock: Boolean = true): ReceivedBlockInfo = {
-    val blockId = new StreamBlockId(0, Random.nextLong())
+    val blockId = StreamBlockId(0, Random.nextLong())
     if (createBlock) {
       SparkEnv.get.blockManager.putSingle(blockId, 1, StorageLevel.MEMORY_ONLY, tellMaster = true)
       require(SparkEnv.get.blockManager.master.contains(blockId))
     }
     val storeResult = if (withWALInfo) {
-      new WriteAheadLogBasedStoreResult(blockId, None, new WriteAheadLogRecordHandle { })
+      WriteAheadLogBasedStoreResult(blockId, None, new WriteAheadLogRecordHandle {})
     } else {
-      new BlockManagerBasedStoreResult(blockId, None)
+      BlockManagerBasedStoreResult(blockId, None)
     }
-    new ReceivedBlockInfo(0, None, None, storeResult)
+    ReceivedBlockInfo(0, None, None, storeResult)
   }
 }

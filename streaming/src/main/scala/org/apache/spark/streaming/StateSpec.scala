@@ -158,7 +158,7 @@ object StateSpec {
       mappingFunction: (Time, KeyType, Option[ValueType], State[StateType]) => Option[MappedType]
     ): StateSpec[KeyType, ValueType, StateType, MappedType] = {
     ClosureCleaner.clean(mappingFunction, checkSerializable = true)
-    new StateSpecImpl(mappingFunction)
+    StateSpecImpl(mappingFunction)
   }
 
   /**
@@ -180,7 +180,7 @@ object StateSpec {
       (time: Time, key: KeyType, value: Option[ValueType], state: State[StateType]) => {
         Some(mappingFunction(key, value, state))
       }
-    new StateSpecImpl(wrappedFunction)
+    StateSpecImpl(wrappedFunction)
   }
 
   /**

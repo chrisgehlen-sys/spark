@@ -154,7 +154,7 @@ private[streaming] class OpenHashMapBasedStateMap[K, S](
     if (stateInfo != null) {
       stateInfo.update(state, updateTime)
     } else {
-      deltaMap.update(key, new StateInfo(state, updateTime))
+      deltaMap.update(key, StateInfo(state, updateTime))
     }
   }
 
