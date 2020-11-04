@@ -141,7 +141,7 @@ class SparkSubmitUtilsSuite extends SparkFunSuite with BeforeAndAfterAll {
   }
 
   test("search for artifact at local repositories") {
-    val main = new MavenCoordinate("my.great.lib", "mylib", "0.1")
+    val main = MavenCoordinate("my.great.lib", "mylib", "0.1")
     val dep = "my.great.dep:mydep:0.5"
     // Local M2 repository
     IvyTestUtils.withRepository(main, Some(dep), Some(SparkSubmitUtils.m2Path)) { repo =>
@@ -208,7 +208,7 @@ class SparkSubmitUtilsSuite extends SparkFunSuite with BeforeAndAfterAll {
   }
 
   test("exclude dependencies end to end") {
-    val main = new MavenCoordinate("my.great.lib", "mylib", "0.1")
+    val main = MavenCoordinate("my.great.lib", "mylib", "0.1")
     val dep = "my.great.dep:mydep:0.5"
     IvyTestUtils.withRepository(main, Some(dep), None) { repo =>
       val files = SparkSubmitUtils.resolveMavenCoordinates(
@@ -222,7 +222,7 @@ class SparkSubmitUtilsSuite extends SparkFunSuite with BeforeAndAfterAll {
   }
 
   test("load ivy settings file") {
-    val main = new MavenCoordinate("my.great.lib", "mylib", "0.1")
+    val main = MavenCoordinate("my.great.lib", "mylib", "0.1")
     val dep = "my.great.dep:mydep:0.5"
     val dummyIvyLocal = new File(tempIvyPath, "local" + File.separator)
     val settingsText =
@@ -258,7 +258,7 @@ class SparkSubmitUtilsSuite extends SparkFunSuite with BeforeAndAfterAll {
   }
 
   test("SPARK-10878: test resolution files cleaned after resolving artifact") {
-    val main = new MavenCoordinate("my.great.lib", "mylib", "0.1")
+    val main = MavenCoordinate("my.great.lib", "mylib", "0.1")
 
     IvyTestUtils.withRepository(main, None, None) { repo =>
       val ivySettings = SparkSubmitUtils.buildIvySettings(Some(repo), Some(tempIvyPath))

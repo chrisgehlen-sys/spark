@@ -168,7 +168,7 @@ private[rest] class StandaloneSubmitRequestServlet(
     val extraJavaOpts = driverExtraJavaOptions.map(Utils.splitCommandString).getOrElse(Seq.empty)
     val sparkJavaOpts = Utils.sparkJavaOpts(conf)
     val javaOpts = sparkJavaOpts ++ defaultJavaOpts ++ extraJavaOpts
-    val command = new Command(
+    val command = Command(
       "org.apache.spark.deploy.worker.DriverWrapper",
       Seq("{{WORKER_URL}}", "{{USER_JAR}}", mainClass) ++ appArgs, // args to the DriverWrapper
       environmentVariables, extraClassPath, extraLibraryPath, javaOpts)
@@ -177,7 +177,7 @@ private[rest] class StandaloneSubmitRequestServlet(
     val actualSuperviseDriver = superviseDriver.map(_.toBoolean).getOrElse(DEFAULT_SUPERVISE)
     val driverResourceReqs = ResourceUtils.parseResourceRequirements(conf,
       config.SPARK_DRIVER_PREFIX)
-    new DriverDescription(
+    DriverDescription(
       appResource, actualDriverMemory, actualDriverCores, actualSuperviseDriver, command,
       driverResourceReqs)
   }

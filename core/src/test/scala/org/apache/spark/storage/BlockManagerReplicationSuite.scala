@@ -67,7 +67,7 @@ trait BlockManagerReplicationBehavior extends SparkFunSuite
   protected lazy val serializer = new KryoSerializer(conf)
 
   // Implicitly convert strings to BlockIds for test clarity.
-  protected implicit def StringToBlockId(value: String): BlockId = new TestBlockId(value)
+  protected implicit def StringToBlockId(value: String): BlockId = TestBlockId(value)
 
   protected def makeBlockManager(
       maxMem: Long,

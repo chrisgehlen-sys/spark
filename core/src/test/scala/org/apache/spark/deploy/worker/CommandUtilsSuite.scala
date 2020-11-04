@@ -30,7 +30,7 @@ class CommandUtilsSuite extends SparkFunSuite with Matchers with PrivateMethodTe
   test("set libraryPath correctly") {
     val appId = "12345-worker321-9876"
     val sparkHome = sys.props.getOrElse("spark.test.home", fail("spark.test.home is not set!"))
-    val cmd = new Command("mainClass", Seq(), Map(), Seq(), Seq("libraryPathToB"), Seq())
+    val cmd = Command("mainClass", Seq(), Map(), Seq(), Seq("libraryPathToB"), Seq())
     val builder = CommandUtils.buildProcessBuilder(
       cmd, new SecurityManager(new SparkConf), 512, sparkHome, t => t)
     val libraryPath = Utils.libraryPathEnvName
@@ -45,7 +45,7 @@ class CommandUtilsSuite extends SparkFunSuite with Matchers with PrivateMethodTe
     val secret = "This is the secret sauce"
     // set auth secret
     conf.set(SecurityManager.SPARK_AUTH_SECRET_CONF, secret)
-    val command = new Command("mainClass", Seq(), Map(), Seq(), Seq("lib"),
+    val command = Command("mainClass", Seq(), Map(), Seq(), Seq("lib"),
       Seq("-D" + SecurityManager.SPARK_AUTH_SECRET_CONF + "=" + secret))
 
     // auth is not set

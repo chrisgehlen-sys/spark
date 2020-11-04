@@ -165,7 +165,7 @@ class MasterSuite extends SparkFunSuite
 
     val instantiationAttempts = CustomRecoveryModeFactory.instantiationAttempts
 
-    val commandToPersist = new Command(
+    val commandToPersist = Command(
       mainClass = "",
       arguments = Nil,
       environment = Map.empty,
@@ -177,7 +177,7 @@ class MasterSuite extends SparkFunSuite
     val appToPersist = new ApplicationInfo(
       startTime = 0,
       id = "test_app",
-      desc = new ApplicationDescription(
+      desc = ApplicationDescription(
         name = "",
         maxCores = None,
         memoryPerExecutorMB = 0,
@@ -194,7 +194,7 @@ class MasterSuite extends SparkFunSuite
     val driverToPersist = new DriverInfo(
       startTime = 0,
       id = "test_driver",
-      desc = new DriverDescription(
+      desc = DriverDescription(
         jarUrl = "",
         mem = 0,
         cores = 0,
@@ -253,12 +253,12 @@ class MasterSuite extends SparkFunSuite
     val fakeDriverInfo = new DriverInfo(
       startTime = 0,
       id = "test_driver",
-      desc = new DriverDescription(
+      desc = DriverDescription(
         jarUrl = "",
         mem = 1024,
         cores = 1,
         supervise = false,
-        command = new Command("", Nil, Map.empty, Nil, Nil, Nil)),
+        command = Command("", Nil, Map.empty, Nil, Nil, Nil)),
       submitDate = new Date())
 
     // Build the fake recovery data
@@ -693,7 +693,7 @@ class MasterSuite extends SparkFunSuite
       memoryPerExecutorMb: Int,
       coresPerExecutor: Option[Int] = None,
       maxCores: Option[Int] = None): ApplicationInfo = {
-    val desc = new ApplicationDescription(
+    val desc = ApplicationDescription(
       "test", maxCores, memoryPerExecutorMb, null, "", None, None, coresPerExecutor)
     val appId = System.currentTimeMillis.toString
     val endpointRef = mock(classOf[RpcEndpointRef])

@@ -440,7 +440,7 @@ private[spark] class SingleCoreMockBackend(
   val localExecutorHostname = "localhost"
 
   override val executorIdToExecutor: Map[String, ExecutorTaskStatus] = Map(
-    localExecutorId -> new ExecutorTaskStatus(localExecutorHostname, localExecutorId, freeCores)
+    localExecutorId -> ExecutorTaskStatus(localExecutorHostname, localExecutorId, freeCores)
   )
 }
 

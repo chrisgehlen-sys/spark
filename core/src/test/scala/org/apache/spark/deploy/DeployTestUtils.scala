@@ -27,8 +27,8 @@ import org.apache.spark.resource.ResourceUtils.{FPGA, GPU}
 
 private[deploy] object DeployTestUtils {
   def createAppDesc(): ApplicationDescription = {
-    val cmd = new Command("mainClass", List("arg1", "arg2"), Map(), Seq(), Seq(), Seq())
-    new ApplicationDescription("name", Some(4), 1234, cmd, "appUiUrl")
+    val cmd = Command("mainClass", List("arg1", "arg2"), Map(), Seq(), Seq(), Seq())
+    ApplicationDescription("name", Some(4), 1234, cmd, "appUiUrl")
   }
 
   def createAppInfo() : ApplicationInfo = {
@@ -40,13 +40,13 @@ private[deploy] object DeployTestUtils {
     appInfo
   }
 
-  def createDriverCommand(): Command = new Command(
+  def createDriverCommand(): Command = Command(
     "org.apache.spark.FakeClass", Seq("WORKER_URL", "USER_JAR", "mainClass"),
     Map(("K1", "V1"), ("K2", "V2")), Seq("cp1", "cp2"), Seq("lp1", "lp2"), Seq("-Dfoo")
   )
 
   def createDriverDesc(): DriverDescription =
-    new DriverDescription("hdfs://some-dir/some.jar", 100, 3, false, createDriverCommand())
+    DriverDescription("hdfs://some-dir/some.jar", 100, 3, false, createDriverCommand())
 
   def createDriverInfo(): DriverInfo = {
     val dDesc = createDriverDesc().copy(resourceReqs = createResourceRequirement)
@@ -56,8 +56,8 @@ private[deploy] object DeployTestUtils {
   }
 
   def createWorkerInfo(): WorkerInfo = {
-    val gpuResource = new WorkerResourceInfo(GPU, Seq("0", "1", "2"))
-    val fpgaResource = new WorkerResourceInfo(FPGA, Seq("3", "4", "5"))
+    val gpuResource = WorkerResourceInfo(GPU, Seq("0", "1", "2"))
+    val fpgaResource = WorkerResourceInfo(FPGA, Seq("3", "4", "5"))
     val resources = Map(GPU -> gpuResource, FPGA -> fpgaResource)
     val workerInfo = new WorkerInfo("id", "host", 8080, 4, 1234, null,
       "http://publicAddress:80", resources)

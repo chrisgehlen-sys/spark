@@ -59,7 +59,7 @@ private[spark] object TaskLocation {
   val executorLocationTag = "executor_"
 
   def apply(host: String, executorId: String): TaskLocation = {
-    new ExecutorCacheTaskLocation(host, executorId)
+    ExecutorCacheTaskLocation(host, executorId)
   }
 
   /**
@@ -75,12 +75,12 @@ private[spark] object TaskLocation {
         val splits = hostAndExecutorId.split("_", 2)
         require(splits.length == 2, "Illegal executor location format: " + str)
         val Array(host, executorId) = splits
-        new ExecutorCacheTaskLocation(host, executorId)
+        ExecutorCacheTaskLocation(host, executorId)
       } else {
-        new HostTaskLocation(str)
+        HostTaskLocation(str)
       }
     } else {
-      new HDFSCacheTaskLocation(hstr)
+      HDFSCacheTaskLocation(hstr)
     }
   }
 }

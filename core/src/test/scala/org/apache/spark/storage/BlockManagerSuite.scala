@@ -88,7 +88,7 @@ class BlockManagerSuite extends SparkFunSuite with Matchers with BeforeAndAfterE
     new SparkConf(false).set(Kryo.KRYO_SERIALIZER_BUFFER_SIZE.key, "1m"))
 
   // Implicitly convert strings to BlockIds for test clarity.
-  implicit def StringToBlockId(value: String): BlockId = new TestBlockId(value)
+  implicit def StringToBlockId(value: String): BlockId = TestBlockId(value)
   def rdd(rddId: Int, splitId: Int): RDDBlockId = RDDBlockId(rddId, splitId)
 
   private def init(sparkConf: SparkConf): Unit = {
@@ -1234,7 +1234,7 @@ class BlockManagerSuite extends SparkFunSuite with Matchers with BeforeAndAfterE
   def testPutBlockDataAsStream(blockManager: BlockManager, storageLevel: StorageLevel): Unit = {
     val message = "message"
     val ser = serializer.newInstance().serialize(message).array()
-    val blockId = new RDDBlockId(0, 0)
+    val blockId = RDDBlockId(0, 0)
     val streamCallbackWithId =
       blockManager.putBlockDataAsStream(blockId, storageLevel, ClassTag(message.getClass))
     streamCallbackWithId.onData("0", ByteBuffer.wrap(ser))

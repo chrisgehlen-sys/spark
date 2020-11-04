@@ -49,7 +49,7 @@ class MemoryStoreSuite
   val serializerManager = new SerializerManager(serializer, conf)
 
   // Implicitly convert strings to BlockIds for test clarity.
-  implicit def StringToBlockId(value: String): BlockId = new TestBlockId(value)
+  implicit def StringToBlockId(value: String): BlockId = TestBlockId(value)
   def rdd(rddId: Int, splitId: Int): RDDBlockId = RDDBlockId(rddId, splitId)
 
   // Save modified system properties so that we can restore them after tests.

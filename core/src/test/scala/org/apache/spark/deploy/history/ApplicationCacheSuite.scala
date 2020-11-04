@@ -128,8 +128,8 @@ class ApplicationCacheSuite extends SparkFunSuite with Logging with MockitoSugar
       completed: Boolean,
       started: Long,
       ended: Long): SparkUI = {
-    val info = new ApplicationInfo(name, name, Some(1), Some(1), Some(1), Some(64),
-      Seq(new AttemptInfo(attemptId, new Date(started), new Date(ended),
+    val info = ApplicationInfo(name, name, Some(1), Some(1), Some(1), Some(64),
+      Seq(AttemptInfo(attemptId, new Date(started), new Date(ended),
         new Date(ended), ended - started, "user", completed, org.apache.spark.SPARK_VERSION)))
     val ui = mock[SparkUI]
     when(ui.getApplicationInfoList).thenReturn(List(info).iterator)
@@ -366,7 +366,7 @@ class ApplicationCacheSuite extends SparkFunSuite with Logging with MockitoSugar
     val ui = operations.putAndAttach("foo", None, true, 0, 10)
     val cache = mock[ApplicationCache]
     when(cache.operations).thenReturn(operations)
-    val filter = new ApplicationCacheCheckFilter(new CacheKey("foo", None), ui, cache)
+    val filter = new ApplicationCacheCheckFilter(CacheKey("foo", None), ui, cache)
     ui.invalidate()
 
     val request = mock[HttpServletRequest]

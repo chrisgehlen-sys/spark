@@ -34,8 +34,8 @@ import org.apache.spark.util.Clock
 
 class DriverRunnerTest extends SparkFunSuite {
   private def createDriverRunner() = {
-    val command = new Command("mainClass", Seq(), Map(), Seq(), Seq(), Seq())
-    val driverDescription = new DriverDescription("jarUrl", 512, 1, true, command)
+    val command = Command("mainClass", Seq(), Map(), Seq(), Seq(), Seq())
+    val driverDescription = DriverDescription("jarUrl", 512, 1, true, command)
     val conf = new SparkConf()
     val worker = mock(classOf[RpcEndpointRef])
     doNothing().when(worker).send(any())

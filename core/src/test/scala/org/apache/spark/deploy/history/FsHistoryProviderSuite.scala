@@ -138,7 +138,7 @@ class FsHistoryProviderSuite extends SparkFunSuite with Matchers with Logging {
           completed: Boolean): ApplicationInfo = {
 
         val duration = if (end > 0) end - start else 0
-        new ApplicationInfo(id, name, None, None, None, None,
+        ApplicationInfo(id, name, None, None, None, None,
           List(ApplicationAttemptInfo(None, new Date(start),
             new Date(end), new Date(lastMod), duration, user, completed, SPARK_VERSION)))
       }
@@ -921,7 +921,7 @@ class FsHistoryProviderSuite extends SparkFunSuite with Matchers with Logging {
 
     // Manually overwrite the version in the listing db; this should cause the new provider to
     // discard all data because the versions don't match.
-    val meta = new FsHistoryProviderMetadata(FsHistoryProvider.CURRENT_LISTING_VERSION + 1,
+    val meta = FsHistoryProviderMetadata(FsHistoryProvider.CURRENT_LISTING_VERSION + 1,
       AppStatusStore.CURRENT_VERSION, conf.get(LOCAL_STORE_DIR).get)
     oldProvider.listing.setMetadata(meta)
     oldProvider.stop()
@@ -1174,7 +1174,7 @@ class FsHistoryProviderSuite extends SparkFunSuite with Matchers with Logging {
     // FileStatus.getLen is more than logInfo fileSize
     var fileStatus = new FileStatus(200, false, 0, 0, 0, path)
     when(mockedFs.getFileStatus(path)).thenReturn(fileStatus)
-    var logInfo = new LogInfo(path.toString, 0, LogType.EventLogs, Some("appId"),
+    var logInfo = LogInfo(path.toString, 0, LogType.EventLogs, Some("appId"),
       Some("attemptId"), 100, None, None, false)
     var reader = EventLogFileReader(mockedFs, path)
     assert(reader.isDefined)
@@ -1184,14 +1184,14 @@ class FsHistoryProviderSuite extends SparkFunSuite with Matchers with Logging {
     fileStatus.setPath(path)
     when(mockedFs.getFileStatus(path)).thenReturn(fileStatus)
     // DFSInputStream.getFileLength is more than logInfo fileSize
-    logInfo = new LogInfo(path.toString, 0, LogType.EventLogs, Some("appId"),
+    logInfo = LogInfo(path.toString, 0, LogType.EventLogs, Some("appId"),
       Some("attemptId"), 100, None, None, false)
     reader = EventLogFileReader(mockedFs, path)
     assert(reader.isDefined)
     assert(mockedProvider.shouldReloadLog(logInfo, reader.get))
 
     // DFSInputStream.getFileLength is equal to logInfo fileSize
-    logInfo = new LogInfo(path.toString, 0, LogType.EventLogs, Some("appId"),
+    logInfo = LogInfo(path.toString, 0, LogType.EventLogs, Some("appId"),
       Some("attemptId"), 200, None, None, false)
     reader = EventLogFileReader(mockedFs, path)
     assert(reader.isDefined)
@@ -1318,7 +1318,7 @@ class FsHistoryProviderSuite extends SparkFunSuite with Matchers with Logging {
     }
 
     val serializer = new KVStoreScalaSerializer()
-    val appInfo = new ApplicationAttemptInfo(None, new Date(1), new Date(1), new Date(1),
+    val appInfo = ApplicationAttemptInfo(None, new Date(1), new Date(1), new Date(1),
       10, "spark", false, "dummy")
     val attemptInfoWithIndexAsNone = new AttemptInfoWrapper(appInfo, "dummyPath", 10, None,
       None, None, None, None)

@@ -136,7 +136,7 @@ private[history] class FsHistoryProvider(conf: SparkConf, clock: Clock)
     val dbPath = Files.createDirectories(new File(path, "listing.ldb").toPath()).toFile()
     Utils.chmod700(dbPath)
 
-    val metadata = new FsHistoryProviderMetadata(CURRENT_LISTING_VERSION,
+    val metadata = FsHistoryProviderMetadata(CURRENT_LISTING_VERSION,
       AppStatusStore.CURRENT_VERSION, logDir.toString())
 
     try {
@@ -1176,7 +1176,7 @@ private[history] class FsHistoryProvider(conf: SparkConf, clock: Clock)
       dm: HistoryServerDiskManager,
       appId: String,
       attempt: AttemptInfoWrapper): KVStore = {
-    val metadata = new AppStatusStoreMetadata(AppStatusStore.CURRENT_VERSION)
+    val metadata = AppStatusStoreMetadata(AppStatusStore.CURRENT_VERSION)
 
     // First check if the store already exists and try to open it. If that fails, then get rid of
     // the existing data.

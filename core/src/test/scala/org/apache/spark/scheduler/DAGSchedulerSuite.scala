@@ -647,11 +647,11 @@ class DAGSchedulerSuite extends SparkFunSuite with TempLocalSparkContext with Ti
   }
 
   test("equals and hashCode AccumulableInfo") {
-    val accInfo1 = new AccumulableInfo(
+    val accInfo1 = AccumulableInfo(
       1, Some("a1"), Some("delta1"), Some("val1"), internal = true, countFailedValues = false)
-    val accInfo2 = new AccumulableInfo(
+    val accInfo2 = AccumulableInfo(
       1, Some("a1"), Some("delta1"), Some("val1"), internal = false, countFailedValues = false)
-    val accInfo3 = new AccumulableInfo(
+    val accInfo3 = AccumulableInfo(
       1, Some("a1"), Some("delta1"), Some("val1"), internal = false, countFailedValues = false)
     assert(accInfo1 !== accInfo2)
     assert(accInfo2 === accInfo3)
@@ -2209,7 +2209,7 @@ class DAGSchedulerSuite extends SparkFunSuite with TempLocalSparkContext with Ti
     val accumUpdates2 = Seq(accUpdate3)
     val accumInfo2 = accumUpdates2.map(AccumulatorSuite.makeInfo)
 
-    val taskKilled = new TaskKilled( "test", accumInfo2, accums = accumUpdates2)
+    val taskKilled = TaskKilled("test", accumInfo2, accums = accumUpdates2)
     runEvent(makeCompletionEvent(taskSets.head.tasks.head, taskKilled, "result"))
 
     assert(AccumulatorContext.get(acc3.id).get.value === 18L)

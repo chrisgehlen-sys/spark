@@ -433,17 +433,17 @@ class EventLoggingListenerSuite extends SparkFunSuite with LocalSparkContext wit
     val expectedMetricsEvents: Map[(Int, String), SparkListenerStageExecutorMetrics] =
     Map(
       ((0, "1"),
-        new SparkListenerStageExecutorMetrics("1", 0, 0, new ExecutorMetrics(p0_1))),
+        SparkListenerStageExecutorMetrics("1", 0, 0, new ExecutorMetrics(p0_1))),
       ((0, "2"),
-        new SparkListenerStageExecutorMetrics("2", 0, 0, new ExecutorMetrics(p0_2))),
+        SparkListenerStageExecutorMetrics("2", 0, 0, new ExecutorMetrics(p0_2))),
       ((0, "driver"),
-        new SparkListenerStageExecutorMetrics("driver", 0, 0, new ExecutorMetrics(p0_d))),
+        SparkListenerStageExecutorMetrics("driver", 0, 0, new ExecutorMetrics(p0_d))),
       ((1, "1"),
-        new SparkListenerStageExecutorMetrics("1", 1, 0, new ExecutorMetrics(p1_1))),
+        SparkListenerStageExecutorMetrics("1", 1, 0, new ExecutorMetrics(p1_1))),
       ((1, "2"),
-        new SparkListenerStageExecutorMetrics("2", 1, 0, new ExecutorMetrics(p1_2))),
+        SparkListenerStageExecutorMetrics("2", 1, 0, new ExecutorMetrics(p1_2))),
       ((1, "driver"),
-        new SparkListenerStageExecutorMetrics("driver", 1, 0, new ExecutorMetrics(p1_d))))
+        SparkListenerStageExecutorMetrics("driver", 1, 0, new ExecutorMetrics(p1_d))))
     // Verify the log file contains the expected events.
     // Posted events should be logged, except for ExecutorMetricsUpdate events -- these
     // are consolidated, and the peak values for each stage are logged at stage end.

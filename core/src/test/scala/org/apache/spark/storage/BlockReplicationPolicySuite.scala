@@ -32,7 +32,7 @@ class RandomBlockReplicationPolicyBehavior extends SparkFunSuite
   with LocalSparkContext {
 
   // Implicitly convert strings to BlockIds for test clarity.
-  protected implicit def StringToBlockId(value: String): BlockId = new TestBlockId(value)
+  protected implicit def StringToBlockId(value: String): BlockId = TestBlockId(value)
 
   val replicationPolicy: BlockReplicationPolicy = new RandomBlockReplicationPolicy
 

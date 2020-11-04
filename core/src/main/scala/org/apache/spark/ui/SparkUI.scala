@@ -116,14 +116,14 @@ private[spark] class SparkUI private (
   }
 
   def getApplicationInfoList: Iterator[ApplicationInfo] = {
-    Iterator(new ApplicationInfo(
+    Iterator(ApplicationInfo(
       id = appId,
       name = appName,
       coresGranted = None,
       maxCores = None,
       coresPerExecutor = None,
       memoryPerExecutorMB = None,
-      attempts = Seq(new ApplicationAttemptInfo(
+      attempts = Seq(ApplicationAttemptInfo(
         attemptId = None,
         startTime = new Date(startTime),
         endTime = new Date(-1),

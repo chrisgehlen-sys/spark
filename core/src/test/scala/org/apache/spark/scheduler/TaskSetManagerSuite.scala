@@ -881,7 +881,7 @@ class TaskSetManagerSuite
     assert(resubmittedTasks === 0)
     assert(manager.runningTasks === 1)
 
-    manager.executorLost("execB", "host2", new ExecutorProcessLost())
+    manager.executorLost("execB", "host2", ExecutorProcessLost())
     assert(manager.runningTasks === 0)
     assert(resubmittedTasks === 0)
   }
@@ -1464,7 +1464,7 @@ class TaskSetManagerSuite
     )
 
     // Simulate a fake exception
-    val e = new ExceptionFailure("a", "b", Array(), "c", None)
+    val e = ExceptionFailure("a", "b", Array(), "c", None)
     taskSetManagerSpy.handleFailedTask(taskDesc.get.taskId, TaskState.FAILED, e)
 
     verify(taskSetManagerSpy, times(1)).addPendingTask(0, false, false)

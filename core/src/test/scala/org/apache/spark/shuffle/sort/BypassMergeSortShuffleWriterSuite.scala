@@ -108,7 +108,7 @@ class BypassMergeSortShuffleWriterSuite extends SparkFunSuite with BeforeAndAfte
 
     when(diskBlockManager.createTempShuffleBlock())
       .thenAnswer { _ =>
-        val blockId = new TempShuffleBlockId(UUID.randomUUID)
+        val blockId = TempShuffleBlockId(UUID.randomUUID)
         val file = new File(tempDir, blockId.name)
         blockIdToFileMap.put(blockId, file)
         temporaryFilesCreated += file

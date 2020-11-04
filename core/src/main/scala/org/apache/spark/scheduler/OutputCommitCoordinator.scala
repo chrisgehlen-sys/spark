@@ -124,7 +124,7 @@ private[spark] class OutputCommitCoordinator(conf: SparkConf, isDriver: Boolean)
         logInfo(s"Reusing state from previous attempt of stage $stage.")
 
       case _ =>
-        stageStates(stage) = new StageState(maxPartitionId + 1)
+        stageStates(stage) = StageState(maxPartitionId + 1)
     }
   }
 

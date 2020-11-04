@@ -146,7 +146,7 @@ private[spark] class EventLoggingListener(
         (event.stageInfo.stageId, event.stageInfo.attemptNumber()))
       executorOpt.foreach { execMap =>
         execMap.foreach { case (executorId, peakExecutorMetrics) =>
-            logEvent(new SparkListenerStageExecutorMetrics(executorId, event.stageInfo.stageId,
+            logEvent(SparkListenerStageExecutorMetrics(executorId, event.stageInfo.stageId,
               event.stageInfo.attemptNumber(), peakExecutorMetrics))
         }
       }

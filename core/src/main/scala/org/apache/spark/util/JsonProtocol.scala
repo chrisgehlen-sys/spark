@@ -947,7 +947,7 @@ private[spark] object JsonProtocol {
     val countFailedValues =
       jsonOption(json \ "Count Failed Values").exists(_.extract[Boolean])
     val metadata = jsonOption(json \ "Metadata").map(_.extract[String])
-    new AccumulableInfo(id, name, update, value, internal, countFailedValues, metadata)
+    AccumulableInfo(id, name, update, value, internal, countFailedValues, metadata)
   }
 
   /**
@@ -1088,7 +1088,7 @@ private[spark] object JsonProtocol {
         }
         val reduceId = (json \ "Reduce ID").extract[Int]
         val message = jsonOption(json \ "Message").map(_.extract[String])
-        new FetchFailed(blockManagerAddress, shuffleId, mapId, mapIndex, reduceId,
+        FetchFailed(blockManagerAddress, shuffleId, mapId, mapIndex, reduceId,
           message.getOrElse("Unknown reason"))
       case `exceptionFailure` =>
         val className = (json \ "Class Name").extract[String]
@@ -1154,7 +1154,7 @@ private[spark] object JsonProtocol {
       case `jobSucceeded` => JobSucceeded
       case `jobFailed` =>
         val exception = exceptionFromJson(json \ "Exception")
-        new JobFailed(exception)
+        JobFailed(exception)
     }
   }
 

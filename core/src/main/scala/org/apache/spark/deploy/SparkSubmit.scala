@@ -904,14 +904,14 @@ private[spark] class SparkSubmit extends Logging {
           logInfo(s"Failed to load main class $childMainClass.")
           logInfo("You need to build Spark with -Phive and -Phive-thriftserver.")
         }
-        throw new SparkUserAppException(CLASS_NOT_FOUND_EXIT_STATUS)
+        throw SparkUserAppException(CLASS_NOT_FOUND_EXIT_STATUS)
       case e: NoClassDefFoundError =>
         logError(s"Failed to load $childMainClass: ${e.getMessage()}")
         if (e.getMessage.contains("org/apache/hadoop/hive")) {
           logInfo(s"Failed to load hive class.")
           logInfo("You need to build Spark with -Phive and -Phive-thriftserver.")
         }
-        throw new SparkUserAppException(CLASS_NOT_FOUND_EXIT_STATUS)
+        throw SparkUserAppException(CLASS_NOT_FOUND_EXIT_STATUS)
     }
 
     val app: SparkApplication = if (classOf[SparkApplication].isAssignableFrom(mainClass)) {
@@ -1112,7 +1112,7 @@ private[spark] object SparkSubmitUtils {
         s"be whitespace. The artifactId provided is: ${splits(1)}")
       require(splits(2) != null && splits(2).trim.nonEmpty, s"The version cannot be null or " +
         s"be whitespace. The version provided is: ${splits(2)}")
-      new MavenCoordinate(splits(0), splits(1), splits(2))
+      MavenCoordinate(splits(0), splits(1), splits(2))
     }
   }
 

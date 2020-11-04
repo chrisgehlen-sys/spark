@@ -264,9 +264,9 @@ class AppClientSuite
   /** Create AppClient and supporting objects */
   private class AppClientInst(masterUrl: String) extends Closeable {
     val rpcEnv = RpcEnv.create("spark", Utils.localHostName(), 0, conf, securityManager)
-    private val cmd = new Command(TestExecutor.getClass.getCanonicalName.stripSuffix("$"),
+    private val cmd = Command(TestExecutor.getClass.getCanonicalName.stripSuffix("$"),
       List(), Map(), Seq(), Seq(), Seq())
-    private val desc = new ApplicationDescription("AppClientSuite", Some(1), 512, cmd, "ignored")
+    private val desc = ApplicationDescription("AppClientSuite", Some(1), 512, cmd, "ignored")
     val listener = new AppClientCollector
     val client = new StandaloneAppClient(rpcEnv, Array(masterUrl), desc, listener, new SparkConf)
 

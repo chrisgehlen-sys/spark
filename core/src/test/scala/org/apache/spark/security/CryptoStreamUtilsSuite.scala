@@ -79,7 +79,7 @@ class CryptoStreamUtilsSuite extends SparkFunSuite {
       .set(SHUFFLE_SPILL_COMPRESS, true)
 
     val plainStr = "hello world"
-    val blockId = new TempShuffleBlockId(UUID.randomUUID())
+    val blockId = TempShuffleBlockId(UUID.randomUUID())
     val key = Some(CryptoStreamUtils.createKey(conf))
     val serializerManager = new SerializerManager(new JavaSerializer(conf), conf,
       encryptionKey = key)

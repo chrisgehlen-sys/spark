@@ -98,12 +98,12 @@ private class ClientEndpoint(
 
         val sparkJavaOpts = Utils.sparkJavaOpts(conf)
         val javaOpts = sparkJavaOpts ++ extraJavaOpts
-        val command = new Command(mainClass,
+        val command = Command(mainClass,
           Seq("{{WORKER_URL}}", "{{USER_JAR}}", driverArgs.mainClass) ++ driverArgs.driverOptions,
           sys.env, classPathEntries, libraryPathEntries, javaOpts)
         val driverResourceReqs = ResourceUtils.parseResourceRequirements(conf,
           config.SPARK_DRIVER_PREFIX)
-        val driverDescription = new DriverDescription(
+        val driverDescription = DriverDescription(
           driverArgs.jarUrl,
           driverArgs.memory,
           driverArgs.cores,

@@ -86,7 +86,7 @@ private[spark] class LocalEndpoint(
 
   def reviveOffers(): Unit = {
     // local mode doesn't support extra resources like GPUs right now
-    val offers = IndexedSeq(new WorkerOffer(localExecutorId, localExecutorHostname, freeCores,
+    val offers = IndexedSeq(WorkerOffer(localExecutorId, localExecutorHostname, freeCores,
       Some(rpcEnv.address.hostPort)))
     for (task <- scheduler.resourceOffers(offers, true).flatten) {
       freeCores -= scheduler.CPUS_PER_TASK

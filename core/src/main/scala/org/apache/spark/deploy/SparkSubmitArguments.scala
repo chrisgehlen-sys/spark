@@ -572,7 +572,7 @@ private[deploy] class SparkSubmitArguments(args: Seq[String], env: Map[String, S
       logInfo(getSqlShellOptions())
     }
 
-    throw new SparkUserAppException(exitCode)
+    throw SparkUserAppException(exitCode)
   }
 
   /**

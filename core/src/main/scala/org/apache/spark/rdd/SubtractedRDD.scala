@@ -77,7 +77,7 @@ private[spark] class SubtractedRDD[K: ClassTag, V: ClassTag, W: ClassTag](
           case s: ShuffleDependency[_, _, _] =>
             None
           case _ =>
-            Some(new NarrowCoGroupSplitDep(rdd, i, rdd.partitions(i)))
+            Some(NarrowCoGroupSplitDep(rdd, i, rdd.partitions(i)))
         }
       }.toArray)
     }

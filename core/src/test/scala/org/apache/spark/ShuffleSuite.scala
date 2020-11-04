@@ -278,9 +278,9 @@ abstract class ShuffleSuite extends SparkFunSuite with Matchers with LocalSparkC
     rdd.count()
 
     // Delete one of the local shuffle blocks.
-    val hashFile = sc.env.blockManager.diskBlockManager.getFile(new ShuffleBlockId(0, 0, 0))
-    val sortFile = sc.env.blockManager.diskBlockManager.getFile(new ShuffleDataBlockId(0, 0, 0))
-    val indexFile = sc.env.blockManager.diskBlockManager.getFile(new ShuffleIndexBlockId(0, 0, 0))
+    val hashFile = sc.env.blockManager.diskBlockManager.getFile(ShuffleBlockId(0, 0, 0))
+    val sortFile = sc.env.blockManager.diskBlockManager.getFile(ShuffleDataBlockId(0, 0, 0))
+    val indexFile = sc.env.blockManager.diskBlockManager.getFile(ShuffleIndexBlockId(0, 0, 0))
     assert(hashFile.exists() || (sortFile.exists() && indexFile.exists()))
 
     if (hashFile.exists()) {
@@ -302,20 +302,20 @@ abstract class ShuffleSuite extends SparkFunSuite with Matchers with LocalSparkC
     val rdd = sc.parallelize(1 to 10, 1).map((_, 1)).reduceByKey(_ + _)
 
     // Cannot find one of the local shuffle blocks.
-    val hashFile = sc.env.blockManager.diskBlockManager.getFile(new ShuffleBlockId(0, 0, 0))
-    val sortFile = sc.env.blockManager.diskBlockManager.getFile(new ShuffleDataBlockId(0, 0, 0))
-    val indexFile = sc.env.blockManager.diskBlockManager.getFile(new ShuffleIndexBlockId(0, 0, 0))
+    val hashFile = sc.env.blockManager.diskBlockManager.getFile(ShuffleBlockId(0, 0, 0))
+    val sortFile = sc.env.blockManager.diskBlockManager.getFile(ShuffleDataBlockId(0, 0, 0))
+    val indexFile = sc.env.blockManager.diskBlockManager.getFile(ShuffleIndexBlockId(0, 0, 0))
     assert(!hashFile.exists() && !sortFile.exists() && !indexFile.exists())
 
     rdd.count()
 
     // Can find one of the local shuffle blocks.
     val hashExistsFile = sc.env.blockManager.diskBlockManager
-      .getFile(new ShuffleBlockId(0, 0, 0))
+      .getFile(ShuffleBlockId(0, 0, 0))
     val sortExistsFile = sc.env.blockManager.diskBlockManager
-      .getFile(new ShuffleDataBlockId(0, 0, 0))
+      .getFile(ShuffleDataBlockId(0, 0, 0))
     val indexExistsFile = sc.env.blockManager.diskBlockManager
-      .getFile(new ShuffleIndexBlockId(0, 0, 0))
+      .getFile(ShuffleIndexBlockId(0, 0, 0))
     assert(hashExistsFile.exists() || (sortExistsFile.exists() && indexExistsFile.exists()))
   }
 

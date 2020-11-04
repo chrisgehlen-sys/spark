@@ -252,7 +252,7 @@ class BlockManagerDecommissionUnitSuite extends SparkFunSuite with Matchers {
 
     val storedBlockId1 = RDDBlockId(0, 0)
     val storedBlock1 =
-      new ReplicateBlock(storedBlockId1, Seq(BlockManagerId("replicaHolder", "host1", bmPort)), 1)
+      ReplicateBlock(storedBlockId1, Seq(BlockManagerId("replicaHolder", "host1", bmPort)), 1)
 
     val migratableShuffleBlockResolver = mock(classOf[MigratableResolver])
     registerShuffleBlocks(migratableShuffleBlockResolver, Set((1, 1L, 1)))

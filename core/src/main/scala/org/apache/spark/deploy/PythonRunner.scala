@@ -100,7 +100,7 @@ object PythonRunner {
 
       val exitCode = process.waitFor()
       if (exitCode != 0) {
-        throw new SparkUserAppException(exitCode)
+        throw SparkUserAppException(exitCode)
       }
     } finally {
       gatewayServer.shutdown()

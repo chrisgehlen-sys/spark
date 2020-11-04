@@ -86,7 +86,7 @@ private[history] class ApplicationCache(
 
   def get(appId: String, attemptId: Option[String] = None): CacheEntry = {
     try {
-      appCache.get(new CacheKey(appId, attemptId))
+      appCache.get(CacheKey(appId, attemptId))
     } catch {
       case e @ (_: ExecutionException | _: UncheckedExecutionException) =>
         throw Option(e.getCause()).getOrElse(e)
@@ -108,7 +108,7 @@ private[history] class ApplicationCache(
         entry.loadedUI.lock.readLock().unlock()
         entry = null
         try {
-          invalidate(new CacheKey(appId, attemptId))
+          invalidate(CacheKey(appId, attemptId))
           entry = get(appId, attemptId)
           metrics.loadCount.inc()
         } finally {
@@ -176,7 +176,7 @@ private[history] class ApplicationCache(
       val completed = loadedUI.ui.getApplicationInfoList.exists(_.attempts.last.completed)
       if (!completed) {
         // incomplete UIs have the cache-check filter put in front of them.
-        registerFilter(new CacheKey(appId, attemptId), loadedUI)
+        registerFilter(CacheKey(appId, attemptId), loadedUI)
       }
       operations.attachSparkUI(appId, attemptId, loadedUI.ui, completed)
       new CacheEntry(loadedUI, completed)

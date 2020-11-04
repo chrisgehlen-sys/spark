@@ -38,7 +38,7 @@ class PartiallySerializedBlockSuite
     with BeforeAndAfterEach
     with PrivateMethodTester {
 
-  private val blockId = new TestBlockId("test")
+  private val blockId = TestBlockId("test")
   private val conf = new SparkConf()
   private val memoryStore = Mockito.mock(classOf[MemoryStore], Mockito.RETURNS_SMART_NULLS)
   private val serializerManager = new SerializerManager(new JavaSerializer(conf), conf)

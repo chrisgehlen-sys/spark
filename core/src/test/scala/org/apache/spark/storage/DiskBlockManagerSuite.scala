@@ -64,7 +64,7 @@ class DiskBlockManagerSuite extends SparkFunSuite with BeforeAndAfterEach with B
   }
 
   test("basic block creation") {
-    val blockId = new TestBlockId("test")
+    val blockId = TestBlockId("test")
     val newFile = diskBlockManager.getFile(blockId)
     writeToFile(newFile, 10)
     assert(diskBlockManager.containsBlock(blockId))

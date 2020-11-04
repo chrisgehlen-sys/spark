@@ -1021,7 +1021,7 @@ private[spark] object JsonProtocolSuite extends Assertions {
       internal: Boolean = false,
       countFailedValues: Boolean = false,
       metadata: Option[String] = None): AccumulableInfo =
-    new AccumulableInfo(id, Some(s"Accumulable$id"), Some(s"delta$id"), Some(s"val$id"),
+    AccumulableInfo(id, Some(s"Accumulable$id"), Some(s"delta$id"), Some(s"val$id"),
       internal, countFailedValues, metadata)
 
   /** Creates an SparkListenerExecutorMetricsUpdate event */
