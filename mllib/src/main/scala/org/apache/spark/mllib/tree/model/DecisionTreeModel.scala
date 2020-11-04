@@ -154,7 +154,7 @@ object DecisionTreeModel extends Loader[DecisionTreeModel] with Logging {
         featureType: Int,
         categories: Seq[Double]) {
       def toSplit: Split = {
-        new Split(feature, threshold, FeatureType(featureType), categories.toList)
+        Split(feature, threshold, FeatureType(featureType), categories.toList)
       }
     }
 

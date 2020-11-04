@@ -1566,7 +1566,7 @@ private[spark] object SerDe extends SerDeBase with Serializable {
       if (args.length != 3) {
         throw new PickleException("should be 3")
       }
-      new Rating(ratingsIdCheckLong(args(0)), ratingsIdCheckLong(args(1)),
+      Rating(ratingsIdCheckLong(args(0)), ratingsIdCheckLong(args(1)),
         args(2).asInstanceOf[Double])
     }
 

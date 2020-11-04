@@ -185,23 +185,23 @@ private[ml] object TreeTests extends SparkFunSuite {
    * Create some toy data for testing feature importances.
    */
   def featureImportanceData(sc: SparkContext): RDD[LabeledPoint] = sc.parallelize(Seq(
-    new LabeledPoint(0, Vectors.dense(1, 0, 0, 0, 1)),
-    new LabeledPoint(1, Vectors.dense(1, 1, 0, 1, 0)),
-    new LabeledPoint(1, Vectors.dense(1, 1, 0, 0, 0)),
-    new LabeledPoint(0, Vectors.dense(1, 0, 0, 0, 0)),
-    new LabeledPoint(1, Vectors.dense(1, 1, 0, 0, 0))
+    LabeledPoint(0, Vectors.dense(1, 0, 0, 0, 1)),
+    LabeledPoint(1, Vectors.dense(1, 1, 0, 1, 0)),
+    LabeledPoint(1, Vectors.dense(1, 1, 0, 0, 0)),
+    LabeledPoint(0, Vectors.dense(1, 0, 0, 0, 0)),
+    LabeledPoint(1, Vectors.dense(1, 1, 0, 0, 0))
   ))
 
   /**
    * Create some toy data for testing correctness of variance.
    */
   def varianceData(sc: SparkContext): RDD[LabeledPoint] = sc.parallelize(Seq(
-    new LabeledPoint(1.0, Vectors.dense(Array(0.0))),
-    new LabeledPoint(2.0, Vectors.dense(Array(1.0))),
-    new LabeledPoint(3.0, Vectors.dense(Array(2.0))),
-    new LabeledPoint(10.0, Vectors.dense(Array(3.0))),
-    new LabeledPoint(12.0, Vectors.dense(Array(4.0))),
-    new LabeledPoint(14.0, Vectors.dense(Array(5.0)))
+    LabeledPoint(1.0, Vectors.dense(Array(0.0))),
+    LabeledPoint(2.0, Vectors.dense(Array(1.0))),
+    LabeledPoint(3.0, Vectors.dense(Array(2.0))),
+    LabeledPoint(10.0, Vectors.dense(Array(3.0))),
+    LabeledPoint(12.0, Vectors.dense(Array(4.0))),
+    LabeledPoint(14.0, Vectors.dense(Array(5.0)))
   ))
 
   /**

@@ -35,7 +35,7 @@ object LDASuite {
     val rdd = sc.parallelize(1 to rows).map { i =>
       val rng = new java.util.Random(i)
       Vectors.dense(Array.fill(vocabSize)(rng.nextInt(2 * avgWC).toDouble))
-    }.map(v => new TestRow(v))
+    }.map(v => TestRow(v))
     spark.createDataFrame(rdd)
   }
 

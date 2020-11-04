@@ -301,11 +301,11 @@ class RandomForestClassifierSuite extends MLTest with DefaultReadWriteTest {
     val arr = new Array[LabeledPoint](300)
       for (i <- 0 until 300) {
         if (i < 100) {
-          arr(i) = new LabeledPoint(0.0, Vectors.dense(2.0, 2.0))
+          arr(i) = LabeledPoint(0.0, Vectors.dense(2.0, 2.0))
         } else if (i < 200) {
-          arr(i) = new LabeledPoint(1.0, Vectors.dense(1.0, 2.0))
+          arr(i) = LabeledPoint(1.0, Vectors.dense(1.0, 2.0))
         } else {
-          arr(i) = new LabeledPoint(2.0, Vectors.dense(0.0, 2.0))
+          arr(i) = LabeledPoint(2.0, Vectors.dense(0.0, 2.0))
         }
       }
     val rdd = sc.parallelize(arr)
