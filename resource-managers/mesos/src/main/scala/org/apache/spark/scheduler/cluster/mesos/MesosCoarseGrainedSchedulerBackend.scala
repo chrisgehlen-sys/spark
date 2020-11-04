@@ -618,7 +618,7 @@ private[spark] class MesosCoarseGrainedSchedulerBackend(
       logDebug("Skipping host and waiting for locality. host: " + offerHostname)
       return false
     }
-    return true
+    true
   }
 
   override def statusUpdate(d: org.apache.mesos.SchedulerDriver, status: TaskStatus): Unit = {

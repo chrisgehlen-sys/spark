@@ -112,7 +112,7 @@ object FileStreamSink extends Logging {
         currentPath = currentPath.getParent
       }
     }
-    return false
+    false
   }
 }
 

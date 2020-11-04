@@ -381,7 +381,6 @@ private[spark] object BLAS extends Serializable {
       "The matrix C cannot be the product of a transpose() call. C.isTransposed must be false.")
     if (alpha == 0.0 && beta == 1.0) {
       // gemm: alpha is equal to 0 and beta is equal to 1. Returning C.
-      return
     } else if (alpha == 0.0) {
       getBLAS(C.values.length).dscal(C.values.length, beta, C.values, 1)
     } else {
@@ -551,7 +550,6 @@ private[spark] object BLAS extends Serializable {
       s"The rows of A don't match the number of elements of y. A: ${A.numRows}, y:${y.size}")
     if (alpha == 0.0 && beta == 1.0) {
       // gemv: alpha is equal to 0 and beta is equal to 1. Returning y.
-      return
     } else if (alpha == 0.0) {
       scal(beta, y)
     } else {
