@@ -428,10 +428,10 @@ case class StackTrace(elems: Seq[String]) {
 }
 
 case class ThreadStackTrace(
-    val threadId: Long,
-    val threadName: String,
-    val threadState: Thread.State,
-    val stackTrace: StackTrace,
-    val blockedByThreadId: Option[Long],
-    val blockedByLock: String,
-    val holdingLocks: Seq[String])
+    threadId: Long,
+    threadName: String,
+    threadState: Thread.State,
+    stackTrace: StackTrace,
+    blockedByThreadId: Option[Long],
+    blockedByLock: String,
+    holdingLocks: Seq[String])

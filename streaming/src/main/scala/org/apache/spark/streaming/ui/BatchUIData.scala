@@ -27,12 +27,12 @@ import org.apache.spark.streaming.ui.StreamingJobProgressListener._
 private[ui] case class OutputOpIdAndSparkJobId(outputOpId: OutputOpId, sparkJobId: SparkJobId)
 
 private[ui] case class BatchUIData(
-    val batchTime: Time,
-    val streamIdToInputInfo: Map[Int, StreamInputInfo],
-    val submissionTime: Long,
-    val processingStartTime: Option[Long],
-    val processingEndTime: Option[Long],
-    val outputOperations: mutable.HashMap[OutputOpId, OutputOperationUIData] = mutable.HashMap(),
+    batchTime: Time,
+    streamIdToInputInfo: Map[Int, StreamInputInfo],
+    submissionTime: Long,
+    processingStartTime: Option[Long],
+    processingEndTime: Option[Long],
+    outputOperations: mutable.HashMap[OutputOpId, OutputOperationUIData] = mutable.HashMap(),
     var outputOpIdSparkJobIdPairs: Iterable[OutputOpIdAndSparkJobId] = Seq.empty) {
 
   /**
