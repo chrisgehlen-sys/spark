@@ -289,7 +289,7 @@ private[spark] class MesosFineGrainedSchedulerBackend(
           // cores for the Mesos executor by offering fewer cores to the Spark executor
           (getResource(o.getResourcesList, "cpus") - mesosExecutorCores).toInt
         }
-        new WorkerOffer(
+        WorkerOffer(
           o.getSlaveId.getValue,
           o.getHostname,
           cpus)

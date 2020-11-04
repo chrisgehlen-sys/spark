@@ -121,7 +121,7 @@ class KafkaDataConsumerSuite
   test("same KafkaDataConsumer instance in case of same token") {
     try {
       val kafkaParams = getKafkaParams()
-      val key = new CacheKey(groupId, topicPartition)
+      val key = CacheKey(groupId, topicPartition)
 
       val context = new TaskContextImpl(0, 0, 0, 0, 0, null, null, null)
       TaskContext.setTaskContext(context)
@@ -143,7 +143,7 @@ class KafkaDataConsumerSuite
   test("new KafkaDataConsumer instance in case of token renewal") {
     try {
       val kafkaParams = getKafkaParams()
-      val key = new CacheKey(groupId, topicPartition)
+      val key = CacheKey(groupId, topicPartition)
 
       val context = new TaskContextImpl(0, 0, 0, 0, 0, null, null, null)
       TaskContext.setTaskContext(context)

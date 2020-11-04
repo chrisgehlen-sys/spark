@@ -81,7 +81,7 @@ class KafkaDataConsumerSuite extends SparkFunSuite with MockitoSugar with Before
     consumer2.release()
 
     assert(KafkaDataConsumer.cache.size() == 1)
-    val key = new CacheKey(groupId, topicPartition)
+    val key = CacheKey(groupId, topicPartition)
     val existingInternalConsumer = KafkaDataConsumer.cache.get(key)
     assert(existingInternalConsumer.eq(consumer1.internalConsumer))
     assert(existingInternalConsumer.eq(consumer2.internalConsumer))
@@ -91,7 +91,7 @@ class KafkaDataConsumerSuite extends SparkFunSuite with MockitoSugar with Before
     KafkaDataConsumer.cache.clear()
 
     val kafkaParams = getKafkaParams()
-    val key = new CacheKey(groupId, topicPartition)
+    val key = CacheKey(groupId, topicPartition)
 
     val context1 = new TaskContextImpl(0, 0, 0, 0, 0, null, null, null)
     val consumer1 = KafkaDataConsumer.acquire[Array[Byte], Array[Byte]](

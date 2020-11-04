@@ -288,7 +288,7 @@ private[kafka010] object KafkaDataConsumer extends Logging {
       context: TaskContext,
       useCache: Boolean): KafkaDataConsumer[K, V] = synchronized {
     val groupId = kafkaParams.get(ConsumerConfig.GROUP_ID_CONFIG).asInstanceOf[String]
-    val key = new CacheKey(groupId, topicPartition)
+    val key = CacheKey(groupId, topicPartition)
     val existingInternalConsumer = cache.get(key)
 
     lazy val newInternalConsumer = new InternalKafkaConsumer[K, V](topicPartition, kafkaParams)
@@ -340,7 +340,7 @@ private[kafka010] object KafkaDataConsumer extends Logging {
 
   private def release(internalConsumer: InternalKafkaConsumer[_, _]): Unit = synchronized {
     // Clear the consumer from the cache if this is indeed the consumer present in the cache
-    val key = new CacheKey(internalConsumer.groupId, internalConsumer.topicPartition)
+    val key = CacheKey(internalConsumer.groupId, internalConsumer.topicPartition)
     val cachedInternalConsumer = cache.get(key)
     if (internalConsumer.eq(cachedInternalConsumer)) {
       // The released consumer is the same object as the cached one.

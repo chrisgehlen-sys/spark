@@ -36,7 +36,7 @@ import org.apache.spark.deploy.mesos.config
 
 class MesosClusterSchedulerSuite extends SparkFunSuite with LocalSparkContext with MockitoSugar {
 
-  private val command = new Command("mainClass", Seq("arg"), Map(), Seq(), Seq(), Seq())
+  private val command = Command("mainClass", Seq("arg"), Map(), Seq(), Seq(), Seq())
   private var driver: SchedulerDriver = _
   private var scheduler: MesosClusterScheduler = _
 
@@ -577,7 +577,7 @@ class MesosClusterSchedulerSuite extends SparkFunSuite with LocalSparkContext wi
       mem,
       cpu,
       true,
-      new Command(
+      Command(
         "Main",
         Seq("--a=$2", "--b", "x y z"),
         Map(),

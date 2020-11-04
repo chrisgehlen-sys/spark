@@ -245,12 +245,12 @@ class MesosFineGrainedSchedulerBackendSuite
     mesosOffers.add(createOffer(3, minMem, minCpu))
 
     val expectedWorkerOffers = new ArrayBuffer[WorkerOffer](2)
-    expectedWorkerOffers += new WorkerOffer(
+    expectedWorkerOffers += WorkerOffer(
       mesosOffers.get(0).getSlaveId.getValue,
       mesosOffers.get(0).getHostname,
       (minCpu - backend.mesosExecutorCores).toInt
     )
-    expectedWorkerOffers += new WorkerOffer(
+    expectedWorkerOffers += WorkerOffer(
       mesosOffers.get(2).getSlaveId.getValue,
       mesosOffers.get(2).getHostname,
       (minCpu - backend.mesosExecutorCores).toInt
@@ -362,7 +362,7 @@ class MesosFineGrainedSchedulerBackendSuite
     val backend = new MesosFineGrainedSchedulerBackend(taskScheduler, sc, "master")
 
     val expectedWorkerOffers = new ArrayBuffer[WorkerOffer](1)
-    expectedWorkerOffers += new WorkerOffer(
+    expectedWorkerOffers += WorkerOffer(
       mesosOffers.get(0).getSlaveId.getValue,
       mesosOffers.get(0).getHostname,
       2 // Deducting 1 for executor
