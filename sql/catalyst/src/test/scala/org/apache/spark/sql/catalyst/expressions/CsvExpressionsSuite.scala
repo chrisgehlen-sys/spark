@@ -163,7 +163,7 @@ class CsvExpressionsSuite extends SparkFunSuite with ExpressionEvalHelper with P
 
   test("infer schema of CSV strings by using options") {
     checkEvaluation(
-      new SchemaOfCsv(Literal.create("1|abc"), Map("delimiter" -> "|")),
+      SchemaOfCsv(Literal.create("1|abc"), Map("delimiter" -> "|")),
       "STRUCT<`_c0`: INT, `_c1`: STRING>")
   }
 

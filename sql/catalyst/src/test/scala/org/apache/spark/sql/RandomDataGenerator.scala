@@ -119,19 +119,19 @@ object RandomDataGenerator {
       if (v == 0) {
         // Simple type:
         val dt = acceptedTypes(rand.nextInt(acceptedTypes.size))
-        fields += new StructField("col_" + i, dt, rand.nextBoolean())
+        fields += StructField("col_" + i, dt, rand.nextBoolean())
         numFields -= 1
       } else if (v == 1) {
         // Array
         val dt = acceptedTypes(rand.nextInt(acceptedTypes.size))
-        fields += new StructField("col_" + i, ArrayType(dt), rand.nextBoolean())
+        fields += StructField("col_" + i, ArrayType(dt), rand.nextBoolean())
         numFields -= 1
       } else {
         // Struct
         // TODO: do empty structs make sense?
         val n = Math.max(rand.nextInt(numFields), 1)
         val nested = randomNestedSchema(rand, n, acceptedTypes)
-        fields += new StructField("col_" + i, nested, rand.nextBoolean())
+        fields += StructField("col_" + i, nested, rand.nextBoolean())
         numFields -= n
       }
       i += 1

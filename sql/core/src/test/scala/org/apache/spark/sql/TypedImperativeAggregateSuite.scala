@@ -40,7 +40,7 @@ class TypedImperativeAggregateSuite extends QueryTest with SharedSparkSession {
   }
 
   test("aggregate with object aggregate buffer") {
-    val agg = new TypedMax(BoundReference(0, IntegerType, nullable = false))
+    val agg = TypedMax(BoundReference(0, IntegerType, nullable = false))
 
     val group1 = (0 until data.length / 2)
     val group1Buffer = agg.createAggregationBuffer()
@@ -74,7 +74,7 @@ class TypedImperativeAggregateSuite extends QueryTest with SharedSparkSession {
     val aggregationBufferSchema = Seq(IntegerType, LongType, BinaryType, IntegerType)
     val aggBufferOffset = 2
     val buffer = new SpecificInternalRow(aggregationBufferSchema)
-    val agg = new TypedMax(BoundReference(ordinal = 1, dataType = IntegerType, nullable = false))
+    val agg = TypedMax(BoundReference(ordinal = 1, dataType = IntegerType, nullable = false))
       .withNewMutableAggBufferOffset(aggBufferOffset)
 
     agg.initialize(buffer)

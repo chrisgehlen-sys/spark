@@ -145,7 +145,7 @@ class SymmetricHashJoinStateManager(
 
       private def currentKey = currentKeyToNumValue.key
 
-      private val reusedRet = new KeyToValuePair()
+      private val reusedRet = KeyToValuePair()
 
       private def getAndRemoveValue(): KeyToValuePair = {
         val keyWithIndexAndValue = currentValues.next()
@@ -196,7 +196,7 @@ class SymmetricHashJoinStateManager(
     new NextIterator[KeyToValuePair] {
 
       // Reuse this object to avoid creation+GC overhead.
-      private val reusedRet = new KeyToValuePair()
+      private val reusedRet = KeyToValuePair()
 
       private val allKeyToNumValues = keyToNumValues.iterator
 

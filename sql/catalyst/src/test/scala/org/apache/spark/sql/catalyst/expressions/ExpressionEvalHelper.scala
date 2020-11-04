@@ -330,7 +330,7 @@ trait ExpressionEvalHelper extends ScalaCheckDrivenPropertyChecks with PlanTestB
       GenerateUnsafeProjection.generate(Alias(expression, s"Optimized($expression)")() :: Nil),
       expression)
     plan.initialize(0)
-    val ref = new BoundReference(0, expression.dataType, nullable = true)
+    val ref = BoundReference(0, expression.dataType, nullable = true)
     actual = GenerateSafeProjection.generate(ref :: Nil)(plan(inputRow)).get(0, expression.dataType)
     assert(checkResult(actual, expected, expression))
   }

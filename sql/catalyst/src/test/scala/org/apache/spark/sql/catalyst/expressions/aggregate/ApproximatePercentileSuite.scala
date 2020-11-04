@@ -82,7 +82,7 @@ class ApproximatePercentileSuite extends SparkFunSuite {
     val memoryFootPrintUpperBound = {
       val headBufferSize =
         SizeEstimator.estimate(new Array[Double](QuantileSummaries.defaultHeadSize))
-      val bufferSize = SizeEstimator.estimate(new Stats(0, 0, 0)) * (1 / relativeError) * 2
+      val bufferSize = SizeEstimator.estimate(Stats(0, 0, 0)) * (1 / relativeError) * 2
       // A safe upper bound
       (headBufferSize + bufferSize) * 2
     }

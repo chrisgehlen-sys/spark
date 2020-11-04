@@ -586,7 +586,7 @@ object functions {
    * @since 2.0.0
    */
   def last(e: Column, ignoreNulls: Boolean): Column = withAggregateFunction {
-    new Last(e.expr, ignoreNulls)
+    Last(e.expr, ignoreNulls)
   }
 
   /**
@@ -1033,7 +1033,7 @@ object functions {
    * @group window_funcs
    * @since 1.4.0
    */
-  def ntile(n: Int): Column = withExpr { new NTile(Literal(n)) }
+  def ntile(n: Int): Column = withExpr { NTile(Literal(n)) }
 
   /**
    * Window function: returns the relative rank (i.e. percentile) of rows within a window partition.

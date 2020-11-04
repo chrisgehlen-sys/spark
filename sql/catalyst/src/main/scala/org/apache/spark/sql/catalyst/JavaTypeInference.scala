@@ -151,7 +151,7 @@ object JavaTypeInference {
           val (dataType, nullable) = inferDataType(returnType, seenTypeSet + other)
           // The existence of `javax.annotation.Nonnull`, means this field is not nullable.
           val hasNonNull = property.getReadMethod.isAnnotationPresent(classOf[Nonnull])
-          new StructField(property.getName, dataType, nullable && !hasNonNull)
+          StructField(property.getName, dataType, nullable && !hasNonNull)
         }
         (new StructType(fields), true)
     }
@@ -211,7 +211,7 @@ object JavaTypeInference {
    */
   def deserializerFor(beanClass: Class[_]): Expression = {
     val typeToken = TypeToken.of(beanClass)
-    val walkedTypePath = new WalkedTypePath().recordRoot(beanClass.getCanonicalName)
+    val walkedTypePath = WalkedTypePath().recordRoot(beanClass.getCanonicalName)
     val (dataType, nullable) = inferDataType(typeToken)
 
     // Assumes we are deserializing the first column of a row.

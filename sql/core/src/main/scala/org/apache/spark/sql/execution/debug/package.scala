@@ -225,7 +225,7 @@ package object debug {
     val tupleCount: LongAccumulator = sparkContext.longAccumulator
 
     val numColumns: Int = child.output.size
-    val columnStats: Array[ColumnMetrics] = Array.fill(child.output.size)(new ColumnMetrics())
+    val columnStats: Array[ColumnMetrics] = Array.fill(child.output.size)(ColumnMetrics())
 
     def dumpStats(): Unit = {
       debugPrint(s"== ${child.simpleString(SQLConf.get.maxToStringFields)} ==")

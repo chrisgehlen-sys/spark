@@ -360,12 +360,12 @@ class CollectionExpressionsSuite extends SparkFunSuite with ExpressionEvalHelper
     checkEvaluation(SortArray(a0, Literal(true)), Seq(1, 2, 3))
     checkEvaluation(SortArray(a1, Literal(true)), Seq[Integer]())
     checkEvaluation(SortArray(a2, Literal(true)), Seq("a", "b"))
-    checkEvaluation(new SortArray(a3, Literal(true)), Seq(null, "a", "b"))
+    checkEvaluation(SortArray(a3, Literal(true)), Seq(null, "a", "b"))
     checkEvaluation(SortArray(a4, Literal(true)), Seq(d1, d2))
     checkEvaluation(SortArray(a0, Literal(false)), Seq(3, 2, 1))
     checkEvaluation(SortArray(a1, Literal(false)), Seq[Integer]())
     checkEvaluation(SortArray(a2, Literal(false)), Seq("b", "a"))
-    checkEvaluation(new SortArray(a3, Literal(false)), Seq("b", "a", null))
+    checkEvaluation(SortArray(a3, Literal(false)), Seq("b", "a", null))
     checkEvaluation(SortArray(a4, Literal(false)), Seq(d2, d1))
 
     checkEvaluation(Literal.create(null, ArrayType(StringType)), null)
@@ -1392,15 +1392,15 @@ class CollectionExpressionsSuite extends SparkFunSuite with ExpressionEvalHelper
     val a8 =
       Literal.create(Seq(2, 1, 2, 3, 4, 4, 5).map(_.toString.getBytes), ArrayType(BinaryType))
 
-    checkEvaluation(new ArrayDistinct(a0), Seq(2, 1, 3, 4, 5))
-    checkEvaluation(new ArrayDistinct(a1), Seq.empty[Integer])
-    checkEvaluation(new ArrayDistinct(a2), Seq("b", "a", "c"))
-    checkEvaluation(new ArrayDistinct(a3), Seq("b", null, "a"))
-    checkEvaluation(new ArrayDistinct(a4), Seq(null))
-    checkEvaluation(new ArrayDistinct(a5), Seq(true, false))
-    checkEvaluation(new ArrayDistinct(a6), Seq(1.123, 0.1234, 1.121))
-    checkEvaluation(new ArrayDistinct(a7), Seq(1.123f, 0.1234f, 1.121f))
-    checkEvaluation(new ArrayDistinct(a8), Seq(2, 1, 3, 4, 5).map(_.toString.getBytes))
+    checkEvaluation(ArrayDistinct(a0), Seq(2, 1, 3, 4, 5))
+    checkEvaluation(ArrayDistinct(a1), Seq.empty[Integer])
+    checkEvaluation(ArrayDistinct(a2), Seq("b", "a", "c"))
+    checkEvaluation(ArrayDistinct(a3), Seq("b", null, "a"))
+    checkEvaluation(ArrayDistinct(a4), Seq(null))
+    checkEvaluation(ArrayDistinct(a5), Seq(true, false))
+    checkEvaluation(ArrayDistinct(a6), Seq(1.123, 0.1234, 1.121))
+    checkEvaluation(ArrayDistinct(a7), Seq(1.123f, 0.1234f, 1.121f))
+    checkEvaluation(ArrayDistinct(a8), Seq(2, 1, 3, 4, 5).map(_.toString.getBytes))
 
     // complex data types
     val b0 = Literal.create(Seq[Array[Byte]](Array[Byte](5, 6), Array[Byte](1, 2),

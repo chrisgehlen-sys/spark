@@ -37,7 +37,7 @@ class MemorySinkSuite extends StreamTest with BeforeAndAfter {
   }
 
   test("directly add data in Append output mode") {
-    implicit val schema = new StructType().add(new StructField("value", IntegerType))
+    implicit val schema = new StructType().add(StructField("value", IntegerType))
     val sink = new MemorySink
     val addBatch = addBatchFunc(sink, false) _
 
@@ -72,7 +72,7 @@ class MemorySinkSuite extends StreamTest with BeforeAndAfter {
   }
 
   test("directly add data in Update output mode") {
-    implicit val schema = new StructType().add(new StructField("value", IntegerType))
+    implicit val schema = new StructType().add(StructField("value", IntegerType))
     val sink = new MemorySink
     val addBatch = addBatchFunc(sink, false) _
 
@@ -107,7 +107,7 @@ class MemorySinkSuite extends StreamTest with BeforeAndAfter {
   }
 
   test("directly add data in Complete output mode") {
-    implicit val schema = new StructType().add(new StructField("value", IntegerType))
+    implicit val schema = new StructType().add(StructField("value", IntegerType))
     val sink = new MemorySink
     val addBatch = addBatchFunc(sink, true) _
 
@@ -215,10 +215,10 @@ class MemorySinkSuite extends StreamTest with BeforeAndAfter {
   }
 
   test("MemoryPlan statistics") {
-    implicit val schema = new StructType().add(new StructField("value", IntegerType))
+    implicit val schema = new StructType().add(StructField("value", IntegerType))
     val sink = new MemorySink
     val addBatch = addBatchFunc(sink, false) _
-    val plan = new MemoryPlan(sink, schema.toAttributes)
+    val plan = MemoryPlan(sink, schema.toAttributes)
 
     // Before adding data, check output
     checkAnswer(sink.allData, Seq.empty)

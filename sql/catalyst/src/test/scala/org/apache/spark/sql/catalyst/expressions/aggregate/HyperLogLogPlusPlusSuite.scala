@@ -32,7 +32,7 @@ class HyperLogLogPlusPlusSuite extends SparkFunSuite {
   def createEstimator(rsd: Double, dt: DataType = IntegerType):
       (HyperLogLogPlusPlus, InternalRow, InternalRow) = {
     val input = new SpecificInternalRow(Seq(dt))
-    val hll = new HyperLogLogPlusPlus(new BoundReference(0, dt, true), rsd)
+    val hll = new HyperLogLogPlusPlus(BoundReference(0, dt, true), rsd)
     val buffer = createBuffer(hll)
     (hll, input, buffer)
   }
@@ -53,7 +53,7 @@ class HyperLogLogPlusPlusSuite extends SparkFunSuite {
   test("test invalid parameter relativeSD") {
     // `relativeSD` should be at most 39%.
     intercept[IllegalArgumentException] {
-      new HyperLogLogPlusPlus(new BoundReference(0, IntegerType, true), relativeSD = 0.4)
+      new HyperLogLogPlusPlus(BoundReference(0, IntegerType, true), relativeSD = 0.4)
     }
   }
 

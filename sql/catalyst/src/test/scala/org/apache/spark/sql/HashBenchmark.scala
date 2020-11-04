@@ -86,7 +86,7 @@ object HashBenchmark extends BenchmarkBase {
         }
       }
 
-      val getHiveHashCode = UnsafeProjection.create(new HiveHash(attrs) :: Nil, attrs)
+      val getHiveHashCode = UnsafeProjection.create(HiveHash(attrs) :: Nil, attrs)
       benchmark.addCase("codegen HiveHash version") { _: Int =>
         var sum = 0
         for (_ <- 0L until iters) {

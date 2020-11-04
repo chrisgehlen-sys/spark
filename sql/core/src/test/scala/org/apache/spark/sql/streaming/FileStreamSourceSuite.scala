@@ -283,7 +283,7 @@ class FileStreamSourceSuite extends FileStreamSourceTest {
   test("FileStreamSource schema: path doesn't exist (without schema) should throw exception") {
     withTempDir { dir =>
       intercept[AnalysisException] {
-        val userSchema = new StructType().add(new StructField("value", IntegerType))
+        val userSchema = new StructType().add(StructField("value", IntegerType))
         val schema = createFileStreamSourceAndGetSchema(
           format = None, path = Some(new File(dir, "1").getAbsolutePath), schema = None)
       }
@@ -293,7 +293,7 @@ class FileStreamSourceSuite extends FileStreamSourceTest {
   test("FileStreamSource schema: path doesn't exist (with schema) should throw exception") {
     withTempDir { dir =>
       intercept[AnalysisException] {
-        val userSchema = new StructType().add(new StructField("value", IntegerType))
+        val userSchema = new StructType().add(StructField("value", IntegerType))
         val schema = createFileStreamSourceAndGetSchema(
           format = None, path = Some(new File(dir, "1").getAbsolutePath), schema = Some(userSchema))
       }

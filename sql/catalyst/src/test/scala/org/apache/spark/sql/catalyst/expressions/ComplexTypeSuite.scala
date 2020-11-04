@@ -462,7 +462,7 @@ class ComplexTypeSuite extends SparkFunSuite with ExpressionEvalHelper {
     assert(new StringToMap(Literal("a:1_b:2_c:3"), NonFoldableLiteral("_"))
         .checkInputDataTypes().isFailure)
     assert(
-      new StringToMap(Literal("a=1_b=2_c=3"), Literal("_"), NonFoldableLiteral("="))
+      StringToMap(Literal("a=1_b=2_c=3"), Literal("_"), NonFoldableLiteral("="))
         .checkInputDataTypes().isFailure)
   }
 

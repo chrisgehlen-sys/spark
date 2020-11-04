@@ -261,11 +261,11 @@ private object RowToColumnConverter {
       case DoubleType => DoubleConverter
       case StringType => StringConverter
       case CalendarIntervalType => CalendarConverter
-      case at: ArrayType => new ArrayConverter(getConverterForType(at.elementType, nullable))
-      case st: StructType => new StructConverter(st.fields.map(
+      case at: ArrayType => ArrayConverter(getConverterForType(at.elementType, nullable))
+      case st: StructType => StructConverter(st.fields.map(
         (f) => getConverterForType(f.dataType, f.nullable)))
-      case dt: DecimalType => new DecimalConverter(dt)
-      case mt: MapType => new MapConverter(getConverterForType(mt.keyType, nullable),
+      case dt: DecimalType => DecimalConverter(dt)
+      case mt: MapType => MapConverter(getConverterForType(mt.keyType, nullable),
         getConverterForType(mt.valueType, nullable))
       case unknown => throw new UnsupportedOperationException(
         s"Type $unknown not supported")
@@ -273,9 +273,9 @@ private object RowToColumnConverter {
 
     if (nullable) {
       dataType match {
-        case CalendarIntervalType => new StructNullableTypeConverter(core)
-        case st: StructType => new StructNullableTypeConverter(core)
-        case _ => new BasicNullableTypeConverter(core)
+        case CalendarIntervalType => StructNullableTypeConverter(core)
+        case st: StructType => StructNullableTypeConverter(core)
+        case _ => BasicNullableTypeConverter(core)
       }
     } else {
       core

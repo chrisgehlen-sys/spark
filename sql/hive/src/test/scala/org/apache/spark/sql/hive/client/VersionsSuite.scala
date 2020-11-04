@@ -72,7 +72,7 @@ class VersionsSuite extends SparkFunSuite with Logging {
 
   test("success sanity check") {
     val badClient = buildClient(HiveUtils.builtinHiveVersion, new Configuration())
-    val db = new CatalogDatabase("default", "desc", new URI("loc"), Map())
+    val db = CatalogDatabase("default", "desc", new URI("loc"), Map())
     badClient.createDatabase(db, ignoreIfExists = true)
   }
 

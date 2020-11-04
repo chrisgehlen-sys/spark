@@ -722,7 +722,7 @@ class StringExpressionsSuite extends SparkFunSuite with ExpressionEvalHelper {
     checkEvaluation(StringLocate(s3, s1, Literal.create(null, IntegerType)), 0, row1)
     checkEvaluation(new StringLocate(s2, s1), null, row2)
     checkEvaluation(new StringLocate(s2, s1), null, row3)
-    checkEvaluation(new StringLocate(s2, s1, Literal.create(null, IntegerType)), 0, row4)
+    checkEvaluation(StringLocate(s2, s1, Literal.create(null, IntegerType)), 0, row4)
   }
 
   test("LPAD/RPAD") {

@@ -140,7 +140,7 @@ class UnsupportedOperationsSuite extends SparkFunSuite {
     outputMode = Complete,
     expectedMsgs = Seq("distinct aggregation"))
 
-  val att = new AttributeReference(name = "a", dataType = LongType)()
+  val att = AttributeReference(name = "a", dataType = LongType)()
   // FlatMapGroupsWithState: Both function modes equivalent and supported in batch.
   for (funcMode <- Seq(Append, Update)) {
     assertSupportedInBatchPlan(
@@ -1102,7 +1102,7 @@ class UnsupportedOperationsSuite extends SparkFunSuite {
   }
 
   def wrapInStreaming(plan: LogicalPlan): LogicalPlan = {
-    new StreamingPlanWrapper(plan)
+    StreamingPlanWrapper(plan)
   }
 
   case class StreamingPlanWrapper(child: LogicalPlan) extends UnaryNode {

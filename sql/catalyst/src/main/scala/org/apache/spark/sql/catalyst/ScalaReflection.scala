@@ -166,7 +166,7 @@ object ScalaReflection extends ScalaReflection {
    */
   def deserializerForType(tpe: `Type`): Expression = {
     val clsName = getClassNameFromType(tpe)
-    val walkedTypePath = new WalkedTypePath().recordRoot(clsName)
+    val walkedTypePath = WalkedTypePath().recordRoot(clsName)
     val Schema(dataType, nullable) = schemaFor(tpe)
 
     // Assumes we are deserializing the first column of a row.
@@ -413,7 +413,7 @@ object ScalaReflection extends ScalaReflection {
    */
   def serializerForType(tpe: `Type`): Expression = ScalaReflection.cleanUpReflectionObjects {
     val clsName = getClassNameFromType(tpe)
-    val walkedTypePath = new WalkedTypePath().recordRoot(clsName)
+    val walkedTypePath = WalkedTypePath().recordRoot(clsName)
 
     // The input object to `ExpressionEncoder` is located at first column of an row.
     val isPrimitive = tpe.typeSymbol.asClass.isPrimitive
