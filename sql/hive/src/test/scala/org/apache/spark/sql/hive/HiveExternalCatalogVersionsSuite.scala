@@ -26,6 +26,7 @@ import scala.util.control.NonFatal
 
 import org.apache.commons.lang3.{JavaVersion, SystemUtils}
 import org.apache.hadoop.conf.Configuration
+import org.scalatest.Ignore
 
 import org.apache.spark.{SparkConf, TestUtils}
 import org.apache.spark.internal.config.MASTER_REST_SERVER_ENABLED
@@ -50,6 +51,7 @@ import org.apache.spark.util.Utils
  */
 @SlowHiveTest
 @ExtendedHiveTest
+@Ignore
 class HiveExternalCatalogVersionsSuite extends SparkSubmitTestUtils {
   import HiveExternalCatalogVersionsSuite._
   private val wareHousePath = Utils.createTempDir(namePrefix = "warehouse")
@@ -237,7 +239,8 @@ class HiveExternalCatalogVersionsSuite extends SparkSubmitTestUtils {
 }
 
 object PROCESS_TABLES extends QueryTest with SQLTestUtils {
-  val releaseMirror = "https://dist.apache.org/repos/dist/release"
+  val releaseMirror = sys.env.getOrElse("DEFAULT_SPARK_RELEASE_MIRROR",
+    "https://dist.apache.org/repos/dist/release")
   // Tests the latest version of every release line.
   val testingVersions: Seq[String] = {
     import scala.io.Source
