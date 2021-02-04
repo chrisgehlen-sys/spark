@@ -104,7 +104,7 @@ class ResourceProfileSuite extends SparkFunSuite {
       .set(EXECUTOR_GPU_ID.amountConf, "2")
       .set(TASK_GPU_ID.amountConf, "0.33")
     val immrprof = ResourceProfile.getOrCreateDefaultProfile(sparkConf)
-    assert(immrprof.taskResources.get("gpu").get.amount == 0.33)
+    assert(immrprof.taskResources("gpu").amount == 0.33)
   }
 
   test("maxTasksPerExecutor cpus") {
@@ -164,16 +164,16 @@ class ResourceProfileSuite extends SparkFunSuite {
     assert(rprof.executorResources.size === 1)
     assert(rprof.executorResources.contains("gpu"),
       "Executor resources should have gpu")
-    assert(rprof.executorResources.get("gpu").get.vendor === "nvidia",
+    assert(rprof.executorResources("gpu").vendor === "nvidia",
       "gpu vendor should be nvidia")
-    assert(rprof.executorResources.get("gpu").get.discoveryScript === "myscript",
+    assert(rprof.executorResources("gpu").discoveryScript === "myscript",
       "discoveryScript should be myscript")
-    assert(rprof.executorResources.get("gpu").get.amount === 2,
+    assert(rprof.executorResources("gpu").amount === 2,
     "gpu amount should be 2")
 
     assert(rprof.taskResources.size === 1, "Should have 1 task resource")
     assert(rprof.taskResources.contains("gpu"), "Task resources should have gpu")
-    assert(rprof.taskResources.get("gpu").get.amount === 1,
+    assert(rprof.taskResources("gpu").amount === 1,
       "Task resources should have 1 gpu")
 
     val ereqs = new ExecutorResourceRequests()
@@ -245,7 +245,7 @@ class ResourceProfileSuite extends SparkFunSuite {
 
     assert(rprof.taskResources.size === 1, "Should have 1 task resource")
     assert(rprof.taskResources.contains("gpu"), "Task resources should have gpu")
-    assert(rprof.taskResources.get("gpu").get.amount === 0.33,
+    assert(rprof.taskResources("gpu").amount === 0.33,
       "Task resources should have 0.33 gpu")
 
     val fpgaReqs = new TaskResourceRequests().resource("fpga", 4.0)
@@ -253,7 +253,7 @@ class ResourceProfileSuite extends SparkFunSuite {
 
     assert(rprof.taskResources.size === 2, "Should have 2 task resource")
     assert(rprof.taskResources.contains("fpga"), "Task resources should have gpu")
-    assert(rprof.taskResources.get("fpga").get.amount === 4.0,
+    assert(rprof.taskResources("fpga").amount === 4.0,
       "Task resources should have 4.0 gpu")
 
     var taskError = intercept[AssertionError] {

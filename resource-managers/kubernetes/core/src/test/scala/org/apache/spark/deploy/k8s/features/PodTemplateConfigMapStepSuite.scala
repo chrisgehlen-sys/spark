@@ -82,7 +82,7 @@ class PodTemplateConfigMapStepSuite extends SparkFunSuite {
     val systemProperties = step.getAdditionalPodSystemProperties()
     assert(systemProperties.size === 1)
     assert(systemProperties.contains(Config.KUBERNETES_EXECUTOR_PODTEMPLATE_FILE.key))
-    assert(systemProperties.get(Config.KUBERNETES_EXECUTOR_PODTEMPLATE_FILE.key).get ===
+    assert(systemProperties(Config.KUBERNETES_EXECUTOR_PODTEMPLATE_FILE.key) ===
       (Constants.EXECUTOR_POD_SPEC_TEMPLATE_MOUNTPATH + "/" +
         Constants.EXECUTOR_POD_SPEC_TEMPLATE_FILE_NAME))
   }

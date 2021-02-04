@@ -171,9 +171,9 @@ class YarnAllocatorSuite extends SparkFunSuite with Matchers with BeforeAndAfter
     handler.handleAllocatedContainers(Array(container))
 
     handler.getNumExecutorsRunning should be (1)
-    handler.allocatedContainerToHostMap.get(container.getId).get should be ("host1")
+    handler.allocatedContainerToHostMap(container.getId) should be ("host1")
     val hostTocontainer = handler.allocatedHostToContainersMapPerRPId(defaultRPId)
-    hostTocontainer.get("host1").get should contain(container.getId)
+    hostTocontainer("host1") should contain(container.getId)
 
     val size = rmClient.getMatchingRequests(container.getPriority, "host1", containerResource).size
     size should be (0)
@@ -204,9 +204,9 @@ class YarnAllocatorSuite extends SparkFunSuite with Matchers with BeforeAndAfter
     handler.handleAllocatedContainers(Array(container))
 
     handler.getNumExecutorsRunning should be (1)
-    handler.allocatedContainerToHostMap.get(container.getId).get should be ("host1")
+    handler.allocatedContainerToHostMap(container.getId) should be ("host1")
     val hostTocontainer = handler.allocatedHostToContainersMapPerRPId(rprof.id)
-    hostTocontainer.get("host1").get should contain(container.getId)
+    hostTocontainer("host1") should contain(container.getId)
 
     val size = rmClient.getMatchingRequests(container.getPriority, "host1", containerResource).size
     size should be (0)
@@ -250,15 +250,15 @@ class YarnAllocatorSuite extends SparkFunSuite with Matchers with BeforeAndAfter
     handler.handleAllocatedContainers(Array(container, container2, container3))
 
     handler.getNumExecutorsRunning should be (3)
-    handler.allocatedContainerToHostMap.get(container.getId).get should be ("host1")
-    handler.allocatedContainerToHostMap.get(container2.getId).get should be ("host2")
-    handler.allocatedContainerToHostMap.get(container3.getId).get should be ("host3")
+    handler.allocatedContainerToHostMap(container.getId) should be ("host1")
+    handler.allocatedContainerToHostMap(container2.getId) should be ("host2")
+    handler.allocatedContainerToHostMap(container3.getId) should be ("host3")
 
     val hostTocontainer = handler.allocatedHostToContainersMapPerRPId(rprof.id)
-    hostTocontainer.get("host1").get should contain(container.getId)
+    hostTocontainer("host1") should contain(container.getId)
     val hostTocontainer2 = handler.allocatedHostToContainersMapPerRPId(rprof2.id)
-    hostTocontainer2.get("host2").get should contain(container2.getId)
-    hostTocontainer2.get("host3").get should contain(container3.getId)
+    hostTocontainer2("host2") should contain(container2.getId)
+    hostTocontainer2("host3") should contain(container3.getId)
 
     val size = rmClient.getMatchingRequests(container.getPriority, "host1", containerResource).size
     size should be (0)
@@ -308,11 +308,11 @@ class YarnAllocatorSuite extends SparkFunSuite with Matchers with BeforeAndAfter
     val yarnRInfo = ResourceRequestTestHelper.getResources(defaultResource)
     val allResourceInfo = yarnRInfo.map( rInfo => (rInfo.name -> rInfo.value) ).toMap
     assert(allResourceInfo.contains(YARN_GPU_RESOURCE_CONFIG))
-    assert(allResourceInfo.get(YARN_GPU_RESOURCE_CONFIG).get === 3)
+    assert(allResourceInfo(YARN_GPU_RESOURCE_CONFIG) === 3)
     assert(allResourceInfo.contains(YARN_FPGA_RESOURCE_CONFIG))
-    assert(allResourceInfo.get(YARN_FPGA_RESOURCE_CONFIG).get === 2)
+    assert(allResourceInfo(YARN_FPGA_RESOURCE_CONFIG) === 2)
     assert(allResourceInfo.contains(yarnMadeupResource))
-    assert(allResourceInfo.get(yarnMadeupResource).get === 5)
+    assert(allResourceInfo(yarnMadeupResource) === 5)
   }
 
   test("container should not be created if requested number if met") {
@@ -326,9 +326,9 @@ class YarnAllocatorSuite extends SparkFunSuite with Matchers with BeforeAndAfter
     handler.handleAllocatedContainers(Array(container))
 
     handler.getNumExecutorsRunning should be (1)
-    handler.allocatedContainerToHostMap.get(container.getId).get should be ("host1")
+    handler.allocatedContainerToHostMap(container.getId) should be ("host1")
     val hostTocontainer = handler.allocatedHostToContainersMapPerRPId(defaultRPId)
-    hostTocontainer.get("host1").get should contain(container.getId)
+    hostTocontainer("host1") should contain(container.getId)
 
     val container2 = createContainer("host2")
     handler.handleAllocatedContainers(Array(container2))
@@ -348,13 +348,13 @@ class YarnAllocatorSuite extends SparkFunSuite with Matchers with BeforeAndAfter
     handler.handleAllocatedContainers(Array(container1, container2, container3))
 
     handler.getNumExecutorsRunning should be (3)
-    handler.allocatedContainerToHostMap.get(container1.getId).get should be ("host1")
-    handler.allocatedContainerToHostMap.get(container2.getId).get should be ("host1")
-    handler.allocatedContainerToHostMap.get(container3.getId).get should be ("host2")
+    handler.allocatedContainerToHostMap(container1.getId) should be ("host1")
+    handler.allocatedContainerToHostMap(container2.getId) should be ("host1")
+    handler.allocatedContainerToHostMap(container3.getId) should be ("host2")
     val hostTocontainer = handler.allocatedHostToContainersMapPerRPId(defaultRPId)
-    hostTocontainer.get("host1").get should contain(container1.getId)
-    hostTocontainer.get("host1").get should contain (container2.getId)
-    hostTocontainer.get("host2").get should contain (container3.getId)
+    hostTocontainer("host1") should contain(container1.getId)
+    hostTocontainer("host1") should contain (container2.getId)
+    hostTocontainer("host2") should contain (container3.getId)
   }
 
   test("receive more containers than requested") {
@@ -369,12 +369,12 @@ class YarnAllocatorSuite extends SparkFunSuite with Matchers with BeforeAndAfter
     handler.handleAllocatedContainers(Array(container1, container2, container3))
 
     handler.getNumExecutorsRunning should be (2)
-    handler.allocatedContainerToHostMap.get(container1.getId).get should be ("host1")
-    handler.allocatedContainerToHostMap.get(container2.getId).get should be ("host2")
+    handler.allocatedContainerToHostMap(container1.getId) should be ("host1")
+    handler.allocatedContainerToHostMap(container2.getId) should be ("host2")
     handler.allocatedContainerToHostMap.contains(container3.getId) should be (false)
     val hostTocontainer = handler.allocatedHostToContainersMapPerRPId(defaultRPId)
-    hostTocontainer.get("host1").get should contain(container1.getId)
-    hostTocontainer.get("host2").get should contain (container2.getId)
+    hostTocontainer("host1") should contain(container1.getId)
+    hostTocontainer("host2") should contain (container2.getId)
     hostTocontainer.contains("host4") should be (false)
   }
 
@@ -395,9 +395,9 @@ class YarnAllocatorSuite extends SparkFunSuite with Matchers with BeforeAndAfter
     handler.handleAllocatedContainers(Array(container))
 
     handler.getNumExecutorsRunning should be (1)
-    handler.allocatedContainerToHostMap.get(container.getId).get should be ("host1")
+    handler.allocatedContainerToHostMap(container.getId) should be ("host1")
     val hostTocontainer = handler.allocatedHostToContainersMapPerRPId(defaultRPId)
-    hostTocontainer.get("host1").get should contain(container.getId)
+    hostTocontainer("host1") should contain(container.getId)
 
     resourceProfileToTotalExecs(defaultRP) = 2
     handler.requestTotalExecutorsWithPreferredLocalities(resourceProfileToTotalExecs.toMap,

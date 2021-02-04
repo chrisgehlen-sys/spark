@@ -413,7 +413,7 @@ class ExplainSuite extends ExplainSuiteHelper with DisableAdaptiveExecutionSuite
              |Format: $fmt
              |Location: InMemoryFileIndex\\[.*\\]
              |PartitionFilters: \\[isnotnull\\(id#x\\), \\(id#x > 1\\)\\]
-             ${pushFilterMaps.get(fmt).get}
+             ${pushFilterMaps(fmt)}
              |ReadSchema: struct\\<value:int\\>
              |""".stripMargin.replaceAll("\nremove_marker", "").trim
 

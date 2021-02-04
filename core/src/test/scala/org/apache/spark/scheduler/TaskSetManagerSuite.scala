@@ -2187,7 +2187,7 @@ class TaskSetManagerSuite
       PrivateMethod[mutable.HashMap[Int, mutable.HashMap[Int, TaskSetManager]]](
         Symbol("taskSetsByStageIdAndAttempt"))
     // get the TaskSetManager
-    val manager = sched.invokePrivate(taskSetManagers()).get(stageId).get(stageAttemptId)
+    val manager = sched.invokePrivate(taskSetManagers())(stageId)(stageAttemptId)
 
     val (task0, task1) = eventually(timeout(10.seconds), interval(100.milliseconds)) {
       (manager.taskInfos(0), manager.taskInfos(1))

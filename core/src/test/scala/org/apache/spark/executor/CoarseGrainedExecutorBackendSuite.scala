@@ -86,8 +86,8 @@ class CoarseGrainedExecutorBackendSuite extends SparkFunSuite
 
       assert(parsedResources.size === 1)
       assert(parsedResources.contains(GPU))
-      assert(parsedResources.get(GPU).get.name === GPU)
-      assert(parsedResources.get(GPU).get.addresses.sameElements(Array("0", "1")))
+      assert(parsedResources(GPU).name === GPU)
+      assert(parsedResources(GPU).addresses.sameElements(Array("0", "1")))
     }
   }
 
@@ -123,11 +123,11 @@ class CoarseGrainedExecutorBackendSuite extends SparkFunSuite
 
       assert(parsedResources.size === 2)
       assert(parsedResources.contains(GPU))
-      assert(parsedResources.get(GPU).get.name === GPU)
-      assert(parsedResources.get(GPU).get.addresses.sameElements(Array("0", "1")))
+      assert(parsedResources(GPU).name === GPU)
+      assert(parsedResources(GPU).addresses.sameElements(Array("0", "1")))
       assert(parsedResources.contains(FPGA))
-      assert(parsedResources.get(FPGA).get.name === FPGA)
-      assert(parsedResources.get(FPGA).get.addresses.sameElements(Array("f1", "f2", "f3")))
+      assert(parsedResources(FPGA).name === FPGA)
+      assert(parsedResources(FPGA).addresses.sameElements(Array("f1", "f2", "f3")))
     }
   }
 
@@ -228,8 +228,8 @@ class CoarseGrainedExecutorBackendSuite extends SparkFunSuite
 
       assert(parsedResources.size === 1)
       assert(parsedResources.contains(FPGA))
-      assert(parsedResources.get(FPGA).get.name === FPGA)
-      assert(parsedResources.get(FPGA).get.addresses.sameElements(Array("f1", "f2", "f3")))
+      assert(parsedResources(FPGA).name === FPGA)
+      assert(parsedResources(FPGA).addresses.sameElements(Array("f1", "f2", "f3")))
     }
   }
 
@@ -277,11 +277,11 @@ class CoarseGrainedExecutorBackendSuite extends SparkFunSuite
 
     assert(parsedResources.size === 2)
     assert(parsedResources.contains(GPU))
-    assert(parsedResources.get(GPU).get.name === GPU)
-    assert(parsedResources.get(GPU).get.addresses.sameElements(Array("0", "1")))
+    assert(parsedResources(GPU).name === GPU)
+    assert(parsedResources(GPU).addresses.sameElements(Array("0", "1")))
     assert(parsedResources.contains(FPGA))
-    assert(parsedResources.get(FPGA).get.name === FPGA)
-    assert(parsedResources.get(FPGA).get.addresses.sameElements(Array("f1", "f2", "f3")))
+    assert(parsedResources(FPGA).name === FPGA)
+    assert(parsedResources(FPGA).addresses.sameElements(Array("f1", "f2", "f3")))
   }
 
   test("track allocated resources by taskId") {

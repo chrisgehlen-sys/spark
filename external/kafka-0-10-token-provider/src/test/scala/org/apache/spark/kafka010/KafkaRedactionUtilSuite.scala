@@ -61,7 +61,7 @@ class KafkaRedactionUtilSuite extends SparkFunSuite with KafkaDelegationTokenTes
     val redactedParams = KafkaRedactionUtil.redactParams(kafkaParams).toMap
 
     assert(redactedParams.size === 1)
-    assert(redactedParams.get(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG).get
+    assert(redactedParams(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG)
       === REDACTION_REPLACEMENT_TEXT)
   }
 
@@ -79,8 +79,8 @@ class KafkaRedactionUtilSuite extends SparkFunSuite with KafkaDelegationTokenTes
     val redactedParams = KafkaRedactionUtil.redactParams(kafkaParams).toMap
 
     assert(redactedParams.size === 2)
-    assert(redactedParams.get(ConsumerConfig.GROUP_ID_CONFIG).get === groupId)
-    val redactedJaasParams = redactedParams.get(SaslConfigs.SASL_JAAS_CONFIG).get
+    assert(redactedParams(ConsumerConfig.GROUP_ID_CONFIG) === groupId)
+    val redactedJaasParams = redactedParams(SaslConfigs.SASL_JAAS_CONFIG)
     assert(redactedJaasParams.contains(tokenId1))
     assert(!redactedJaasParams.contains(tokenPassword1))
   }

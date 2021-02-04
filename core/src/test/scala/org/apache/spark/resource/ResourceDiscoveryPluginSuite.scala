@@ -136,8 +136,8 @@ class ResourceDiscoveryPluginSuite extends SparkFunSuite with LocalSparkContext 
       TestUtils.waitUntilExecutorsUp(sc, 2, 60000)
 
       assert(sc.resources.size === 1)
-      assert(sc.resources.get(GPU).get.addresses === Array("5", "6"))
-      assert(sc.resources.get(GPU).get.name === "gpu")
+      assert(sc.resources(GPU).addresses === Array("5", "6"))
+      assert(sc.resources(GPU).name === "gpu")
     }
   }
 }

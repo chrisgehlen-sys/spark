@@ -545,11 +545,11 @@ class ClientSuite extends SparkFunSuite with Matchers {
     val yarnRInfo = ResourceRequestTestHelper.getResources(newContext.getResource)
     val allResourceInfo = yarnRInfo.map(rInfo => (rInfo.name -> rInfo.value)).toMap
     assert(allResourceInfo.contains(YARN_GPU_RESOURCE_CONFIG))
-    assert(allResourceInfo.get(YARN_GPU_RESOURCE_CONFIG).get === 3)
+    assert(allResourceInfo(YARN_GPU_RESOURCE_CONFIG) === 3)
     assert(allResourceInfo.contains(YARN_FPGA_RESOURCE_CONFIG))
-    assert(allResourceInfo.get(YARN_FPGA_RESOURCE_CONFIG).get === 3)
+    assert(allResourceInfo(YARN_FPGA_RESOURCE_CONFIG) === 3)
     assert(allResourceInfo.contains(yarnMadeupResource))
-    assert(allResourceInfo.get(yarnMadeupResource).get === 5)
+    assert(allResourceInfo(yarnMadeupResource) === 5)
   }
 
   test("test yarn jars path not exists") {

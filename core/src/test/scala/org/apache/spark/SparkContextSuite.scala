@@ -900,8 +900,8 @@ class SparkContextSuite extends SparkFunSuite with LocalSparkContext with Eventu
       // Ensure all executors has started
       TestUtils.waitUntilExecutorsUp(sc, 1, 60000)
       assert(sc.resources.size === 1)
-      assert(sc.resources.get(GPU).get.addresses === Array("5", "6"))
-      assert(sc.resources.get(GPU).get.name === "gpu")
+      assert(sc.resources(GPU).addresses === Array("5", "6"))
+      assert(sc.resources(GPU).name === "gpu")
     }
   }
 
@@ -929,8 +929,8 @@ class SparkContextSuite extends SparkFunSuite with LocalSparkContext with Eventu
       TestUtils.waitUntilExecutorsUp(sc, 1, 60000)
       // driver gpu resources file should take precedence over the script
       assert(sc.resources.size === 1)
-      assert(sc.resources.get(GPU).get.addresses === Array("0", "1", "8"))
-      assert(sc.resources.get(GPU).get.name === "gpu")
+      assert(sc.resources(GPU).addresses === Array("0", "1", "8"))
+      assert(sc.resources(GPU).name === "gpu")
     }
   }
 
@@ -1004,7 +1004,7 @@ class SparkContextSuite extends SparkFunSuite with LocalSparkContext with Eventu
 
       val rdd = sc.makeRDD(1 to 10, 3).mapPartitions { it =>
         val context = TaskContext.get()
-        context.resources().get(GPU).get.addresses.iterator
+        context.resources()(GPU).addresses.iterator
       }
       val gpus = rdd.collect()
       assert(gpus.sorted === Seq("0", "0", "0", "1", "1", "1", "2", "2", "2"))
