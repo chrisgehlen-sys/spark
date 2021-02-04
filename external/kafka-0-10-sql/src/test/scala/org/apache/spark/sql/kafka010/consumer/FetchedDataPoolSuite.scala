@@ -56,7 +56,7 @@ class FetchedDataPoolSuite extends SharedSparkSession with PrivateMethodTester {
     }
 
     assert(getCache(dataPool).size === 0)
-    cacheKeys.foreach { key => assert(getCache(dataPool).get(key).isEmpty) }
+    cacheKeys.foreach { key => assert(!getCache(dataPool).contains(key)) }
 
     val dataList = cacheKeys.map(key => (key, dataPool.acquire(key, 0)))
 
@@ -274,7 +274,7 @@ class FetchedDataPoolSuite extends SharedSparkSession with PrivateMethodTester {
 
     assertFetchedDataPoolStatistic(dataPool, expectedNumCreated = 3, expectedNumTotal = 1)
     assert(getCache(dataPool).size === 1)
-    assert(getCache(dataPool).get(cacheKey).isEmpty)
+    assert(!getCache(dataPool).contains(cacheKey))
 
     // it doesn't affect other keys
     assert(getCache(dataPool)(cacheKey2).size === 1)
@@ -283,7 +283,7 @@ class FetchedDataPoolSuite extends SharedSparkSession with PrivateMethodTester {
 
     // it doesn't throw error on invalidated objects, but it doesn't cache them again
     assert(getCache(dataPool).size === 1)
-    assert(getCache(dataPool).get(cacheKey).isEmpty)
+    assert(!getCache(dataPool).contains(cacheKey))
 
     dataPool.shutdown()
   }

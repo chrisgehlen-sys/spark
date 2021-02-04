@@ -305,7 +305,7 @@ class HistoryServerSuite extends SparkFunSuite with BeforeAndAfter with Matchers
   test("automatically retrieve uiRoot from request through Knox") {
     assert(sys.props.get("spark.ui.proxyBase").isEmpty,
       "spark.ui.proxyBase is defined but it should not for this UT")
-    assert(sys.env.get("APPLICATION_WEB_PROXY_BASE").isEmpty,
+    assert(!sys.env.contains("APPLICATION_WEB_PROXY_BASE"),
       "APPLICATION_WEB_PROXY_BASE is defined but it should not for this UT")
     val page = new HistoryPage(server)
     val requestThroughKnox = mock[HttpServletRequest]

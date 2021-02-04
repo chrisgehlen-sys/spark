@@ -72,25 +72,25 @@ class TimeStampedHashMapSuite extends SparkFunSuite {
     test(name + " - basic test") {
       // put, get, and apply
       testMap1 += (("k1", "v1"))
-      assert(testMap1.get("k1").isDefined)
+      assert(testMap1.contains("k1"))
       assert(testMap1("k1") === "v1")
       testMap1("k2") = "v2"
-      assert(testMap1.get("k2").isDefined)
+      assert(testMap1.contains("k2"))
       assert(testMap1("k2") === "v2")
       assert(testMap1("k2") === "v2")
       testMap1.update("k3", "v3")
-      assert(testMap1.get("k3").isDefined)
+      assert(testMap1.contains("k3"))
       assert(testMap1("k3") === "v3")
 
       // remove
       testMap1.remove("k1")
-      assert(testMap1.get("k1").isEmpty)
+      assert(!testMap1.contains("k1"))
       testMap1.remove("k2")
       intercept[NoSuchElementException] {
         testMap1("k2") // Map.apply(<non-existent-key>) causes exception
       }
       testMap1 -= "k3"
-      assert(testMap1.get("k3").isEmpty)
+      assert(!testMap1.contains("k3"))
 
       // multi put
       val keys = (1 to 100).map(_.toString)
@@ -120,15 +120,15 @@ class TimeStampedHashMapSuite extends SparkFunSuite {
       // +
       val testMap3 = testMap2 + (("k0", "v0"))
       assert(testMap3.size === 2)
-      assert(testMap3.get("k1").isDefined)
+      assert(testMap3.contains("k1"))
       assert(testMap3("k1") === "v1")
-      assert(testMap3.get("k0").isDefined)
+      assert(testMap3.contains("k0"))
       assert(testMap3("k0") === "v0")
 
       // -
       val testMap4 = testMap3 - "k0"
       assert(testMap4.size === 1)
-      assert(testMap4.get("k1").isDefined)
+      assert(testMap4.contains("k1"))
       assert(testMap4("k1") === "v1")
     }
   }

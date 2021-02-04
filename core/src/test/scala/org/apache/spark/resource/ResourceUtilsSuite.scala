@@ -186,8 +186,8 @@ class ResourceUtilsSuite extends SparkFunSuite
     val resourcesMap = listResourceIds(conf, SPARK_DRIVER_PREFIX)
       .map { rId => (rId.resourceName, 1) }.toMap
     assert(resourcesMap.size === 2, "should only have GPU for resource")
-    assert(resourcesMap.get(GPU).nonEmpty, "should have GPU")
-    assert(resourcesMap.get(FPGA).nonEmpty, "should have FPGA")
+    assert(resourcesMap.contains(GPU), "should have GPU")
+    assert(resourcesMap.contains(FPGA), "should have FPGA")
   }
 
   test("parse resource request") {

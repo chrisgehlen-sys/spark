@@ -1192,7 +1192,7 @@ class ParquetIOSuite extends QueryTest with ParquetTest with SharedSparkSession 
     withSQLConf(SQLConf.LEGACY_PARQUET_INT96_REBASE_MODE_IN_WRITE.key -> CORRECTED.toString) {
       withTempPath { dir =>
         saveTs(dir)
-        assert(getMetaData(dir).get(SPARK_LEGACY_INT96).isEmpty)
+        assert(!getMetaData(dir).contains(SPARK_LEGACY_INT96))
       }
     }
     withSQLConf(SQLConf.LEGACY_PARQUET_INT96_REBASE_MODE_IN_WRITE.key -> EXCEPTION.toString) {
@@ -1201,7 +1201,7 @@ class ParquetIOSuite extends QueryTest with ParquetTest with SharedSparkSession 
     withSQLConf(SQLConf.LEGACY_PARQUET_INT96_REBASE_MODE_IN_WRITE.key -> EXCEPTION.toString) {
       withTempPath { dir =>
         saveTs(dir, "2020-10-22 01:02:03")
-        assert(getMetaData(dir).get(SPARK_LEGACY_INT96).isEmpty)
+        assert(!getMetaData(dir).contains(SPARK_LEGACY_INT96))
       }
     }
   }

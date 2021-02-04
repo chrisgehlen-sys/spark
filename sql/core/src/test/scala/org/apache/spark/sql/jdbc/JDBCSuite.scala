@@ -1364,9 +1364,9 @@ class JDBCSuite extends QueryTest
       (CaseInsensitiveMap(Map.empty) ++ parameters).asInstanceOf[Map[String, String]]
     testJdbcOptions(new JDBCOptions(modifiedParameters))
     modifiedParameters -= "dbtable"
-    assert(modifiedParameters.get("dbTAblE").isEmpty)
+    assert(!modifiedParameters.contains("dbTAblE"))
     modifiedParameters -= "customkey"
-    assert(modifiedParameters.get("customKey").isEmpty)
+    assert(!modifiedParameters.contains("customKey"))
     modifiedParameters += ("customKey" -> "a-value")
     modifiedParameters += ("dbTable" -> "t1")
     testJdbcOptions(new JDBCOptions(modifiedParameters))

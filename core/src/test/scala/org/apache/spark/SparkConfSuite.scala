@@ -454,7 +454,7 @@ class SparkConfSuite extends SparkFunSuite with LocalSparkContext with ResetSyst
       parseResourceRequirements(conf, SPARK_TASK_PREFIX)
         .map(req => (req.resourceName, req.amount)).toMap
     assert(taskResourceRequirement.size == 1)
-    assert(taskResourceRequirement.get(FPGA).isEmpty)
+    assert(!taskResourceRequirement.contains(FPGA))
   }
 
   test("test task resource requirement with 0 amount") {

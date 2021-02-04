@@ -521,8 +521,8 @@ class HiveDDLSuite
         assert(tableMetadata.comment == Option("BLABLA"))
         assert(viewMetadata.comment == Option("no comment"))
         // Ensure that `comment` is removed from the table property
-        assert(tableMetadata.properties.get("comment").isEmpty)
-        assert(viewMetadata.properties.get("comment").isEmpty)
+        assert(!tableMetadata.properties.contains("comment"))
+        assert(!viewMetadata.properties.contains("comment"))
       }
     }
   }
@@ -1429,7 +1429,7 @@ class HiveDDLSuite
       val sourceTable = catalog.getTableMetadata(
         TableIdentifier(sourceTabName, Some("default")))
       assert(sourceTable.tableType == CatalogTableType.MANAGED)
-      assert(sourceTable.properties.get("prop1").nonEmpty)
+      assert(sourceTable.properties.contains("prop1"))
       val targetTable = catalog.getTableMetadata(
         TableIdentifier(targetTabName, Some("default")))
       checkCreateTableLike(sourceTable, targetTable, tableType, provider)
