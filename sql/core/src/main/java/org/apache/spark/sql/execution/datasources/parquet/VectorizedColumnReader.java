@@ -45,11 +45,8 @@ import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.Decimal;
 import org.apache.spark.sql.types.DecimalType;
 
-import static org.apache.parquet.column.ValuesType.REPETITION_LEVEL;
-import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT32;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT64;
 import static org.apache.spark.sql.execution.datasources.parquet.SpecificParquetRecordReaderBase.ValuesReaderIntIterator;
-import static org.apache.spark.sql.execution.datasources.parquet.SpecificParquetRecordReaderBase.createRLEIterator;
 
 /**
  * Decoder to return values from a single column.
@@ -82,9 +79,8 @@ public class VectorizedColumnReader {
   private final int maxDefLevel;
 
   /**
-   * Repetition/Definition/Value readers.
+   * Definition/Value readers.
    */
-  private SpecificParquetRecordReaderBase.IntIterator repetitionLevelColumn;
   private SpecificParquetRecordReaderBase.IntIterator definitionLevelColumn;
   private ValuesReader dataColumn;
 
@@ -809,7 +805,6 @@ public class VectorizedColumnReader {
 
   private void readPageV1(DataPageV1 page) throws IOException {
     this.pageValueCount = page.getValueCount();
-    ValuesReader rlReader = page.getRlEncoding().getValuesReader(descriptor, REPETITION_LEVEL);
     ValuesReader dlReader;
 
     // Initialize the decoders.
@@ -819,12 +814,10 @@ public class VectorizedColumnReader {
     int bitWidth = BytesUtils.getWidthFromMaxInt(descriptor.getMaxDefinitionLevel());
     this.defColumn = new VectorizedRleValuesReader(bitWidth);
     dlReader = this.defColumn;
-    this.repetitionLevelColumn = new ValuesReaderIntIterator(rlReader);
     this.definitionLevelColumn = new ValuesReaderIntIterator(dlReader);
     try {
       BytesInput bytes = page.getBytes();
       ByteBufferInputStream in = bytes.toInputStream();
-      rlReader.initFromPage(pageValueCount, in);
       dlReader.initFromPage(pageValueCount, in);
       initDataReader(page.getValueEncoding(), in);
     } catch (IOException e) {
@@ -834,8 +827,6 @@ public class VectorizedColumnReader {
 
   private void readPageV2(DataPageV2 page) throws IOException {
     this.pageValueCount = page.getValueCount();
-    this.repetitionLevelColumn = createRLEIterator(descriptor.getMaxRepetitionLevel(),
-        page.getRepetitionLevels(), descriptor);
 
     int bitWidth = BytesUtils.getWidthFromMaxInt(descriptor.getMaxDefinitionLevel());
     // do not read the length from the stream. v2 pages handle dividing the page bytes.
