@@ -2374,6 +2374,16 @@ object SQLConf {
       .booleanConf
       .createWithDefault(true)
 
+  val PUSH_DISTINCT_THROUGH_SEMIJOIN_ENABLED =
+    buildConf("spark.sql.optimizer.pushDistinctThroughSemiJoin.enabled")
+      .internal()
+      .doc("To indicate if push Distinct through semi join in ReplaceIntersectWithSemiJoin rule," +
+        "it is recommended to enabled this config when Distinct operation can effectively reduce " +
+        "the amount of data involved in the Semi Join operation, such as tpc-ds q14.")
+      .version("3.2.0")
+      .booleanConf
+      .createWithDefault(false)
+
   val DISABLE_HINTS =
     buildConf("spark.sql.optimizer.disableHints")
       .internal()
@@ -3723,6 +3733,9 @@ class SQLConf extends Serializable with Logging {
   def ansiEnabled: Boolean = getConf(ANSI_ENABLED)
 
   def nestedSchemaPruningEnabled: Boolean = getConf(NESTED_SCHEMA_PRUNING_ENABLED)
+
+  def pushDistinctThroughSemiJoinEnabled: Boolean =
+    getConf(PUSH_DISTINCT_THROUGH_SEMIJOIN_ENABLED)
 
   def serializerNestedSchemaPruningEnabled: Boolean =
     getConf(SERIALIZER_NESTED_SCHEMA_PRUNING_ENABLED)

@@ -1809,7 +1809,12 @@ object ReplaceIntersectWithSemiJoin extends Rule[LogicalPlan] {
     case Intersect(left, right, false) =>
       assert(left.output.size == right.output.size)
       val joinCond = left.output.zip(right.output).map { case (l, r) => EqualNullSafe(l, r) }
-      Distinct(Join(left, right, LeftSemi, joinCond.reduceLeftOption(And), JoinHint.NONE))
+      if (conf.pushDistinctThroughSemiJoinEnabled) {
+        Join(Distinct(left), Distinct(right), LeftSemi, joinCond.reduceLeftOption(And),
+          JoinHint.NONE)
+      } else {
+        Distinct(Join(left, right, LeftSemi, joinCond.reduceLeftOption(And), JoinHint.NONE))
+      }
   }
 }
 

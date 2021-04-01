@@ -25,6 +25,7 @@ import org.apache.spark.sql.catalyst.expressions.aggregate.First
 import org.apache.spark.sql.catalyst.plans.{LeftAnti, LeftSemi, PlanTest}
 import org.apache.spark.sql.catalyst.plans.logical._
 import org.apache.spark.sql.catalyst.rules.RuleExecutor
+import org.apache.spark.sql.internal.SQLConf
 import org.apache.spark.sql.types.BooleanType
 
 class ReplaceOperatorSuite extends PlanTest {
@@ -51,6 +52,23 @@ class ReplaceOperatorSuite extends PlanTest {
         Join(table1, table2, LeftSemi, Option('a <=> 'c && 'b <=> 'd), JoinHint.NONE)).analyze
 
     comparePlans(optimized, correctAnswer)
+  }
+
+  test("replace Intersect with Left-semi Join and push down distinct enabled") {
+    withSQLConf(SQLConf.PUSH_DISTINCT_THROUGH_SEMIJOIN_ENABLED.key -> true.toString) {
+      val table1 = LocalRelation('a.int, 'b.int)
+      val table2 = LocalRelation('c.int, 'd.int)
+
+      val query = Intersect(table1, table2, isAll = false)
+      val optimized = Optimize.execute(query.analyze)
+
+      val correctAnswer = Join(
+        Aggregate(table1.output, table1.output, table1),
+        Aggregate(table2.output, table2.output, table2),
+        LeftSemi, Option('a <=> 'c && 'b <=> 'd), JoinHint.NONE).analyze
+
+      comparePlans(optimized, correctAnswer)
+    }
   }
 
   test("replace Except with Filter while both the nodes are of type Filter") {

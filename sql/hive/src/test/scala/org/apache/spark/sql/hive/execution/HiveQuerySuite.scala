@@ -749,8 +749,13 @@ class HiveQuerySuite extends HiveComparisonTest with SQLTestUtils with BeforeAnd
     assertResult(Array()) {
       sql("select 1 as a except select 1 as a").collect()
     }
-    assertResult(Array(Row(1))) {
-      sql("select 1 as a intersect select 1 as a").collect()
+    Seq(true, false).foreach { confValue =>
+      withSQLConf(SQLConf.PUSH_DISTINCT_THROUGH_SEMIJOIN_ENABLED.key ->
+        confValue.toString) {
+        assertResult(Array(Row(1))) {
+          sql("select 1 as a intersect select 1 as a").collect()
+        }
+      }
     }
   }
 

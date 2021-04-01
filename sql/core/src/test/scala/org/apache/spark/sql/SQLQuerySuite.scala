@@ -957,14 +957,19 @@ class SQLQuerySuite extends QueryTest with SharedSparkSession with AdaptiveSpark
   }
 
   test("INTERSECT") {
-    checkAnswer(
-      sql("SELECT * FROM lowerCaseData INTERSECT SELECT * FROM lowerCaseData"),
-      Row(1, "a") ::
-      Row(2, "b") ::
-      Row(3, "c") ::
-      Row(4, "d") :: Nil)
-    checkAnswer(
-      sql("SELECT * FROM lowerCaseData INTERSECT SELECT * FROM upperCaseData"), Nil)
+    Seq(true, false).foreach { confValue =>
+      withSQLConf(SQLConf.PUSH_DISTINCT_THROUGH_SEMIJOIN_ENABLED.key ->
+        confValue.toString) {
+        checkAnswer(
+          sql("SELECT * FROM lowerCaseData INTERSECT SELECT * FROM lowerCaseData"),
+          Row(1, "a") ::
+            Row(2, "b") ::
+            Row(3, "c") ::
+            Row(4, "d") :: Nil)
+        checkAnswer(
+          sql("SELECT * FROM lowerCaseData INTERSECT SELECT * FROM upperCaseData"), Nil)
+      }
+    }
   }
 
   test("SET commands semantics using sql()") {
