@@ -549,6 +549,17 @@ case class Sort(
   override def outputOrdering: Seq[SortOrder] = order
 }
 
+case class TopK(
+    order: Seq[SortOrder],
+    partitionSpec: Seq[Expression],
+    topK: Int,
+    child: LogicalPlan) extends UnaryNode {
+  override def output: Seq[Attribute] = child.output
+  override def maxRows: Option[Long] = Some(topK)
+  override def outputOrdering: Seq[SortOrder] = order
+}
+
+
 /** Factory for constructing new `Range` nodes. */
 object Range {
   def apply(start: Long, end: Long, step: Long,
