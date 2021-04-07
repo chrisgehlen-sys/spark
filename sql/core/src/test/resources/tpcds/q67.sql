@@ -33,6 +33,6 @@ FROM
       d_moy, s_store_id)) dw1) dw2
 WHERE rk <= 100
 ORDER BY
-  rk, i_category, i_class, i_brand, i_product_name, d_year,
-  d_qoy, d_moy, s_store_id, sumsales
+  i_category, i_class, i_brand, i_product_name, d_year,
+  d_qoy, d_moy, s_store_id, sumsales, rk
 LIMIT 100

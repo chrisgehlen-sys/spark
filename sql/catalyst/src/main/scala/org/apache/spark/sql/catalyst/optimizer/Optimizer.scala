@@ -1363,10 +1363,9 @@ object PushPredicateThroughNonJoin extends Rule[LogicalPlan] with PredicateHelpe
       condSeq.head match {
         case LessThanOrEqual(AttributeReference(attr, _, _, _), Literal(value: Integer, _))
           if attr.equals(name) =>
-          val ord =
-            windowSpec.partitionSpec.map(SortOrder(_, Ascending)) ++ windowSpec.orderSpec
+          val ord = windowSpec.orderSpec
           val newWindow = w.copy(
-            child = TopK(ord, windowSpec.partitionSpec, value, w.child))
+            child = TopK(ord, windowSpec.partitionSpec, value + 1, w.child))
           Filter(condition, newWindow)
         case _ => filter
       }

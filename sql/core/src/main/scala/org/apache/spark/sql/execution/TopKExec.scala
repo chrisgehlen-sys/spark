@@ -16,17 +16,17 @@
  */
 package org.apache.spark.sql.execution
 
+import scala.collection.mutable
+
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.expressions.Attribute
-import org.apache.spark.sql.catalyst.expressions.Expression
-import org.apache.spark.sql.catalyst.expressions.SortOrder
+import org.apache.spark.sql.catalyst.expressions.{Attribute, Expression, SortOrder, UnsafeProjection}
 import org.apache.spark.sql.catalyst.expressions.codegen.LazilyGeneratedOrdering
 import org.apache.spark.sql.catalyst.plans.physical.AllTuples
 import org.apache.spark.sql.catalyst.plans.physical.ClusteredDistribution
 import org.apache.spark.sql.catalyst.plans.physical.Distribution
 import org.apache.spark.sql.catalyst.plans.physical.Partitioning
-import org.apache.spark.util.collection.Utils
+import org.apache.spark.util.BoundedPriorityQueue
 
 case class TopKExec(
     sortOrder: Seq[SortOrder],
@@ -51,8 +51,18 @@ case class TopKExec(
 
   protected def doExecute(): RDD[InternalRow] = {
     val ord = new LazilyGeneratedOrdering(outputOrdering, child.output)
+
     child.execute().mapPartitions { iter =>
-      Utils.takeOrdered(iter.map(_.copy()), topK)(ord)
+      val retMap = mutable.Map.empty[InternalRow, BoundedPriorityQueue[InternalRow]]
+      val unsafeProjection: UnsafeProjection =
+        UnsafeProjection.create(partitionSpec, child.output)
+      iter.foreach { r =>
+        val row = r.copy()
+        val key = unsafeProjection.apply(row)
+        // TODO: why need ord.reverse?
+        retMap.getOrElseUpdate(key, new BoundedPriorityQueue(topK)(ord.reverse)) += row
+      }
+      retMap.valuesIterator.flatten
     }
   }
 }
