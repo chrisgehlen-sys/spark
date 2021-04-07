@@ -60,7 +60,8 @@ case class TopKExec(
         val row = r.copy()
         val key = unsafeProjection.apply(row)
         // TODO: why need ord.reverse?
-        retMap.getOrElseUpdate(key, new BoundedPriorityQueue(topK)(ord.reverse)) += row
+        // TODO: need another BoundedPriorityQueue impl
+        retMap.getOrElseUpdate(key, new BoundedPriorityQueue(topK + 1)(ord.reverse)) += row
       }
       retMap.valuesIterator.flatten
     }
