@@ -26,6 +26,8 @@ import org.apache.spark.sql.catalyst.plans.physical.AllTuples
 import org.apache.spark.sql.catalyst.plans.physical.ClusteredDistribution
 import org.apache.spark.sql.catalyst.plans.physical.Distribution
 import org.apache.spark.sql.catalyst.plans.physical.Partitioning
+import org.apache.spark.util.collection.Utils
+
 case class TopKExec(
     sortOrder: Seq[SortOrder],
     partitionSpec: Seq[Expression],
@@ -42,13 +44,15 @@ case class TopKExec(
       AllTuples :: Nil
     } else ClusteredDistribution(partitionSpec) :: Nil
   }
+
   // sort performed is local within a given partition so will retain
   // child operator's partitioning
   override def outputPartitioning: Partitioning = child.outputPartitioning
+
   protected def doExecute(): RDD[InternalRow] = {
     val ord = new LazilyGeneratedOrdering(outputOrdering, child.output)
     child.execute().mapPartitions { iter =>
-      org.apache.spark.util.collection.Utils.takeOrdered(iter.map(_.copy()), topK)(ord)
+      Utils.takeOrdered(iter.map(_.copy()), topK)(ord)
     }
   }
 }

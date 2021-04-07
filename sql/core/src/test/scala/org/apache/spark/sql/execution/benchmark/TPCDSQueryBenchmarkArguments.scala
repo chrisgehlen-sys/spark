@@ -21,7 +21,7 @@ import java.util.Locale
 
 
 class TPCDSQueryBenchmarkArguments(val args: Array[String]) {
-  var dataLocation: String = null
+  var dataLocation: String = "/Users/yangjie01/SourceCode/tpcds30g-nopartition"
   var queryFilter: Set[String] = Set.empty
   var cboEnabled: Boolean = false
 
