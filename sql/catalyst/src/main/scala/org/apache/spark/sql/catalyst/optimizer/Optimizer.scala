@@ -1354,21 +1354,6 @@ object PushPredicateThroughNonJoin extends Rule[LogicalPlan] with PredicateHelpe
         filter
       }
 
-    // optimization for tpc-ds q67
-    case filter @ Filter(condition,
-    w @ Window(Seq(Alias(WindowExpression(_: Rank, windowSpec), name)), _, _, _))
-      if (!w.child.isInstanceOf[TopK]
-        && splitConjunctivePredicates(condition).filterNot(_.isInstanceOf[IsNotNull]).size == 1) =>
-      val condSeq = splitConjunctivePredicates(condition).filterNot(_.isInstanceOf[IsNotNull])
-      condSeq.head match {
-        case LessThanOrEqual(AttributeReference(attr, _, _, _), Literal(value: Integer, _))
-          if attr.equals(name) =>
-          val newWindow = w.copy(
-            child = TopK(windowSpec.orderSpec, windowSpec.partitionSpec, value, w.child))
-          Filter(condition, newWindow)
-        case _ => filter
-      }
-
     // Push [[Filter]] operators through [[Window]] operators. Parts of the predicate that can be
     // pushed beneath must satisfy the following conditions:
     // 1. All the expressions are part of window partitioning key. The expressions can be compound.
