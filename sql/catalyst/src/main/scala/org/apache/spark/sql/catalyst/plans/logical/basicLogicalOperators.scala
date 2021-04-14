@@ -630,6 +630,8 @@ case class TopK(
   override def output: Seq[Attribute] = child.output
   override def maxRows: Option[Long] = Some(topK)
   override def outputOrdering: Seq[SortOrder] = order
+  override protected def withNewChildInternal(newChild: LogicalPlan): TopK =
+    copy(child = newChild)
 }
 
 

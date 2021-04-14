@@ -66,4 +66,7 @@ case class TopKExec(
       retMap.valuesIterator.flatten
     }
   }
+
+  override protected def withNewChildInternal(newChild: SparkPlan): TopKExec =
+    copy(child = newChild)
 }
