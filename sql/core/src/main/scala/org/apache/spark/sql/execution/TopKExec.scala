@@ -17,7 +17,6 @@
 package org.apache.spark.sql.execution
 
 import scala.collection.mutable
-
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.catalyst.expressions.{Attribute, Expression, SortOrder, UnsafeProjection}
@@ -26,6 +25,7 @@ import org.apache.spark.sql.catalyst.plans.physical.AllTuples
 import org.apache.spark.sql.catalyst.plans.physical.ClusteredDistribution
 import org.apache.spark.sql.catalyst.plans.physical.Distribution
 import org.apache.spark.sql.catalyst.plans.physical.Partitioning
+import org.apache.spark.sql.execution.metric.SQLMetrics
 import org.apache.spark.util.BoundedPriorityQueue
 
 case class TopKExec(
@@ -49,10 +49,14 @@ case class TopKExec(
   // child operator's partitioning
   override def outputPartitioning: Partitioning = child.outputPartitioning
 
+  override lazy val metrics = Map(
+    "numOutputRows" -> SQLMetrics.createMetric(sparkContext, "number of output rows"))
+
   protected def doExecute(): RDD[InternalRow] = {
     val ord = new LazilyGeneratedOrdering(outputOrdering, child.output)
 
     child.execute().mapPartitions { iter =>
+      val numOutputRows = longMetric("numOutputRows")
       val retMap = mutable.Map.empty[InternalRow, BoundedPriorityQueue[InternalRow]]
       val unsafeProjection: UnsafeProjection =
         UnsafeProjection.create(partitionSpec, child.output)
@@ -61,12 +65,42 @@ case class TopKExec(
         val key = unsafeProjection.apply(row)
         // TODO: why need ord.reverse?
         // TODO: need another BoundedPriorityQueue impl
-        retMap.getOrElseUpdate(key, new BoundedPriorityQueue(topK + 1)(ord.reverse)) += row
+        retMap.getOrElseUpdate(key, new BoundedPriorityQueue(topK)(ord.reverse)) += row
       }
+      numOutputRows += retMap.values.map(_.size).sum
       retMap.valuesIterator.flatten
     }
   }
 
   override protected def withNewChildInternal(newChild: SparkPlan): TopKExec =
     copy(child = newChild)
+}
+
+private[spark] class BoundedPriorityQueue2[A](maxSize: Int)(implicit ord: Ordering[A])
+  extends BoundedPriorityQueue[A](maxSize) {
+
+  private var delta = 0
+
+  override def +=(elem: A): this.type = {
+    if (size < maxSize + delta) {
+      underlying.offer(elem)
+    } else {
+      maybeReplaceLowest(elem)
+    }
+    this
+  }
+
+  protected override def maybeReplaceLowest(a: A): Boolean = {
+    val head = underlying.peek()
+    if (head != null && ord.gt(a, head)) {
+      underlying.poll()
+      underlying.offer(a)
+    } else if (head != null && ord.equiv(a, head)) {
+      delta += 1
+      underlying.offer(a)
+      false
+    } else {
+      false
+    }
+  }
 }

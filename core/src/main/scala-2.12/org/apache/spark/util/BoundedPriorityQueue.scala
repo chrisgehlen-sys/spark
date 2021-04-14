@@ -33,7 +33,7 @@ private[spark] class BoundedPriorityQueue[A](maxSize: Int)(implicit ord: Orderin
 
   //  Note: this class supports Scala 2.12. A parallel source tree has a 2.13 implementation.
 
-  private val underlying = new JPriorityQueue[A](maxSize, ord)
+  protected val underlying = new JPriorityQueue[A](maxSize, ord)
 
   override def iterator: Iterator[A] = underlying.iterator.asScala
 
@@ -63,7 +63,7 @@ private[spark] class BoundedPriorityQueue[A](maxSize: Int)(implicit ord: Orderin
 
   override def clear(): Unit = { underlying.clear() }
 
-  private def maybeReplaceLowest(a: A): Boolean = {
+  protected def maybeReplaceLowest(a: A): Boolean = {
     val head = underlying.peek()
     if (head != null && ord.gt(a, head)) {
       underlying.poll()
