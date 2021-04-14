@@ -206,6 +206,17 @@ object SQLConf {
     .intConf
     .createWithDefault(100)
 
+  val ANSI_ENABLED = buildConf("spark.sql.ansi.enabled")
+    .doc("When true, Spark SQL uses an ANSI compliant dialect instead of being Hive compliant. " +
+      "For example, Spark will throw an exception at runtime instead of returning null results " +
+      "when the inputs to a SQL operator/function are invalid." +
+      "For full details of this dialect, you can find them in the section \"ANSI Compliance\" of " +
+      "Spark's documentation. Some ANSI dialect features may be not from the ANSI SQL " +
+      "standard directly, but their behaviors align with ANSI SQL's style")
+    .version("3.0.0")
+    .booleanConf
+    .createWithDefault(false)
+
   val OPTIMIZER_EXCLUDED_RULES = buildConf("spark.sql.optimizer.excludedRules")
     .doc("Configures a list of rules to be disabled in the optimizer, in which the rules are " +
       "specified by their rule names and separated by comma. It is not guaranteed that all the " +
@@ -839,6 +850,13 @@ object SQLConf {
     .intConf
     .createWithDefault(4096)
 
+  val ORC_VECTORIZED_READER_NESTED_COLUMN_ENABLED =
+    buildConf("spark.sql.orc.enableNestedColumnVectorizedReader")
+      .doc("Enables vectorized orc decoding for nested column.")
+      .version("3.2.0")
+      .booleanConf
+      .createWithDefault(false)
+
   val ORC_FILTER_PUSHDOWN_ENABLED = buildConf("spark.sql.orc.filterPushdown")
     .doc("When true, enable filter pushdown for ORC files.")
     .version("1.4.0")
@@ -1085,8 +1103,9 @@ object SQLConf {
     .createWithDefault(true)
 
   val GROUP_BY_ALIASES = buildConf("spark.sql.groupByAliases")
-    .doc("When true, aliases in a select list can be used in group by clauses. When false, " +
-      "an analysis exception is thrown in the case.")
+    .doc("This configuration is only effective when ANSI mode is disabled. When it is true and " +
+      s"${ANSI_ENABLED.key} is false, aliases in a select list can be used in group by clauses. " +
+      "Otherwise, an analysis exception is thrown in the case.")
     .version("2.2.0")
     .booleanConf
     .createWithDefault(true)
@@ -1919,8 +1938,10 @@ object SQLConf {
   val JOIN_REORDER_CARD_WEIGHT =
     buildConf("spark.sql.cbo.joinReorder.card.weight")
       .internal()
-      .doc("The weight of cardinality (number of rows) for plan cost comparison in join reorder: " +
-        "rows * weight + size * (1 - weight).")
+      .doc("The weight of the ratio of cardinalities (number of rows) " +
+        "in the cost comparison function. The ratio of sizes in bytes has weight " +
+        "1 - this value. The weighted geometric mean of these ratios is used to decide " +
+        "which of the candidate plans will be chosen by the CBO.")
       .version("2.2.0")
       .doubleConf
       .checkValue(weight => weight >= 0 && weight <= 1, "The weight value must be in [0, 1].")
@@ -2338,17 +2359,6 @@ object SQLConf {
       .transform(_.toUpperCase(Locale.ROOT))
       .checkValues(StoreAssignmentPolicy.values.map(_.toString))
       .createWithDefault(StoreAssignmentPolicy.ANSI.toString)
-
-  val ANSI_ENABLED = buildConf("spark.sql.ansi.enabled")
-    .doc("When true, Spark SQL uses an ANSI compliant dialect instead of being Hive compliant. " +
-      "For example, Spark will throw an exception at runtime instead of returning null results " +
-      "when the inputs to a SQL operator/function are invalid." +
-      "For full details of this dialect, you can find them in the section \"ANSI Compliance\" of " +
-      "Spark's documentation. Some ANSI dialect features may be not from the ANSI SQL " +
-      "standard directly, but their behaviors align with ANSI SQL's style")
-    .version("3.0.0")
-    .booleanConf
-    .createWithDefault(false)
 
   val SORT_BEFORE_REPARTITION =
     buildConf("spark.sql.execution.sortBeforeRepartition")
@@ -3338,6 +3348,9 @@ class SQLConf extends Serializable with Logging {
   def orcVectorizedReaderEnabled: Boolean = getConf(ORC_VECTORIZED_READER_ENABLED)
 
   def orcVectorizedReaderBatchSize: Int = getConf(ORC_VECTORIZED_READER_BATCH_SIZE)
+
+  def orcVectorizedReaderNestedColumnEnabled: Boolean =
+    getConf(ORC_VECTORIZED_READER_NESTED_COLUMN_ENABLED)
 
   def parquetCompressionCodec: String = getConf(PARQUET_COMPRESSION)
 
