@@ -307,23 +307,14 @@ private[spark] class ExternalSorter[K, V, C](
       }
       if (objectsWritten > 0) {
         flush()
-      } else {
-        writer.revertPartialWritesAndClose()
       }
+      writer.close()
       success = true
     } finally {
-      if (success) {
-        writer.close()
-      } else {
+      if (!success) {
         // This code path only happens if an exception was thrown above before we set success;
         // close our stuff and let the exception be thrown further
-        writer.revertPartialWritesAndClose()
-        if (file.exists()) {
-          if (!file.delete()) {
-            logWarning(s"Error deleting ${file}")
-          }
-        }
-      }
+        writer.revertPartialWritesAndDelete()
     }
 
     SpilledFile(file, blockId, batchSizes.toArray, elementsPerPartition)

@@ -237,6 +237,15 @@ private[spark] class DiskBlockObjectWriter(
     file
   }
 
+  def revertPartialWritesAndDelete(): Unit = {
+    val file = revertPartialWritesAndClose()
+    if (file.exists()) {
+      if (!file.delete()) {
+        logWarning(s"Error deleting $file")
+      }
+    }
+  }
+
   /**
    * Writes a key-value pair.
    */
