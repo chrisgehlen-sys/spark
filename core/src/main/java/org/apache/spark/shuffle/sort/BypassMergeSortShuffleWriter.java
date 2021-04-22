@@ -274,7 +274,7 @@ final class BypassMergeSortShuffleWriter<K, V> extends ShuffleWriter<K, V> {
           try {
             for (DiskBlockObjectWriter writer : partitionWriters) {
               // This method explicitly does _not_ throw exceptions:
-              writer.revertPartialWritesAndDelete();
+              writer.revertPartialWritesAndDeleteFile();
             }
           } finally {
             partitionWriters = null;
