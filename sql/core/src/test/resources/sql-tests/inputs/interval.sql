@@ -11,7 +11,7 @@ select interval 2147483647 day / 0.5;
 
 -- interval operation with null and zero case
 select interval '2 seconds' / 0;
-select interval '2 seconds' / null;
+select interval '2 seconds' / null;interval.sql
 select interval '2 seconds' * null;
 select null * interval '2 seconds';
 
