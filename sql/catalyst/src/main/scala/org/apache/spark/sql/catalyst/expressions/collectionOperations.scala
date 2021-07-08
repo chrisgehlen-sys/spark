@@ -16,21 +16,22 @@
  */
 package org.apache.spark.sql.catalyst.expressions
 
-import java.time.ZoneId
+import java.time.{Duration, Period, ZoneId}
 import java.util.Comparator
 
 import scala.collection.mutable
 import scala.reflect.ClassTag
 
 import org.apache.spark.sql.catalyst.InternalRow
-import org.apache.spark.sql.catalyst.analysis.{TypeCheckResult, TypeCoercion, UnresolvedSeed}
+import org.apache.spark.sql.catalyst.analysis.{TypeCheckResult, TypeCoercion, UnresolvedAttribute, UnresolvedSeed}
 import org.apache.spark.sql.catalyst.expressions.ArraySortLike.NullOrder
 import org.apache.spark.sql.catalyst.expressions.codegen._
 import org.apache.spark.sql.catalyst.expressions.codegen.Block._
-import org.apache.spark.sql.catalyst.trees.TreePattern.{CONCAT, TreePattern}
+import org.apache.spark.sql.catalyst.trees.TreePattern.{ARRAYS_ZIP, CONCAT, TreePattern}
 import org.apache.spark.sql.catalyst.util._
 import org.apache.spark.sql.catalyst.util.DateTimeConstants._
 import org.apache.spark.sql.catalyst.util.DateTimeUtils._
+import org.apache.spark.sql.errors.QueryExecutionErrors
 import org.apache.spark.sql.internal.SQLConf
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.UTF8StringBuilder
@@ -109,8 +110,7 @@ case class Size(child: Expression, legacySizeOfNull: Boolean)
     } else child.dataType match {
       case _: ArrayType => value.asInstanceOf[ArrayData].numElements()
       case _: MapType => value.asInstanceOf[MapData].numElements()
-      case other => throw new UnsupportedOperationException(
-        s"The size function doesn't support the operand type ${other.getClass.getCanonicalName}")
+      case other => throw QueryExecutionErrors.unsupportedOperandTypeForSizeFunctionError(other)
     }
   }
 
@@ -181,16 +181,35 @@ case class MapKeys(child: Expression)
   """,
   group = "array_funcs",
   since = "2.4.0")
-case class ArraysZip(children: Seq[Expression]) extends Expression with ExpectsInputTypes {
+case class ArraysZip(children: Seq[Expression], names: Seq[Expression])
+  extends Expression with ExpectsInputTypes {
 
+  def this(children: Seq[Expression]) = {
+    this(
+      children,
+      children.zipWithIndex.map {
+        case (u: UnresolvedAttribute, _) => Literal(u.nameParts.last)
+        case (e: NamedExpression, _) if e.resolved => Literal(e.name)
+        case (e: NamedExpression, _) => NamePlaceholder
+        case (_, idx) => Literal(idx.toString)
+      })
+  }
+
+  if (children.size != names.size) {
+    throw new IllegalArgumentException(
+      "The numbers of zipped arrays and field names should be the same")
+  }
+
+  final override val nodePatterns: Seq[TreePattern] = Seq(ARRAYS_ZIP)
+
+  override lazy val resolved: Boolean =
+    childrenResolved && checkInputDataTypes().isSuccess && names.forall(_.resolved)
   override def inputTypes: Seq[AbstractDataType] = Seq.fill(children.length)(ArrayType)
 
   @transient override lazy val dataType: DataType = {
-    val fields = children.zip(arrayElementTypes).zipWithIndex.map {
-      case ((expr: NamedExpression, elementType), _) =>
-        StructField(expr.name, elementType, nullable = true)
-      case ((_, elementType), idx) =>
-        StructField(idx.toString, elementType, nullable = true)
+    val fields = arrayElementTypes.zip(names).map {
+      case (elementType, Literal(name, StringType)) =>
+        StructField(name.toString, elementType, nullable = true)
     }
     ArrayType(StructType(fields), containsNull = false)
   }
@@ -330,6 +349,12 @@ case class ArraysZip(children: Seq[Expression]) extends Expression with ExpectsI
 
   override protected def withNewChildrenInternal(newChildren: IndexedSeq[Expression]): ArraysZip =
     copy(children = newChildren)
+}
+
+object ArraysZip {
+  def apply(children: Seq[Expression]): ArraysZip = {
+    new ArraysZip(children)
+  }
 }
 
 /**
@@ -1476,16 +1501,14 @@ case class Slice(x: Expression, start: Expression, length: Expression)
     val lengthInt = lengthVal.asInstanceOf[Int]
     val arr = xVal.asInstanceOf[ArrayData]
     val startIndex = if (startInt == 0) {
-      throw new RuntimeException(
-        s"Unexpected value for start in function $prettyName: SQL array indices start at 1.")
+      throw QueryExecutionErrors.unexpectedValueForStartInFunctionError(prettyName)
     } else if (startInt < 0) {
       startInt + arr.numElements()
     } else {
       startInt - 1
     }
     if (lengthInt < 0) {
-      throw new RuntimeException(s"Unexpected value for length in function $prettyName: " +
-        "length must be greater than or equal to 0.")
+      throw QueryExecutionErrors.unexpectedValueForLengthInFunctionError(prettyName)
     }
     // startIndex can be negative if start is negative and its absolute value is greater than the
     // number of elements in the array
@@ -1505,8 +1528,7 @@ case class Slice(x: Expression, start: Expression, length: Expression)
          |${CodeGenerator.JAVA_INT} $startIdx = $defaultIntValue;
          |${CodeGenerator.JAVA_INT} $resLength = $defaultIntValue;
          |if ($start == 0) {
-         |  throw new RuntimeException("Unexpected value for start in function $prettyName: "
-         |    + "SQL array indices start at 1.");
+         |  throw QueryExecutionErrors.unexpectedValueForStartInFunctionError("$prettyName");
          |} else if ($start < 0) {
          |  $startIdx = $start + $x.numElements();
          |} else {
@@ -1514,8 +1536,7 @@ case class Slice(x: Expression, start: Expression, length: Expression)
          |  $startIdx = $start - 1;
          |}
          |if ($length < 0) {
-         |  throw new RuntimeException("Unexpected value for length in function $prettyName: "
-         |    + "length must be greater than or equal to 0.");
+         |  throw QueryExecutionErrors.unexpectedValueForLengthInFunctionError("$prettyName");
          |} else if ($length > $x.numElements() - $startIdx) {
          |  $resLength = $x.numElements() - $startIdx;
          |} else {
@@ -2073,14 +2094,13 @@ case class ElementAt(
         val index = ordinal.asInstanceOf[Int]
         if (array.numElements() < math.abs(index)) {
           if (failOnError) {
-            throw new ArrayIndexOutOfBoundsException(
-              s"Invalid index: $index, numElements: ${array.numElements()}")
+            throw QueryExecutionErrors.invalidArrayIndexError(index, array.numElements())
           } else {
             null
           }
         } else {
           val idx = if (index == 0) {
-            throw new ArrayIndexOutOfBoundsException("SQL array indices start at 1")
+            throw QueryExecutionErrors.sqlArrayIndexNotStartAtOneError()
           } else if (index > 0) {
             index - 1
           } else {
@@ -2113,10 +2133,7 @@ case class ElementAt(
           }
 
           val indexOutOfBoundBranch = if (failOnError) {
-            s"""throw new ArrayIndexOutOfBoundsException(
-               |  "Invalid index: " + $index + ", numElements: " + $eval1.numElements()
-               |);
-             """.stripMargin
+            s"throw QueryExecutionErrors.invalidArrayIndexError($index, $eval1.numElements());"
           } else {
             s"${ev.isNull} = true;"
           }
@@ -2127,7 +2144,7 @@ case class ElementAt(
              |  $indexOutOfBoundBranch
              |} else {
              |  if ($index == 0) {
-             |    throw new ArrayIndexOutOfBoundsException("SQL array indices start at 1");
+             |    throw QueryExecutionErrors.sqlArrayIndexNotStartAtOneError();
              |  } else if ($index > 0) {
              |    $index--;
              |  } else {
@@ -2226,9 +2243,7 @@ case class Concat(children: Seq[Expression]) extends ComplexTypeMergingExpressio
           val arrayData = inputs.map(_.asInstanceOf[ArrayData])
           val numberOfElements = arrayData.foldLeft(0L)((sum, ad) => sum + ad.numElements())
           if (numberOfElements > ByteArrayMethods.MAX_ROUNDED_ARRAY_LENGTH) {
-            throw new RuntimeException(s"Unsuccessful try to concat arrays with $numberOfElements" +
-              " elements due to exceeding the array size limit " +
-              ByteArrayMethods.MAX_ROUNDED_ARRAY_LENGTH + ".")
+            throw QueryExecutionErrors.concatArraysWithElementsExceedLimitError(numberOfElements)
           }
           val finalData = new Array[AnyRef](numberOfElements.toInt)
           var position = 0
@@ -2403,9 +2418,7 @@ case class Flatten(child: Expression) extends UnaryExpression with NullIntoleran
       val arrayData = elements.map(_.asInstanceOf[ArrayData])
       val numberOfElements = arrayData.foldLeft(0L)((sum, e) => sum + e.numElements())
       if (numberOfElements > ByteArrayMethods.MAX_ROUNDED_ARRAY_LENGTH) {
-        throw new RuntimeException("Unsuccessful try to flatten an array of arrays with " +
-          s"$numberOfElements elements due to exceeding the array size limit " +
-          ByteArrayMethods.MAX_ROUNDED_ARRAY_LENGTH + ".")
+        throw QueryExecutionErrors.flattenArraysWithElementsExceedLimitError(numberOfElements)
       }
       val flattenedData = new Array(numberOfElements.toInt)
       var position = 0
@@ -2487,8 +2500,8 @@ case class Flatten(child: Expression) extends UnaryExpression with NullIntoleran
 
       The start and stop expressions must resolve to the same type.
       If start and stop expressions resolve to the 'date' or 'timestamp' type
-      then the step expression must resolve to the 'interval' type, otherwise to the same type
-      as the start and stop expressions.
+      then the step expression must resolve to the 'interval' or 'year-month interval' or
+      'day-time interval' type, otherwise to the same type as the start and stop expressions.
   """,
   arguments = """
     Arguments:
@@ -2506,6 +2519,8 @@ case class Flatten(child: Expression) extends UnaryExpression with NullIntoleran
       > SELECT _FUNC_(5, 1);
        [5,4,3,2,1]
       > SELECT _FUNC_(to_date('2018-01-01'), to_date('2018-03-01'), interval 1 month);
+       [2018-01-01,2018-02-01,2018-03-01]
+      > SELECT _FUNC_(to_date('2018-01-01'), to_date('2018-03-01'), interval '0-1' year to month);
        [2018-01-01,2018-02-01,2018-03-01]
   """,
   group = "array_funcs",
@@ -2553,8 +2568,13 @@ case class Sequence(
     val typesCorrect =
       startType.sameType(stop.dataType) &&
         (startType match {
-          case TimestampType | DateType =>
-            stepOpt.isEmpty || CalendarIntervalType.acceptsType(stepType)
+          case TimestampType =>
+            stepOpt.isEmpty || CalendarIntervalType.acceptsType(stepType) ||
+              YearMonthIntervalType.acceptsType(stepType) ||
+              DayTimeIntervalType.acceptsType(stepType)
+          case DateType =>
+            stepOpt.isEmpty || CalendarIntervalType.acceptsType(stepType) ||
+              YearMonthIntervalType.acceptsType(stepType)
           case _: IntegralType =>
             stepOpt.isEmpty || stepType.sameType(startType)
           case _ => false
@@ -2564,29 +2584,51 @@ case class Sequence(
       TypeCheckResult.TypeCheckSuccess
     } else {
       TypeCheckResult.TypeCheckFailure(
-        s"$prettyName only supports integral, timestamp or date types")
+        s"""
+           |$prettyName uses the wrong parameter type. The parameter type must conform to:
+           |1. The start and stop expressions must resolve to the same type.
+           |2. If start and stop expressions resolve to the 'date' or 'timestamp' type
+           |then the step expression must resolve to the 'interval' or
+           |'${YearMonthIntervalType.simpleString}' or '${DayTimeIntervalType.simpleString}' type,
+           |otherwise to the same type as the start and stop expressions.
+         """.stripMargin)
     }
   }
 
-  def coercibleChildren: Seq[Expression] = children.filter(_.dataType != CalendarIntervalType)
+  private def isNotIntervalType(expr: Expression) = expr.dataType match {
+    case CalendarIntervalType | _: YearMonthIntervalType | _: DayTimeIntervalType => false
+    case _ => true
+  }
+
+  def coercibleChildren: Seq[Expression] = children.filter(isNotIntervalType)
 
   def castChildrenTo(widerType: DataType): Expression = Sequence(
     Cast(start, widerType),
     Cast(stop, widerType),
-    stepOpt.map(step => if (step.dataType != CalendarIntervalType) Cast(step, widerType) else step),
+    stepOpt.map(step => if (isNotIntervalType(step)) Cast(step, widerType) else step),
     timeZoneId)
 
-  @transient private lazy val impl: SequenceImpl = dataType.elementType match {
+  @transient private lazy val impl: InternalSequence = dataType.elementType match {
     case iType: IntegralType =>
       type T = iType.InternalType
       val ct = ClassTag[T](iType.tag.mirror.runtimeClass(iType.tag.tpe))
       new IntegralSequenceImpl(iType)(ct, iType.integral)
 
     case TimestampType =>
-      new TemporalSequenceImpl[Long](LongType, 1, identity, zoneId)
+      if (stepOpt.isEmpty || CalendarIntervalType.acceptsType(stepOpt.get.dataType)) {
+        new TemporalSequenceImpl[Long](LongType, 1, identity, zoneId)
+      } else if (YearMonthIntervalType.acceptsType(stepOpt.get.dataType)) {
+        new PeriodSequenceImpl[Long](LongType, 1, identity, zoneId)
+      } else {
+        new DurationSequenceImpl[Long](LongType, 1, identity, zoneId)
+      }
 
     case DateType =>
-      new TemporalSequenceImpl[Int](IntegerType, MICROS_PER_DAY, _.toInt, zoneId)
+      if (stepOpt.isEmpty || CalendarIntervalType.acceptsType(stepOpt.get.dataType)) {
+        new TemporalSequenceImpl[Int](IntegerType, MICROS_PER_DAY, _.toInt, zoneId)
+      } else {
+        new PeriodSequenceImpl[Int](IntegerType, MICROS_PER_DAY, _.toInt, zoneId)
+      }
   }
 
   override def eval(input: InternalRow): Any = {
@@ -2669,7 +2711,7 @@ object Sequence {
     }
   }
 
-  private trait SequenceImpl {
+  private trait InternalSequence {
     def eval(start: Any, stop: Any, step: Any): Any
 
     def genCode(
@@ -2684,7 +2726,7 @@ object Sequence {
   }
 
   private class IntegralSequenceImpl[T: ClassTag]
-    (elemType: IntegralType)(implicit num: Integral[T]) extends SequenceImpl {
+    (elemType: IntegralType)(implicit num: Integral[T]) extends InternalSequence {
 
     override val defaultStep: DefaultStep = new DefaultStep(
       (elemType.ordering.lteq _).asInstanceOf[LessThanOrEqualFn],
@@ -2698,7 +2740,7 @@ object Sequence {
       val stop = input2.asInstanceOf[T]
       val step = input3.asInstanceOf[T]
 
-      var i: Int = getSequenceLength(start, stop, step)
+      var i: Int = getSequenceLength(start, stop, step, step)
       val arr = new Array[T](i)
       while (i > 0) {
         i -= 1
@@ -2716,7 +2758,7 @@ object Sequence {
         elemType: String): String = {
       val i = ctx.freshName("i")
       s"""
-         |${genSequenceLengthCode(ctx, start, stop, step, i)}
+         |${genSequenceLengthCode(ctx, start, stop, step, step, i)}
          |$arr = new $elemType[$i];
          |while ($i > 0) {
          |  $i--;
@@ -2726,32 +2768,105 @@ object Sequence {
     }
   }
 
+  private class PeriodSequenceImpl[T: ClassTag]
+      (dt: IntegralType, scale: Long, fromLong: Long => T, zoneId: ZoneId)
+      (implicit num: Integral[T]) extends InternalSequenceBase(dt, scale, fromLong, zoneId) {
+
+    override val defaultStep: DefaultStep = new DefaultStep(
+      (dt.ordering.lteq _).asInstanceOf[LessThanOrEqualFn],
+      YearMonthIntervalType(),
+      Period.of(0, 1, 0))
+
+    val intervalType: DataType = YearMonthIntervalType()
+
+    def splitStep(input: Any): (Int, Int, Long) = {
+      (input.asInstanceOf[Int], 0, 0)
+    }
+
+    def stepSplitCode(
+        stepMonths: String, stepDays: String, stepMicros: String, step: String): String = {
+      s"""
+         |final int $stepMonths = $step;
+         |final int $stepDays = 0;
+         |final long $stepMicros = 0L;
+       """.stripMargin
+    }
+  }
+
+  private class DurationSequenceImpl[T: ClassTag]
+      (dt: IntegralType, scale: Long, fromLong: Long => T, zoneId: ZoneId)
+      (implicit num: Integral[T]) extends InternalSequenceBase(dt, scale, fromLong, zoneId) {
+
+    override val defaultStep: DefaultStep = new DefaultStep(
+      (dt.ordering.lteq _).asInstanceOf[LessThanOrEqualFn],
+      DayTimeIntervalType(),
+      Duration.ofDays(1))
+
+    val intervalType: DataType = DayTimeIntervalType()
+
+    def splitStep(input: Any): (Int, Int, Long) = {
+      (0, 0, input.asInstanceOf[Long])
+    }
+
+    def stepSplitCode(
+        stepMonths: String, stepDays: String, stepMicros: String, step: String): String = {
+      s"""
+         |final int $stepMonths = 0;
+         |final int $stepDays = 0;
+         |final long $stepMicros = $step;
+       """.stripMargin
+    }
+  }
+
   private class TemporalSequenceImpl[T: ClassTag]
       (dt: IntegralType, scale: Long, fromLong: Long => T, zoneId: ZoneId)
-      (implicit num: Integral[T]) extends SequenceImpl {
+      (implicit num: Integral[T]) extends InternalSequenceBase(dt, scale, fromLong, zoneId) {
 
     override val defaultStep: DefaultStep = new DefaultStep(
       (dt.ordering.lteq _).asInstanceOf[LessThanOrEqualFn],
       CalendarIntervalType,
       new CalendarInterval(0, 1, 0))
 
+    val intervalType: DataType = CalendarIntervalType
+
+    def splitStep(input: Any): (Int, Int, Long) = {
+      val step = input.asInstanceOf[CalendarInterval]
+      (step.months, step.days, step.microseconds)
+    }
+
+    def stepSplitCode(
+        stepMonths: String, stepDays: String, stepMicros: String, step: String): String = {
+      s"""
+         |final int $stepMonths = $step.months;
+         |final int $stepDays = $step.days;
+         |final long $stepMicros = $step.microseconds;
+       """.stripMargin
+    }
+  }
+
+  private abstract class InternalSequenceBase[T: ClassTag]
+      (dt: IntegralType, scale: Long, fromLong: Long => T, zoneId: ZoneId)
+      (implicit num: Integral[T]) extends InternalSequence {
+
+    val defaultStep: DefaultStep
+
     private val backedSequenceImpl = new IntegralSequenceImpl[T](dt)
-    private val microsPerDay = HOURS_PER_DAY * MICROS_PER_HOUR
     // We choose a minimum days(28) in one month to calculate the `intervalStepInMicros`
     // in order to make sure the estimated array length is long enough
-    private val microsPerMonth = 28 * microsPerDay
+    private val microsPerMonth = 28 * MICROS_PER_DAY
+
+    protected val intervalType: DataType
+
+    protected def splitStep(input: Any): (Int, Int, Long)
 
     override def eval(input1: Any, input2: Any, input3: Any): Array[T] = {
       val start = input1.asInstanceOf[T]
       val stop = input2.asInstanceOf[T]
-      val step = input3.asInstanceOf[CalendarInterval]
-      val stepMonths = step.months
-      val stepDays = step.days
-      val stepMicros = step.microseconds
+      val (stepMonths, stepDays, stepMicros) = splitStep(input3)
 
       if (scale == MICROS_PER_DAY && stepMonths == 0 && stepDays == 0) {
-        throw new IllegalArgumentException(
-          "sequence step must be a day interval if start and end values are dates")
+        throw new IllegalArgumentException(s"sequence step must be an ${intervalType.typeName}" +
+          " of day granularity if start and end values are dates")
       }
 
       if (stepMonths == 0 && stepMicros == 0 && scale == MICROS_PER_DAY) {
@@ -2766,11 +2881,12 @@ object Sequence {
         // To estimate the resulted array length we need to make assumptions
         // about a month length in days and a day length in microseconds
         val intervalStepInMicros =
-          stepMicros + stepMonths * microsPerMonth + stepDays * microsPerDay
+          stepMicros + stepMonths * microsPerMonth + stepDays * MICROS_PER_DAY
         val startMicros: Long = num.toLong(start) * scale
         val stopMicros: Long = num.toLong(stop) * scale
+
         val maxEstimatedArrayLength =
-          getSequenceLength(startMicros, stopMicros, intervalStepInMicros)
+          getSequenceLength(startMicros, stopMicros, input3, intervalStepInMicros)
 
         val stepSign = if (stopMicros >= startMicros) +1 else -1
         val exclusiveItem = stopMicros + stepSign
@@ -2789,6 +2905,9 @@ object Sequence {
         if (arr.length == i) arr else arr.slice(0, i)
       }
     }
+
+    protected def stepSplitCode(
+         stepMonths: String, stepDays: String, stepMicros: String, step: String): String
 
     override def genCode(
         ctx: CodegenContext,
@@ -2814,25 +2933,27 @@ object Sequence {
       val sequenceLengthCode =
         s"""
            |final long $intervalInMicros =
-           |  $stepMicros + $stepMonths * ${microsPerMonth}L + $stepDays * ${microsPerDay}L;
-           |${genSequenceLengthCode(ctx, startMicros, stopMicros, intervalInMicros, arrLength)}
-          """.stripMargin
+           |  $stepMicros + $stepMonths * ${microsPerMonth}L + $stepDays * ${MICROS_PER_DAY}L;
+           |${genSequenceLengthCode(
+              ctx, startMicros, stopMicros, step, intervalInMicros, arrLength)}
+         """.stripMargin
 
       val check = if (scale == MICROS_PER_DAY) {
         s"""
            |if ($stepMonths == 0 && $stepDays == 0) {
            |  throw new IllegalArgumentException(
-           |    "sequence step must be a day interval if start and end values are dates");
+           |    "sequence step must be an ${intervalType.typeName} " +
+           |    "of day granularity if start and end values are dates");
            |}
-          """.stripMargin
+         """.stripMargin
         } else {
           ""
         }
 
+      val stepSplits = stepSplitCode(stepMonths, stepDays, stepMicros, step)
+
       s"""
-         |final int $stepMonths = $step.months;
-         |final int $stepDays = $step.days;
-         |final long $stepMicros = $step.microseconds;
+         |$stepSplits
          |
          |$check
          |
@@ -2869,15 +2990,16 @@ object Sequence {
     }
   }
 
-  private def getSequenceLength[U](start: U, stop: U, step: U)(implicit num: Integral[U]): Int = {
+  private def getSequenceLength[U](start: U, stop: U, step: Any, estimatedStep: U)
+      (implicit num: Integral[U]): Int = {
     import num._
     require(
-      (step > num.zero && start <= stop)
-        || (step < num.zero && start >= stop)
-        || (step == num.zero && start == stop),
+      (estimatedStep > num.zero && start <= stop)
+        || (estimatedStep < num.zero && start >= stop)
+        || (estimatedStep == num.zero && start == stop),
       s"Illegal sequence boundaries: $start to $stop by $step")
 
-    val len = if (start == stop) 1L else 1L + (stop.toLong - start.toLong) / step.toLong
+    val len = if (start == stop) 1L else 1L + (stop.toLong - start.toLong) / estimatedStep.toLong
 
     require(
       len <= MAX_ROUNDED_ARRAY_LENGTH,
@@ -2891,16 +3013,17 @@ object Sequence {
       start: String,
       stop: String,
       step: String,
+      estimatedStep: String,
       len: String): String = {
     val longLen = ctx.freshName("longLen")
     s"""
-       |if (!(($step > 0 && $start <= $stop) ||
-       |  ($step < 0 && $start >= $stop) ||
-       |  ($step == 0 && $start == $stop))) {
+       |if (!(($estimatedStep > 0 && $start <= $stop) ||
+       |  ($estimatedStep < 0 && $start >= $stop) ||
+       |  ($estimatedStep == 0 && $start == $stop))) {
        |  throw new IllegalArgumentException(
        |    "Illegal sequence boundaries: " + $start + " to " + $stop + " by " + $step);
        |}
-       |long $longLen = $stop == $start ? 1L : 1L + ((long) $stop - $start) / $step;
+       |long $longLen = $stop == $start ? 1L : 1L + ((long) $stop - $start) / $estimatedStep;
        |if ($longLen > $MAX_ROUNDED_ARRAY_LENGTH) {
        |  throw new IllegalArgumentException(
        |    "Too long sequence: " + $longLen + ". Should be <= $MAX_ROUNDED_ARRAY_LENGTH");
@@ -2937,8 +3060,7 @@ case class ArrayRepeat(left: Expression, right: Expression)
       null
     } else {
       if (count.asInstanceOf[Int] > ByteArrayMethods.MAX_ROUNDED_ARRAY_LENGTH) {
-        throw new RuntimeException(s"Unsuccessful try to create array with $count elements " +
-          s"due to exceeding the array size limit ${ByteArrayMethods.MAX_ROUNDED_ARRAY_LENGTH}.")
+        throw QueryExecutionErrors.createArrayWithElementsExceedLimitError(count)
       }
       val element = left.eval(input)
       new GenericArrayData(Array.fill(count.asInstanceOf[Int])(element))
@@ -3220,9 +3342,7 @@ trait ArraySetLike {
       nullElementIndex : String): String = withResultArrayNullCheck(
     s"""
        |if ($size > ${ByteArrayMethods.MAX_ROUNDED_ARRAY_LENGTH}) {
-       |  throw new RuntimeException("Cannot create array with " + $size +
-       |  " elements of data due to exceeding the limit " +
-       |  "${ByteArrayMethods.MAX_ROUNDED_ARRAY_LENGTH} elements for ArrayData.");
+       |  throw QueryExecutionErrors.createArrayWithElementsExceedLimitError($size);
        |}
        |
        |if (!UnsafeArrayData.shouldUseGenericArrayData(${et.defaultSize}, $size)) {
@@ -3407,9 +3527,7 @@ trait ArrayBinaryLike
 
 object ArrayBinaryLike {
   def throwUnionLengthOverflowException(length: Int): Unit = {
-    throw new RuntimeException(s"Unsuccessful try to union arrays with $length " +
-      s"elements due to exceeding the array size limit " +
-      s"${ByteArrayMethods.MAX_ROUNDED_ARRAY_LENGTH}.")
+    throw QueryExecutionErrors.unionArrayWithElementsExceedLimitError(length)
   }
 }
 

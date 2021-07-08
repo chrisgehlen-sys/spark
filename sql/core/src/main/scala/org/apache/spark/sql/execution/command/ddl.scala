@@ -675,7 +675,15 @@ case class RepairTableCommand(
     // This is always the case for Hive format tables, but is not true for Datasource tables created
     // before Spark 2.1 unless they are converted via `msck repair table`.
     spark.sessionState.catalog.alterTable(table.copy(tracksPartitionsInCatalog = true))
-    spark.catalog.refreshTable(tableIdentWithDB)
+    try {
+      spark.catalog.refreshTable(tableIdentWithDB)
+    } catch {
+      case NonFatal(e) =>
+        logError(s"Cannot refresh the table '$tableIdentWithDB'. A query of the table " +
+          "might return wrong result if the table was cached. To avoid such issue, you should " +
+          "uncache the table manually via the UNCACHE TABLE command after table recovering will " +
+          "complete fully.", e)
+    }
     logInfo(s"Recovered all partitions: added ($addedAmount), dropped ($droppedAmount).")
     Seq.empty[Row]
   }
@@ -771,7 +779,7 @@ case class RepairTableCommand(
     // Hive metastore may not have enough memory to handle millions of partitions in single RPC,
     // we should split them into smaller batches. Since Hive client is not thread safe, we cannot
     // do this in parallel.
-    val batchSize = 100
+    val batchSize = spark.conf.get(SQLConf.ADD_PARTITION_BATCH_SIZE)
     partitionSpecsAndLocs.toIterator.grouped(batchSize).foreach { batch =>
       val now = MILLISECONDS.toSeconds(System.currentTimeMillis())
       val parts = batch.map { case (spec, location) =>
