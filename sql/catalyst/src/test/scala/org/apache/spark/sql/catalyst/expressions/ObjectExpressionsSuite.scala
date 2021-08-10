@@ -55,10 +55,9 @@ class Outer extends Serializable {
   class Inner(val value: Int) {
     override def hashCode(): Int = super.hashCode()
     override def equals(other: Any): Boolean = {
-      if (other.isInstanceOf[Inner]) {
-        value == other.asInstanceOf[Inner].value
-      } else {
-        false
+      other match {
+        case inner: Inner => value == inner.value
+        case _ => false
       }
     }
   }
